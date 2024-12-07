@@ -1,7 +1,6 @@
 from flask import Flask, render_template
 import os
 
-
 print("Current directory:", os.getcwd())
 print("Templates:", os.listdir('templates'))
 
