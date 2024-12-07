@@ -1,0 +1,236 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 20px;
+    font-size: 16px;
+}
+
+.game-info-container {
+    background: #f5f5f5;
+    padding: 20px;
+    max-width: 400px;
+    margin: 20px auto;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.game-info-container h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.game-info-container h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.game-info-container p {
+    font-size: 16px;
+    margin-bottom: 0;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.input-group input {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+.action-group {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.action-group h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+button {
+    margin: 5px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.good-action {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.bad-action {
+    background-color: #f44336;
+    color: white;
+}
+
+.neutral-action {
+    background-color: #9E9E9E;
+    color: white;
+}
+
+.start-game-btn {
+    background-color: #2196F3;
+    color: white;
+    font-size: 20px;
+    padding: 15px 30px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 20px auto;
+    display: inline-block;
+}
+
+#game-timer {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 18px;
+}
+
+.hidden {
+    display: none;
+}
+
+#popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #333;
+    color: white;
+    padding: 20px 30px;
+    border-radius: 10px;
+    font-size: 20px;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s;
+}
+
+#popup:not(.hidden) {
+    opacity: 1;
+    visibility: visible;
+}
+
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85%;
+    max-width: 600px;
+    background-color: white;
+    border: 3px solid #333;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    z-index: 1000;
+    padding: 20px;
+    display: none;
+}
+
+.popup.active {
+    display: block;
+}
+
+.popup-content {
+    text-align: left;
+    position: relative;
+}
+
+.popup-content h3 {
+    margin-top: 0;
+}
+
+.popup-content p {
+    margin: 10px 0;
+    font-size: 18px;
+}
+
+.good {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.bad {
+    color: #f44336;
+    font-weight: bold;
+}
+
+.neutral {
+    color: #9E9E9E;
+    font-weight: bold;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: red;
+    cursor: pointer;
+}
+
+.view-all-btn {
+    background-color: #2196F3;
+    color: white;
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-top: 20px;
+    display: inline-block;
+}
+
+#end-buttons-container {
+    margin: 20px;
+}
+
+.half-time-btn {
+    background-color: orange;
+    color: white;
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+.end-game-btn {
+    background-color: #f44336;
+    color: white;
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+.resume-half-btn {
+    background-color: #2E8B57;
+    color: white;
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-right: 10px;
+}

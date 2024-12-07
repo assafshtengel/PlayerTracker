@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="he">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת מעקב שחקנים</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        header h1 {
+            color: blue; /* הכותרת תהיה תמיד בכחול */
+            text-align: center; /* כיוון מרכזי */
+            margin-top: 20px; /* מרווח עליון */
+        }
+
+        .input-group input {
+            width: 300px;
+            height: 40px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+
+        #summary-content p:first-child {
+            color: blue; /* גם הכותרת בסיכום המשחק תהיה בכחול */
+        }
+
+        #feedback-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+        }
+
+        #feedback-popup.hidden {
+            display: none;
+        }
+
+        #feedback-popup .close-btn {
+            float: right;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>אסף שטנגל - מאמן מנטלי לשחקנים</h1>
+    </header>
+    <h1>ברוך הבא למערכת מעקב שחקנים</h1>
+
+    <!-- שלב מילוי שם משתמש וקבוצה -->
+    <div id="user-input-container">
+        <h2>ברוך הבא! הזן פרטים להתחלת המשחק</h2>
+        <div class="input-group">
+            <input type="text" id="player-name" placeholder="הכנס שם שחקן" />
+            <input type="text" id="team-name" placeholder="הכנס שם הקבוצה היריבה" />
+        </div>
+        <button id="submit-user-info" onclick="submitUserInfo()">אישור</button>
+    </div>
+
+    <!-- מידע על שם וקבוצה -->
+    <div id="game-info" class="hidden game-info-container">
+        <h2><span id="player-display"></span></h2>
+        <h3>מול <span id="team-display"></span></h3>
+        <p>תאריך המשחק: <span id="game-date"></span></p>
+    </div>
+
+    <!-- כפתור תחילת המשחק -->
+    <div id="start-game-container" class="hidden">
+        <button id="start-game" class="start-game-btn" onclick="startGame()">תחילת המשחק</button>
+    </div>
+
+    <!-- תצוגת זמן המשחק -->
+    <div id="game-timer" class="hidden">
+        <p>דקה: <span id="minute-counter">0</span></p>
+    </div>
+
+    <p class="hidden" id="actions-title">בחר את הפעולות שהשחקן מבצע במהלך המשחק:</p>
+    <div class="actions-grid hidden" id="actions-container">
+        <!-- כל 15 הפעולות -->
+        <div class="action-group">
+            <h2>הגבהה לרחבה</h2>
+            <button class="good-action" disabled onclick="trackAction('הגבהה לרחבה', 'מוצלחת')">מוצלחת</button>
+            <button class="bad-action" disabled onclick="trackAction('הגבהה לרחבה', 'רעה')">רעה</button>
+        </div>
+
+        <div class="action-group">
+            <h2>בעיטה לשער</h2>
+            <button class="good-action" disabled onclick="trackAction('בעיטה לשער', 'מוצלחת')">מוצלחת</button>
+            <button class="bad-action" disabled onclick="trackAction('בעיטה לשער', 'לא מוצלחת')">לא מוצלחת</button>
+        </div>
+
+        <div class="action-group">
+            <h2>חטיפת כדור</h2>
+            <button class="good-action" disabled onclick="trackAction('חטיפת כדור', 'מוצלחת')">מוצלחת</button>
+            <button class="bad-action" disabled onclick="trackAction('חטיפת כדור', 'רעה')">רעה</button>
+        </div>
+
+        <div class="action-group">
+            <h2>עלייה לכדור גובה</h2>
+            <button class="good-action" disabled onclick="trackAction('עלייה לכדור גובה', 'מוצלחת')">מוצלחת</button>
+            <button class="bad-action" disabled onclick="trackAction('עלייה לכדור גובה', 'לא מוצלחת')">לא מוצלחת</button>
+        </div>
+
+        <div class="action-group">
+            <h2>עצירת כדור גובה</h2>
+            <button class="good-action" disabled onclick="trackAction('עצירת כדור גובה', 'מוצלחת')">מוצלחת</button>
+            <button class="bad-action" disabled onclick="trackAction('עצירת כדור גובה', 'לא מוצלחת')">לא מוצלחת</button>
+        </div>
+
+        <div class="action-group">
+            <h2>ביצוע 1 על 1</h2>
+            <button class="good-action" disabled onclick="trackAction('ביצוע 1 על 1', 'מוצלח')">מוצלח</button>
+            <button class="bad-action" disabled onclick="trackAction('ביצוע 1 על 1', 'לא מוצלח')">לא מוצלח</button>
+        </div>
+
+        <div class="action-group">
+            <h2>מנהיגות</h2>
+            <button class="good-action" disabled onclick="trackAction('מנהיגות', 'חיובית')">חיובית</button>
+            <button class="bad-action" disabled onclick="trackAction('מנהיגות', 'שלילית')">שלילית</button>
+        </div>
+
+        <div class="action-group">
+            <h2>הורדת ראש</h2>
+            <button class="neutral-action" disabled onclick="trackAction('הורדת ראש', 'בוצע')">בוצע</button>
+        </div>
+
+        <div class="action-group">
+            <h2>סתם פעולה</h2>
+            <button class="neutral-action" disabled onclick="trackAction('סתם פעולה', 'בוצע')">בוצע</button>
+        </div>
+
+        <div class="action-group">
+            <h2>עקיפה ללא כדור</h2>
+            <button class="good-action" disabled onclick="trackAction('עקיפה ללא כדור', 'מוצלח')">מוצלחת</button>
+            <button class="bad-action" disabled onclick="trackAction('עקיפה ללא כדור', 'לא מוצלח')">לא מוצלחת</button>
+        </div>
+
+        <div class="action-group">
+            <h2>מיקום הגנתי</h2>
+            <button class="good-action" disabled onclick="trackAction('מיקום הגנתי', 'טוב')">טוב</button>
+            <button class="bad-action" disabled onclick="trackAction('מיקום הגנתי', 'לא טוב')">לא טוב</button>
+        </div>
+
+        <div class="action-group">
+            <h2>ניסיון לדריבל</h2>
+            <button class="good-action" disabled onclick="trackAction('ניסיון לדריבל', 'מוצלח')">מוצלח</button>
+            <button class="bad-action" disabled onclick="trackAction('ניסיון לדריבל', 'לא מוצלח')">לא מוצלחת</button>
+        </div>
+
+        <div class="action-group">
+            <h2>תקשורת עם חברי הקבוצה</h2>
+            <button class="good-action" disabled onclick="trackAction('תקשורת עם חברי הקבוצה', 'חיובית')">חיובית</button>
+            <button class="bad-action" disabled onclick="trackAction('תקשורת עם חברי הקבוצה', 'שלילית')">שלילית</button>
+        </div>
+
+        <div class="action-group">
+            <h2>בלימת התקפה יריבה</h2>
+            <button class="good-action" disabled onclick="trackAction('בלימת התקפה יריבה', 'מוצלח')">מוצלח</button>
+            <button class="bad-action" disabled onclick="trackAction('בלימת התקפה יריבה', 'לא מוצלח')">לא מוצלחת</button>
+        </div>
+
+        <div class="action-group">
+            <h2>ירידה מהירה להגנה</h2>
+            <button class="good-action" disabled onclick="trackAction('ירידה מהירה להגנה', 'טוב')">טוב</button>
+            <button class="bad-action" disabled onclick="trackAction('ירידה מהירה להגנה', 'לא טוב')">לא טוב</button>
+        </div>
+    </div>
+
+    <div id="end-buttons-container" class="hidden">
+        <button id="end-half" class="half-time-btn" onclick="endHalfTime()">סיום מחצית</button>
+        <button id="end-game" class="end-game-btn" onclick="endGame()">סיים משחק</button>
+    </div>
+
+    <!-- פופ אפ תוצאות המשחק -->
+    <div id="game-summary-popup" class="popup hidden">
+        <div class="popup-content" id="game-summary-content">
+            <span class="close-btn" onclick="closePopup()">&times;</span>
+            <div id="summary-content">
+                <p style="color: blue;">אסף שטנגל - מאמן מנטלי לשחקנים</p>
+                <p>שם השחקן: <span id="player-display-summary"></span></p>
+                <p>תאריך המשחק: <span id="game-date-summary"></span></p>
+                <p>קבוצה יריבה: <span id="team-display-summary"></span></p>
+            </div>
+            <button id="view-all-actions" class="view-all-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
+            <!-- כפתור חדש להורדת נתוני המשחק כ-CSV -->
+            <button id="download-csv" class="view-all-btn" onclick="downloadCSV()">הורד נתוני משחק</button>
+            <!-- כפתור לצילום מסך של הפופ אפ -->
+            <button onclick="takeScreenshot()">צלם מסך</button>
+        </div>
+    </div>
+
+    <!-- פופ אפ פידבק מותאם אישית -->
+    <div id="feedback-popup" class="popup hidden">
+        <div class="popup-content" id="feedback-content">
+            <span class="close-btn" onclick="closeFeedbackPopup()">&times;</span>
+            <h3>פידבק אישי לשחקן</h3>
+            <p id="feedback-text"></p>
+        </div>
+    </div>
+
+    <!-- פופ אפ תוצאות המחצית -->
+    <div id="half-time-summary-popup" class="popup hidden">
+        <div class="popup-content">
+            <div id="half-summary-content"></div>
+            <button id="resume-half" class="resume-half-btn" onclick="resumeHalf()">חידוש מחצית</button>
+            <button id="view-all-actions-half" class="view-all-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
+        </div>
+    </div>
+
+    <div id="actions-detail-popup" class="popup hidden">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeAllActionsPopup()">&times;</span>
+            <h3>כל הפעולות שבוצעו במהלך המשחק:</h3>
+            <div id="all-actions-list"></div>
+        </div>
+    </div>
+
+    <div id="popup" class="hidden">פעולה נרשמה</div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        // פונקציה לצילום מסך של פופאפ הסיכום
+        function takeScreenshot() {
+            const element = document.getElementById('game-summary-content'); // צלם רק את הפופאפ של סיכום המשחק
+            html2canvas(element).then((canvas) => {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL();
+                link.download = 'game_summary_screenshot.png';
+                link.click();
+            });
+        }
+
+        // פונקציה להורדת נתוני המשחק כקובץ CSV
+        function downloadCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,פעולה,תוצאה,דקה\n";
+            actions.forEach(a => {
+                csvContent += `${a.action},${a.result},${a.minute}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "game_summary.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // פונקציה לחישוב ציון סיום המשחק
+        function calculateScore(minutesPlayed) {
+            let score = 40; // ציון התחלתי
+            let successfulActions = 0;
+            let totalActions = actions.length;
+
+            actions.forEach(({ action, result }) => {
+                if (result.includes("מוצלח") || result.includes("טוב") || result.includes("חיובית")) {
+                    score += 3;
+                    successfulActions++;
+                } else if (result.includes("רעה") || result.includes("לא מוצלח") || result.includes("שלילית")) {
+                    score += 1;
+                }
+            });
+
+            // בונוס על מספר הפעולות
+            if (totalActions >= 10) {
+                score += 5;
+            } else if (totalActions >= 5) {
+                score += 2;
+            }
+
+            // התאמת הציון על פי מספר הדקות
+            if (minutesPlayed > 0) {
+                let minuteFactor = (60 - minutesPlayed) / 60; // פקטור עבור מספר דקות המשחק
+                score = score + Math.floor((successfulActions / minutesPlayed) * 10 * minuteFactor);
+                score = Math.min(96 - Math.floor(minuteFactor * 10), score); // להתחשב במספר הדקות כך שהמקסימום יהיה מותאם
+            }
+
+            return Math.min(96, score); // ציון מקסימלי 96
+        }
+
+        // פונקציה לסיום המשחק ולהצגת הציון
+        function endGame() {
+            if (gameInterval) {
+                clearInterval(gameInterval);
+                gameInterval = null;
+            }
+            
+            // עדכון פרטי השחקן לסיכום המשחק
+            document.getElementById("player-display-summary").textContent = document.getElementById("player-display").textContent;
+            document.getElementById("game-date-summary").textContent = document.getElementById("game-date").textContent;
+            document.getElementById("team-display-summary").textContent = document.getElementById("team-display").textContent;
+
+            enableActions(false);
+
+            const minutesPlayed = parseInt(prompt("כמה דקות שיחקת?", "60")) || 0;
+            const score = calculateScore(minutesPlayed);
+
+            const counts = getActionCounts();
+            const summaryContent = document.getElementById("summary-content");
+            summaryContent.innerHTML = getSummaryHTML(counts, "סיכום המשחק");
+            summaryContent.innerHTML += `<h3>ציון סיום המשחק שלך: ${score}</h3>`;
+
+            const popup = document.getElementById("game-summary-popup");
+            popup.classList.remove("hidden");
+            popup.classList.add("active");
+
+            // הצגת פידבק מותאם אישית מיד לאחר הצגת הסיכום
+            setTimeout(() => {
+                showFeedback(score, minutesPlayed);
+            }, 500);
+        }
+
+        // פונקציה להצגת פידבק מותאם אישית לשחקן
+        function showFeedback(score, minutesPlayed) {
+            let feedback = "";
+            if (score > 85) {
+                feedback = "מצוין! נתת משחק יוצא דופן. המשך להתאמן ולהיות ממוקד!";
+            } else if (score > 70) {
+                feedback = "ביצוע טוב מאוד, רואים שהשקעת מאמץ רב. שים לב לדייק יותר בפעולות מסוימות.";
+            } else if (score > 55) {
+                feedback = "עשית עבודה טובה, אך יש מקום לשיפור. נסה לשפר את הדיוק והקבלת החלטות במצבים מסוימים.";
+            } else {
+                feedback = "יש הרבה מקום לשיפור. אל תתייאש, התמקד בלמידה מהטעויות ושיפור המיומנויות שלך.";
+            }
+
+            if (minutesPlayed < 30) {
+                feedback += " שיחקת פחות מ-30 דקות, נסה להשתפר ולשחק יותר זמן כדי להוכיח את עצמך.";
+            }
+
+            if (actions.length >= 4) {
+                feedback += " ראיתי שביצעת יותר מ-4 מסירות מדויקות - עבודה יפה!";
+            }
+
+            if (successfulActions > 5) {
+                feedback += " יש לך מעל 5 פעולות מוצלחות, המשך כך!";
+            }
+
+            if (score < 50 && successfulActions > 3) {
+                feedback += " למרות הציון הנמוך, רואים שאתה מנסה ויש מספר פעולות מוצלחות. המשך לעבוד קשה!";
+            }
+
+            if (actions.length > 15) {
+                feedback += " ביצעת מספר רב של פעולות - זה מראה על נחישות ופעילות גבוהה במהלך המשחק.";
+            }
+
+            if (getActionCounts()['מנהיגות'] > 3) {
+                feedback += " הנך מראה כישורי מנהיגות מרשימים, כל הכבוד על כך!";
+            }
+
+            document.getElementById("feedback-text").textContent = feedback;
+            const feedbackPopup = document.getElementById("feedback-popup");
+            feedbackPopup.classList.remove("hidden");
+        }
+
+        function closeFeedbackPopup() {
+            document.getElementById("feedback-popup").classList.add("hidden");
+        }
+
+        // שאר פונקציות JavaScript נותרו כמו בקוד הקודם
+    </script>
+</body>
+
+</html>
+
