@@ -11,6 +11,12 @@ print("Templates:", os.listdir('templates'))
 
 app = Flask(__name__)
 
+@app.route('/check-static')
+def check_static():
+    import os
+    files = os.listdir('static')
+    return {"files_in_static": files}
+
 @app.route('/')
 def home():
     logger.debug("Home route was accessed.")
