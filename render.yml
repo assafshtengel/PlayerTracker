@@ -1,8 +1,7 @@
 services:
   - type: web
     name: playertracker
-    env: python
+    env: docker
     plan: free
-    buildCommand: ""
-    startCommand: ./start.sh
-    pythonVersion: 3.8
+    dockerfilePath: ./Dockerfile
+
