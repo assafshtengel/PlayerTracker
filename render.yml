@@ -1,7 +1,7 @@
 services:
   - type: web
-    name: playertracker
-    env: docker
-    plan: free
-    dockerfilePath: ./Dockerfile
+    name: PlayerTracker
+    env: python
+    buildCommand: ""
+    startCommand: "gunicorn --bind 0.0.0.0:8000 app:app"
 
