@@ -234,3 +234,32 @@ button {
     border-radius: 5px;
     margin-right: 10px;
 }
+/* ברירת מחדל: גריד עם 4 עמודות */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+/* התאמה למסכים קטנים (כגון טלפונים ניידים) */
+@media (max-width: 600px) {
+    .actions-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 עמודות */
+        gap: 10px; /* רווח קטן יותר בין האלמנטים */
+        max-width: 100%; /* מתאים לרוחב המסך */
+    }
+
+    .action-group {
+        padding: 10px; /* התאמת גודל הכפתורים */
+        border-radius: 5px;
+        font-size: 14px; /* טקסט קטן יותר */
+    }
+
+    button {
+        font-size: 14px;
+        padding: 8px 10px;
+    }
+}
+
