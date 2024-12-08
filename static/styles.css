@@ -66,12 +66,17 @@ body {
     height: auto; /* גובה מותאם אוטומטית לתוכן */
 }
 
+
 button {
-    font-size: 12px; /* טקסט קטן */
-    padding: 5px 10px; /* רווח פנימי קטן */
-    border: none; /* הסרת מסגרת */
-    border-radius: 3px; /* פינות מעוגלות */
+    font-size: 20px; /* גודל הטקסט בכפתור */
+    padding: 15px 30px; /* רווח פנימי */
+    border: none; /* ללא מסגרת */
+    border-radius: 5px; /* פינות מעוגלות */
     cursor: pointer; /* סמן לחיץ */
+    background-color: #4CAF50; /* ירוק */
+    color: white; /* טקסט בצבע לבן */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* צל קל */
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* אנימציה */
 }
 
 .good-action {
