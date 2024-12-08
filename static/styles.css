@@ -285,3 +285,29 @@ button:hover {
     margin: 0 auto; /* ממרכז את הרשת */
 }
 
+.action-group {
+    display: flex; /* מאפשר סידור אופקי של האלמנטים */
+    justify-content: space-between; /* פעולה טובה מצד ימין ורעה מצד שמאל */
+    align-items: center; /* ממרכז את האלמנטים אנכית */
+    padding: 8px; /* התאמת רווח פנימי */
+    border: 1px solid #ddd; /* מסגרת קלה */
+    border-radius: 5px; /* פינות מעוגלות */
+    background-color: #fff; /* רקע לבן */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* צל קל */
+    font-size: 14px; /* טקסט קטן יותר */
+    height: 60px; /* גובה קבוע לעמודה */
+}
+
+.action-group h2 {
+    font-size: 16px; /* גודל טקסט קטן יותר */
+    margin: 0; /* ביטול מרווח */
+    flex-grow: 1; /* מאפשר כותרת בגודל דינמי */
+    text-align: center; /* ממורכז */
+}
+
+.action-group button {
+    width: 100px; /* רוחב קבוע לכפתורים */
+    padding: 5px; /* התאמת רווח פנימי */
+    font-size: 14px; /* גודל טקסט קטן יותר */
+}
+
