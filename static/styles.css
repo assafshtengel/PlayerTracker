@@ -47,73 +47,42 @@ body {
 
 .actions-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    max-width: 800px;
-    margin: 20px auto;
+    grid-template-columns: 1fr; /* פעולה אחת לכל רוחב המסך */
+    gap: 8px; /* רווח קטן בין הפעולות */
+    max-width: 100%; /* מתאים לרוחב המסך */
+    margin: 0 auto; /* ממרכז את הרשת */
 }
 
 .action-group {
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    background-color: #fff;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-.action-group h2 {
-    font-size: 18px;
-    margin-bottom: 10px;
+    display: flex;
+    align-items: center; /* ממרכז אנכית */
+    justify-content: space-between; /* הכפתורים בצדדים */
+    padding: 10px; /* רווח פנימי */
+    border: 1px solid #ddd; /* מסגרת קלה */
+    border-radius: 5px; /* פינות מעוגלות */
+    background-color: #fff; /* רקע לבן */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* צל קל */
+    font-size: 14px; /* גודל טקסט */
+    margin: 5px 0; /* רווח קטן בין פעולות */
+    height: 50px; /* גובה קבוע לפעולה */
 }
 
 button {
-    margin: 5px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
+    font-size: 12px; /* טקסט קטן */
+    padding: 5px 10px; /* רווח פנימי קטן */
+    border: none; /* הסרת מסגרת */
+    border-radius: 3px; /* פינות מעוגלות */
+    cursor: pointer; /* סמן לחיץ */
 }
 
 .good-action {
-    background-color: #4CAF50;
+    background-color: #4CAF50; /* ירוק */
     color: white;
 }
 
 .bad-action {
-    background-color: #f44336;
+    background-color: #f44336; /* אדום */
     color: white;
-}
-
-.neutral-action {
-    background-color: #9E9E9E;
-    color: white;
-}
-
-.start-game-btn {
-    background-color: #2196F3;
-    color: white;
-    font-size: 20px;
-    padding: 15px 30px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 20px auto;
-    display: inline-block;
-}
-
-#game-timer {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background-color: #333;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 8px;
-}
-
-.hidden {
-    display: none;
 }
 
 #popup {
@@ -233,23 +202,6 @@ button {
     padding: 10px 20px;
     border-radius: 5px;
     margin-right: 10px;
-}
-/* ברירת מחדל: גריד עם 4 עמודות */
-.actions-grid {
-    display: grid;
-    grid-template-columns: 1fr; /* פעולה אחת לכל רוחב המסך */
-    gap: 10px; /* רווח קטן בין הפעולות */
-    max-width: 100%; /* מתאים לרוחב המסך */
-    margin: 0 auto; /* ממרכז את הרשת */
-}
-
-.action-group {
-    padding: 8px; /* התאמת רווח פנימי */
-    border: 1px solid #ddd; /* מסגרת קלה */
-    border-radius: 5px; /* פינות מעוגלות */
-    background-color: #fff; /* רקע לבן */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* צל קל */
-    font-size: 14px; /* טקסט קטן יותר */
 }
 
 @media (max-width: 600px) {
