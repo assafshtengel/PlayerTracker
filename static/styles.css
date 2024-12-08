@@ -64,7 +64,7 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* צל קל */
     font-size: 14px; /* גודל טקסט */
     margin: 5px 0; /* רווח קטן בין פעולות */
-    height: 50px; /* גובה קבוע לפעולה */
+    height: auto; /* גובה מותאם אוטומטית לתוכן */
 }
 
 button {
@@ -82,6 +82,11 @@ button {
 
 .bad-action {
     background-color: #f44336; /* אדום */
+    color: white;
+}
+
+.neutral-action {
+    background-color: #9E9E9E; /* אפור */
     color: white;
 }
 
@@ -116,7 +121,7 @@ button {
     background-color: white;
     border: 3px solid #333;
     border-radius: 10px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     padding: 20px;
     display: none;
