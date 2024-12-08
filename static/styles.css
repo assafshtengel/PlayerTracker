@@ -76,7 +76,7 @@ button {
     background-color: #4CAF50; /* ירוק */
     color: white; /* טקסט בצבע לבן */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* צל קל */
-    transition: transform 0.2s ease, box-shadow 0.2s ease; /* אנימציה */
+    transition: transform 0.2s ease, box-shadow 0.22s ease; /* אנימציה */
 }
 
 .good-action {
