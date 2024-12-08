@@ -237,29 +237,34 @@ button {
 /* ברירת מחדל: גריד עם 4 עמודות */
 .actions-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    max-width: 800px;
-    margin: 20px auto;
+    grid-template-columns: 1fr; /* פעולה אחת לכל רוחב המסך */
+    gap: 10px; /* רווח קטן בין הפעולות */
+    max-width: 100%; /* מתאים לרוחב המסך */
+    margin: 0 auto; /* ממרכז את הרשת */
 }
 
-/* התאמה למסכים קטנים (כגון טלפונים ניידים) */
+.action-group {
+    padding: 8px; /* התאמת רווח פנימי */
+    border: 1px solid #ddd; /* מסגרת קלה */
+    border-radius: 5px; /* פינות מעוגלות */
+    background-color: #fff; /* רקע לבן */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* צל קל */
+    font-size: 14px; /* טקסט קטן יותר */
+}
+
 @media (max-width: 600px) {
     .actions-grid {
-        grid-template-columns: repeat(2, 1fr); /* 2 עמודות */
-        gap: 10px; /* רווח קטן יותר בין האלמנטים */
-        max-width: 100%; /* מתאים לרוחב המסך */
+        grid-template-columns: 1fr; /* פעולה אחת לכל שורה במסכים קטנים */
+        gap: 8px; /* רווח קטן יותר בין האלמנטים */
     }
 
     .action-group {
-        padding: 10px; /* התאמת גודל הכפתורים */
-        border-radius: 5px;
-        font-size: 14px; /* טקסט קטן יותר */
+        padding: 5px; /* רווח פנימי קטן יותר */
+        font-size: 12px; /* טקסט קטן יותר */
     }
 
     button {
-        font-size: 14px;
-        padding: 8px 10px;
+        font-size: 12px; /* כפתורים קטנים יותר */
+        padding: 5px 8px;
     }
 }
-
