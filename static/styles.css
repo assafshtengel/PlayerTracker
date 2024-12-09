@@ -5,6 +5,12 @@ body {
     font-size: 16px;
 }
 
+header h1 {
+    color: blue; /* הכותרת תהיה תמיד בכחול */
+    text-align: center; /* כיוון מרכזי */
+    margin-top: 20px; /* מרווח עליון */
+}
+
 .game-info-container {
     background: #f5f5f5;
     padding: 20px;
@@ -36,14 +42,34 @@ body {
     gap: 10px;
     max-width: 300px;
     margin: 0 auto;
-
 }
-.input-group input {
+
+.input-group input, .input-group select {
     padding: 10px;
     font-size: 16px;
     border-radius: 5px;
     border: 1px solid #ccc;
     text-align: right; /* יישור לימין */
+}
+
+.actions-selection-container {
+    background: #f5f5f5;
+    padding: 20px;
+    max-width: 600px;
+    margin: 20px auto;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+
+.action-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin: 5px 0;
+}
+
+.action-item input {
+    margin-right: 10px;
 }
 
 .actions-grid {
@@ -118,7 +144,7 @@ button:hover {
     color: white;
     padding: 10px 20px;
     border-radius: 5px;
-    font-size: 8px;
+    font-size: 16px; /* עדכון גודל הטקסט */
 }
 
 .hidden {
@@ -243,43 +269,11 @@ button:hover {
     border-radius: 5px;
     margin-right: 10px;
 }
-/* ברירת מחדל: גריד עם 4 עמודות */
+
+/* סגנונות חדשים עבור בחירת פעולות */
 .actions-grid {
     display: grid;
-    grid-template-columns: 1fr; /* פעולה אחת לכל רוחב המסך */
-    gap: 10px; /* רווח קטן בין הפעולות */
-    max-width: 100%; /* מתאים לרוחב המסך */
-    margin: 0 auto; /* ממרכז את הרשת */
-}
-
-.action-group {
-    padding: 8px; /* התאמת רווח פנימי */
-    border: 1px solid #ddd; /* מסגרת קלה */
-    border-radius: 5px; /* פינות מעוגלות */
-    background-color: #fff; /* רקע לבן */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* צל קל */
-    font-size: 14px; /* טקסט קטן יותר */
-}
-
-@media (max-width: 600px) {
-    .actions-grid {
-        grid-template-columns: 1fr; /* פעולה אחת לכל שורה במסכים קטנים */
-        gap: 8px; /* רווח קטן יותר בין האלמנטים */
-    }
-
-    .action-group {
-        padding: 5px; /* רווח פנימי קטן יותר */
-        font-size: 12px; /* טקסט קטן יותר */
-    }
-
-    button {
-        font-size: 12px; /* כפתורים קטנים יותר */
-        padding: 5px 8px;
-    }
-}
-.actions-grid {
-    display: grid;
-    grid-template-columns: 1fr; /* פעולה אחת לכל רוחב המסך */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* פעולה אחת לכל רוחב המסך */
     gap: 8px; /* רווח קטן בין הפעולות */
     max-width: 100%; /* מתאים לרוחב המסך */
     margin: 0 auto; /* ממרכז את הרשת */
@@ -311,3 +305,24 @@ button:hover {
     font-size: 14px; /* גודל טקסט קטן יותר */
 }
 
+@media (max-width: 600px) {
+    .actions-grid {
+        grid-template-columns: 1fr; /* פעולה אחת לכל שורה במסכים קטנים */
+        gap: 8px; /* רווח קטן יותר בין האלמנטים */
+    }
+
+    .action-group {
+        padding: 5px; /* רווח פנימי קטן יותר */
+        font-size: 12px; /* טקסט קטן יותר */
+        height: 50px; /* גובה קטן יותר */
+    }
+
+    button {
+        font-size: 12px; /* כפתורים קטנים יותר */
+        padding: 5px 8px;
+    }
+
+    .action-item label {
+        font-size: 14px;
+    }
+}
