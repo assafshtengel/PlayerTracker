@@ -6,46 +6,6 @@
     <title>מערכת מעקב שחקנים</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <style>
-        header h1 {
-            color: blue; /* הכותרת תהיה תמיד בכחול */
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .input-group input {
-            width: 300px;
-            height: 40px;
-            font-size: 16px;
-            margin-bottom: 10px;
-            padding: 5px;
-        }
-
-        #summary-content p:first-child {
-            color: blue; /* הכותרת בסיכום המשחק תהיה בכחול */
-        }
-
-        #feedback-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #fff;
-            border: 1px solid #ccc;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            z-index: 1001;
-        }
-
-        #feedback-popup.hidden {
-            display: none;
-        }
-
-        #feedback-popup .close-btn {
-            float: right;
-            cursor: pointer;
-        }
-    </style>
 </head>
 <body>
     <header>
@@ -53,21 +13,39 @@
     </header>
     <h1>ברוך הבא למערכת מעקב שחקנים</h1>
 
-    <!-- שלב מילוי שם משתמש וקבוצה -->
-    <div id="user-input-container">
-        <h2>ברוך הבא! הזן פרטים להתחלת המשחק</h2>
+    <!-- שלב מילוי פרטים -->
+    <div id="user-input-container" class="game-info-container">
+        <h2>פרטים להתחלת המשחק</h2>
         <div class="input-group">
             <input type="text" id="player-name" placeholder="הכנס שם שחקן" />
             <input type="text" id="team-name" placeholder="הכנס שם הקבוצה היריבה" />
+            <select id="player-position">
+                <option value="" disabled selected>בחר תפקיד</option>
+                <option value="שוער">שוער</option>
+                <option value="בלם">בלם</option>
+                <option value="מגן">מגן</option>
+                <option value="קשר">קשר</option>
+                <option value="חלוץ">חלוץ</option>
+                <option value="כנף">כנף</option>
+            </select>
         </div>
-        <button id="submit-user-info" onclick="submitUserInfo()">אישור</button>
+        <button onclick="submitUserInfo()">אישור</button>
     </div>
 
-    <!-- מידע על שם וקבוצה -->
+    <!-- מידע על השחקן -->
     <div id="game-info" class="hidden game-info-container">
         <h2><span id="player-display"></span></h2>
         <h3>מול <span id="team-display"></span></h3>
         <p>תאריך המשחק: <span id="game-date"></span></p>
+        <p>תפקיד השחקן: <span id="player-position-display"></span></p>
+    </div>
+
+    <!-- בחירת פעולות בהתאם לתפקיד ולמנטאליות -->
+    <div id="actions-selection-container" class="hidden game-info-container">
+        <h3>בחר בין 6 ל-10 פעולות להתמקד בהן</h3>
+        <p>פעולות מקצועיות (מותאמות לתפקיד) ופעולות מנטאליות:</p>
+        <div id="actions-list"></div>
+        <button onclick="confirmActions()">אשר בחירה</button>
     </div>
 
     <!-- כפתור תחילת המשחק -->
@@ -80,97 +58,9 @@
         <p>דקה: <span id="minute-counter">0</span></p>
     </div>
 
-    <p class="hidden" id="actions-title">בחר את הפעולות שהשחקן מבצע במהלך המשחק:</p>
+    <p class="hidden" id="actions-title">בחר פעולות לביצוע במהלך המשחק:</p>
     <div class="actions-grid hidden" id="actions-container">
-
-        <!-- 15 פעולות לדוגמה -->
-        <div class="action-group">
-            <button class="good-action" onclick="trackAction('הגבהה לרחבה', 'מוצלחת')">מוצלחת</button>
-            <h2>הגבהה לרחבה</h2>
-            <button class="bad-action" onclick="trackAction('הגבהה לרחבה', 'רעה')">רעה</button>
-        </div>
-
-        <div class="action-group">
-            <button class="good-action" onclick="trackAction('בעיטה לשער', 'מוצלחת')">מוצלחת</button>
-            <h2>בעיטה לשער</h2>
-            <button class="bad-action" onclick="trackAction('בעיטה לשער', 'לא מוצלחת')">לא מוצלחת</button>
-        </div>
-
-        <div class="action-group">
-            <button class="good-action" onclick="trackAction('חטיפת כדור', 'מוצלחת')">מוצלחת</button>
-            <h2>חטיפת כדור</h2>
-            <button class="bad-action" onclick="trackAction('חטיפת כדור', 'רעה')">רעה</button>
-        </div>
-
-        <div class="action-group">
-            <button class="good-action" onclick="trackAction('עלייה לכדור גובה', 'מוצלחת')">מוצלחת</button>
-            <h2>עלייה לכדור גובה</h2>
-            <button class="bad-action" onclick="trackAction('עלייה לכדור גובה', 'לא מוצלחת')">לא מוצלחת</button>
-        </div>
-
-        <div class="action-group">
-            <button class="good-action" onclick="trackAction('עצירת כדור גובה', 'מוצלחת')">מוצלחת</button>
-            <h2>עצירת כדור גובה</h2>
-            <button class="bad-action" onclick="trackAction('עצירת כדור גובה', 'לא מוצלחת')">לא מוצלחת</button>
-        </div>
-
-        <div class="action-group">
-            <button class="good-action" onclick="trackAction('ביצוע 1 על 1', 'מוצלח')">מוצלח</button>
-            <h2>ביצוע 1 על 1</h2>
-            <button class="bad-action" onclick="trackAction('ביצוע 1 על 1', 'לא מוצלח')">לא מוצלח</button>
-        </div>
-
-        <div class="action-group">
-            <button class="good-action" onclick="trackAction('מנהיגות', 'חיובית')">חיובית</button>
-            <h2>מנהיגות</h2>
-            <button class="bad-action" onclick="trackAction('מנהיגות', 'שלילית')">שלילית</button>
-        </div>
-
-        <div class="action-group">
-            <h2>הורדת ראש</h2>
-            <button class="neutral-action" onclick="trackAction('הורדת ראש', 'בוצע')">בוצע</button>
-        </div>
-
-        <div class="action-group">
-            <h2>סתם פעולה</h2>
-            <button class="neutral-action" onclick="trackAction('סתם פעולה', 'בוצע')">בוצע</button>
-        </div>
-
-        <div class="action-group">
-            <button class="good-action" onclick="trackAction('עקיפה ללא כדור', 'מוצלחת')">מוצלחת</button>
-            <h2>עקיפה ללא כדור</h2>
-            <button class="bad-action" onclick="trackAction('עקיפה ללא כדור', 'לא מוצלח')">לא מוצלחת</button>
-        </div>
-
-        <div class="action-group">
-            <button class="good-action" onclick="trackAction('מיקום הגנתי', 'טוב')">טוב</button>
-            <h2>מיקום הגנתי</h2>
-            <button class="bad-action" onclick="trackAction('מיקום הגנתי', 'לא טוב')">לא טוב</button>
-        </div>
-
-        <div class="action-group">
-            <button class="good-action" onclick="trackAction('ניסיון לדריבל', 'מוצלח')">מוצלח</button>
-            <h2>ניסיון לדריבל</h2>
-            <button class="bad-action" onclick="trackAction('ניסיון לדריבל', 'לא מוצלח')">לא מוצלחת</button>
-        </div>
-
-        <div class="action-group">
-            <button class="good-action" onclick="trackAction('תקשורת עם חברי הקבוצה', 'חיובית')">חיובית</button>
-            <h2>תקשורת עם חברי הקבוצה</h2>
-            <button class="bad-action" onclick="trackAction('תקשורת עם חברי הקבוצה', 'שלילית')">שלילית</button>
-        </div>
-
-        <div class="action-group">
-            <button class="good-action" onclick="trackAction('בלימת התקפה יריבה', 'מוצלח')">מוצלח</button>
-            <h2>בלימת התקפה יריבה</h2>
-            <button class="bad-action" onclick="trackAction('בלימת התקפה יריבה', 'לא מוצלח')">לא מוצלחת</button>
-        </div>
-
-        <div class="action-group">
-            <button class="good-action" onclick="trackAction('ירידה מהירה להגנה', 'טוב')">טוב</button>
-            <h2>ירידה מהירה להגנה</h2>
-            <button class="bad-action" onclick="trackAction('ירידה מהירה להגנה', 'לא טוב')">לא טוב</button>
-        </div>
+        <!-- הכפתורים נטענים דינמית בהתאם לבחירת המשתמש -->
     </div>
 
     <div id="end-buttons-container" class="hidden">
@@ -212,7 +102,7 @@
         </div>
     </div>
 
-    <!-- פופ אפ לכל הפעולות -->
+    <!-- פופ אפ כל הפעולות שבוצעו -->
     <div id="actions-detail-popup" class="popup hidden">
         <div class="popup-content">
             <span class="close-btn" onclick="closeAllActionsPopup()">&times;</span>
@@ -226,31 +116,5 @@
     <div id="popup" class="hidden">פעולה נרשמה</div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
-    <script>
-        function takeScreenshot() {
-            const element = document.getElementById('game-summary-content');
-            html2canvas(element).then((canvas) => {
-                const link = document.createElement('a');
-                link.href = canvas.toDataURL();
-                link.download = 'game_summary_screenshot.png';
-                link.click();
-            });
-        }
-
-        function downloadCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,action,result,minute\n";
-            actions.forEach(a => {
-                csvContent += `${a.action},${a.result},${a.minute}\n`;
-            });
-
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "game_summary.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    </script>
 </body>
 </html>
