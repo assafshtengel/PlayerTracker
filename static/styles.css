@@ -262,7 +262,6 @@ button:hover {
     font-size: 18px;
 }
 
-/* תגית הדקה הקטנה */
 .minute-badge {
     background-color: #333;
     color: #fff;
@@ -298,7 +297,6 @@ button:hover {
     cursor: pointer;
 }
 
-/* להגדיל את ה-X בסיכום הסופי */
 .big-close {
     font-size: 30px !important;
 }
@@ -313,7 +311,6 @@ button:hover {
     display: inline-block;
 }
 
-/* צפה בכל הפעולות וצלם מסך באותו גודל */
 .same-size-btn {
     width:140px;
     margin:10px;
