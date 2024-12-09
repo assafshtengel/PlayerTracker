@@ -13,7 +13,7 @@
         <span class="logo-text">אסף שטנגל - מאמן מנטלי לשחקנים</span>
     </div>
 
-    <!-- כותרת ברוך הבא -->
+    <!-- כותרת "ברוך הבא" -->
     <h1 id="welcome-message" style="margin-bottom:20px;">ברוך הבא למערכת מעקב שחקנים</h1>
 
     <!-- שלב מילוי פרטים -->
@@ -36,13 +36,7 @@
         <button id="submit-user-button" onclick="submitUserInfo()">אישור</button>
     </div>
 
-    <!-- מידע על השחקן -->
-    <div id="game-info" class="hidden game-info-container">
-        <h2><span id="player-display"></span></h2>
-        <h3>מול <span id="team-display"></span></h3>
-        <p>תאריך המשחק: <span id="game-date"></span></p>
-        <p>תפקיד השחקן: <span id="player-position-display"></span></p>
-    </div>
+    <!-- אין עוד הצגה של game-info כאן, הסרנו את זה -->
 
     <!-- בחירת פעולות -->
     <div id="actions-selection-container" class="game-info-container hidden">
@@ -86,9 +80,9 @@
     </div>
 
     <div id="end-buttons-container" class="hidden">
-        <button id="end-half" class="half-time-btn">סיום מחצית</button>
-        <button id="end-game" class="end-game-btn">סיים משחק</button>
-        <button id="view-all-actions-anytime" class="view-all-btn">צפה בכל הפעולות</button>
+        <button id="end-half" class="half-time-btn" onclick="endHalfTime()">סיום מחצית</button>
+        <button id="end-game" class="end-game-btn" onclick="endGame()">סיים משחק</button>
+        <button id="view-all-actions-anytime" class="view-all-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
     </div>
 
     <div id="reopen-summary-container" class="hidden">
@@ -99,11 +93,7 @@
     <div id="game-summary-popup" class="popup hidden">
         <div class="popup-content" id="game-summary-content">
             <span class="close-btn big-close" onclick="closePopup()">&times;</span>
-            <div id="summary-content">
-                <p>שם השחקן: <span id="player-display-summary"></span></p>
-                <p>תאריך המשחק: <span id="game-date-summary"></span></p>
-                <p>קבוצה יריבה: <span id="team-display-summary"></span></p>
-            </div>
+            <div id="summary-content"></div> <!-- הסרנו את התוכן הקודם כדי לא להציג שם שחקן וכו' -->
             <div id="general-note-display" class="hidden">
                 <h4>הערות הורה:</h4>
                 <ul id="parent-notes-list"></ul>
