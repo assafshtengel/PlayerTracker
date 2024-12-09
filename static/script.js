@@ -9,11 +9,33 @@ let parentNotes = [];
 let gameFinished = false;
 let customActionsArr = [];
 
-// החלף כאן את ה-API KEY החדש שסיפקת:
-const API_KEY = "00a349c4bb51ad4b6a7f1d2df12b4ba3"; // דוגמה, הכנס את ה-API Key החדש
-const FORM_ID = "230789031560051";
+// אתה יכול להשאיר את ה-API בצד השרת, כאן אנחנו עובדים רק בצד הלקוח.
+// כאן אין "שלח למייל", אלא שמירה בשרת
+// נניח שהשרת רץ בכתובת /save_data
 
-// פעולות לפי תפקיד (לא משנים כי זה כבר תואם)
+// פונקציה לשמירת הנתונים בשרת
+function saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes) {
+    fetch('/save_data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            playerName: playerName,
+            teamName: teamName,
+            position: position,
+            gameDate: gameDate,
+            score: score,
+            actions: actions,
+            parentNotes: parentNotes
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Data saved to server:", data);
+    })
+    .catch(err => console.error(err));
+}
+
+// רשימת פעולות לפי תפקיד ומנטלי
 const positionActions = {
     "שוער": [
         "עצירת כדור קשה","יציאה לאגרוף","משחק רגל מדויק","שליטה ברחבה","תקשורת עם ההגנה","יציאה לכדורי גובה",
@@ -49,63 +71,6 @@ const mentalActions = [
     "שמירה על ריכוז","התמודדות עם לחץ","תקשורת חיובית עם חברי הקבוצה","אמונה עצמית","ניהול רגשות","קבלת החלטות מהירה",
     "התמדה במאמץ","מנהיגות חיובית","יצירת מוטיבציה","התמודדות עם טעויות","הורדת ראש","הרמת ראש"
 ];
-
-function sendToJotForm(playerName, teamName, position, gameDate, actionsSummary, score, parentEmail, parentNotesArr) {
-    let parentNotesStr = "";
-    parentNotesArr.forEach(n => {
-        parentNotesStr += `דקה ${n.minute}: ${n.text}\n`;
-        formEncodedData.append("submission[nameplayer]", playerName);
-formEncodedData.append("submission[nameagainst]", teamName);
-formEncodedData.append("submission[tafkid]", position);
-formEncodedData.append("submission[date]", gameDate);
-formEncodedData.append("submission[sumall]", actionsSummary);
-formEncodedData.append("submission[sumdad]", parentNotesStr);
-formEncodedData.append("submission[price]", score.toString());
-formEncodedData.append("submission[emailField]", parentEmail);
-
-    });
-
-    const formEncodedData = new URLSearchParams();
-    // לפי השדות הייחודיים שאתה הראית:
-    // שם השחקן: nameplayer
-    formEncodedData.append("submission[nameplayer]", playerName);
-    // שם הקבוצה היריבה: nameagainst
-    formEncodedData.append("submission[nameagainst]", teamName);
-    // תפקיד השחקן: tafkid
-    formEncodedData.append("submission[tafkid]", position);
-    // תאריך: date
-    formEncodedData.append("submission[date]", gameDate);
-    // סיכום הפעולות: sumall
-    formEncodedData.append("submission[sumall]", actionsSummary);
-    // הערות ההורה: sumdad
-    // אם אתה שולח הערות הורה, נניח parentNotesStr הוא sumdad
-    formEncodedData.append("submission[sumdad]", parentNotesStr);
-    // ציון למשחק: price
-    formEncodedData.append("submission[price]", score.toString());
-    // שדה המייל: emailField
-    formEncodedData.append("submission[emailField]", parentEmail);
-
-    fetch(`https://api.jotform.com/form/${FORM_ID}/submissions?apiKey=${API_KEY}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: formEncodedData
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Submission Created:", data);
-        if (data.error) {
-            showPopup("שגיאה בשליחה: " + data.error, "bad");
-        } else {
-            showPopup("הנתונים נשלחו למייל בהצלחה!", "good");
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        showPopup("שליחת הנתונים נכשלה!", "bad");
-    });
-}
 
 function trackAction(action, result) {
     if (!gameInterval || gameFinished) {
@@ -437,21 +402,9 @@ function endGame() {
     document.getElementById("end-game").style.display = 'none';
 
     document.getElementById("reopen-summary-container").classList.remove("hidden");
-}
 
-function sendGameDataToMail() {
-    const playerName = window.playerNameGlobal || "";
-    const teamName = window.teamNameGlobal || "";
-    const position = window.playerPositionGlobal || "";
-    const parentEmail = window.parentEmailGlobal || "";
-    const today = new Date().toLocaleDateString("he-IL");
-    const gameDate = today;
-    let actionsSummary = "";
-    actions.forEach(a => {
-        actionsSummary += `דקה ${a.minute}: ${a.action} - ${a.result}\n`;
-    });
-
-    sendToJotForm(playerName, teamName, position, gameDate, actionsSummary, calculateScore(gameMinute), parentEmail, parentNotes);
+    // כאן אנו קוראים לפונקציה ששומרת בצד השרת
+    saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes);
 }
 
 function makeActionsGreyAfterGame() {
@@ -557,7 +510,7 @@ function enableActions(enable) {
     });
 }
 
-// שינוי חישוב הציון כמו שביקשת - אך לא ציינת שוב, נשאיר לפי הנוסחה הקודמת או החדשה - נניח החדשה:
+// לוגיקת ציון מעודכנת
 function calculateScore(minutesPlayed) {
     let score = 35; 
     let successfulActions = 0;
@@ -657,26 +610,5 @@ function takeScreenshot() {
         link.href = canvas.toDataURL();
         link.download = 'game_summary_screenshot.png';
         link.click();
-    }
-    function saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes) {
-    fetch('/save_data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            playerName: playerName,
-            teamName: teamName,
-            position: position,
-            gameDate: gameDate,
-            score: score,
-            actions: actions,
-            parentNotes: parentNotes
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log("Data saved to server:", data);
-    })
-    .catch(err => console.error(err));
-});
-
+    });
 }
