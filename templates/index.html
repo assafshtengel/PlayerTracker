@@ -14,7 +14,7 @@
     </div>
 
     <!-- כותרת ברוך הבא -->
-    <h1 id="welcome-message" style="color:#4A90E2;margin-bottom:20px;">ברוך הבא למערכת מעקב שחקנים</h1>
+    <h1 id="welcome-message" style="margin-bottom:20px;">ברוך הבא למערכת מעקב שחקנים</h1>
 
     <!-- שלב מילוי פרטים -->
     <div id="user-input-container" class="game-info-container">
@@ -31,7 +31,6 @@
                 <option value="חלוץ">חלוץ</option>
                 <option value="כנף">כנף</option>
             </select>
-            <!-- הוספת שדה מייל הורה -->
             <input type="email" id="parent-email" placeholder="הכנס מייל הורה" />
         </div>
         <button id="submit-user-button" onclick="submitUserInfo()">אישור</button>
@@ -72,9 +71,9 @@
         <p>דקה: <span id="minute-counter">0</span></p>
     </div>
 
-    <p class="hidden" id="actions-title">סמן פעולה מוצלחת (V) או לא מוצלחת (X). באפשרותך גם להוסיף הערה כללית: <span style="font-size:20px;">🖉</span></p>
+    <p class="hidden" id="actions-title">סמן פעולה מוצלחת (V) או לא מוצלחת (X). באפשרותך גם להוסיף הערה כללית:</p>
     <div class="hidden" id="notes-container">
-        <button class="view-all-btn" onclick="openGeneralNotePopup()">הערת הורה <span style="font-size:20px;">🖉</span></button>
+        <button class="view-all-btn" onclick="openGeneralNotePopup()">הערת הורה 🖉</button>
     </div>
 
     <div id="game-actions-container" class="hidden">
@@ -87,9 +86,9 @@
     </div>
 
     <div id="end-buttons-container" class="hidden">
-        <button id="end-half" class="half-time-btn" onclick="endHalfTime()">סיום מחצית</button>
-        <button id="end-game" class="end-game-btn" onclick="endGame()">סיים משחק</button>
-        <button id="view-all-actions-anytime" class="view-all-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
+        <button id="end-half" class="half-time-btn">סיום מחצית</button>
+        <button id="end-game" class="end-game-btn">סיים משחק</button>
+        <button id="view-all-actions-anytime" class="view-all-btn">צפה בכל הפעולות</button>
     </div>
 
     <div id="reopen-summary-container" class="hidden">
@@ -150,7 +149,7 @@
     <div id="general-note-popup" class="popup hidden">
         <div class="popup-content">
             <span class="close-btn" onclick="closeGeneralNotePopup()">&times;</span>
-            <h3>הערת הורה <span style="font-size:20px;">🖉</span></h3>
+            <h3>הערת הורה 🖉</h3>
             <textarea id="general-note-text" placeholder="הקלד הערה..."></textarea>
             <button class="view-all-btn" onclick="saveGeneralNote()">שמור הערה</button>
         </div>
