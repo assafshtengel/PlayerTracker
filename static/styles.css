@@ -6,9 +6,9 @@ body {
 }
 
 header h1 {
-    color: blue; /* הכותרת תהיה תמיד בכחול */
-    text-align: center; /* כיוון מרכזי */
-    margin-top: 20px; /* מרווח עליון */
+    color: blue; 
+    text-align: center; 
+    margin-top: 20px; 
 }
 
 .game-info-container {
@@ -49,7 +49,7 @@ header h1 {
     font-size: 16px;
     border-radius: 5px;
     border: 1px solid #ccc;
-    text-align: right; /* יישור לימין */
+    text-align: right;
 }
 
 .actions-selection-container {
@@ -74,53 +74,53 @@ header h1 {
 
 .actions-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* פעולה אחת לכל רוחב המסך */
-    gap: 8px; /* רווח קטן בין הפעולות */
-    max-width: 100%; /* מתאים לרוחב המסך */
-    margin: 0 auto; /* ממרכז את הרשת */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px;
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 .action-group {
-    display: flex; /* מאפשר סידור אופקי של האלמנטים */
-    justify-content: space-between; /* פעולה טובה מצד ימין ורעה מצד שמאל */
-    align-items: center; /* ממרכז את האלמנטים אנכית */
-    padding: 8px; /* התאמת רווח פנימי */
-    border: 1px solid #ddd; /* מסגרת קלה */
-    border-radius: 5px; /* פינות מעוגלות */
-    background-color: #fff; /* רקע לבן */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* צל קל */
-    font-size: 14px; /* טקסט קטן יותר */
-    height: 60px; /* גובה קבוע לעמודה */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    height: 60px;
 }
 
 .action-group h2 {
-    font-size: 16px; /* גודל טקסט קטן יותר */
-    margin: 0; /* ביטול מרווח */
-    flex-grow: 1; /* מאפשר כותרת בגודל דינמי */
-    text-align: center; /* ממורכז */
+    font-size: 16px;
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
 }
 
 .action-group button {
-    width: 100px; /* רוחב קבוע לכפתורים */
-    padding: 5px; /* התאמת רווח פנימי */
-    font-size: 14px; /* גודל טקסט קטן יותר */
+    width: 100px;
+    padding: 5px;
+    font-size: 14px;
 }
 
 button {
-    font-size: 20px; /* גודל הטקסט בכפתור */
-    padding: 15px 30px; /* רווח פנימי */
-    border: none; /* ללא מסגרת */
-    border-radius: 5px; /* פינות מעוגלות */
-    cursor: pointer; /* סמן לחיץ */
-    background-color: #4CAF50; /* ירוק */
-    color: white; /* טקסט בצבע לבן */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* צל קל */
-    transition: transform 0.2s ease, box-shadow 0.2s ease; /* אנימציה */
+    font-size: 20px;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 button:hover {
-    transform: scale(1.05); /* הגדלה בעת ריחוף */
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* צל מוגבר */
+    transform: scale(1.05);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
 }
 
 .good-action {
@@ -157,14 +157,14 @@ button:hover {
     color: white;
     padding: 10px 20px;
     border-radius: 5px;
-    font-size: 16px; /* עדכון גודל הטקסט */
+    font-size: 16px;
 }
 
 .hidden {
     display: none;
 }
 
-#popup {
+#popup-message {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -180,7 +180,7 @@ button:hover {
     transition: opacity 0.3s ease-in-out, visibility 0.3s;
 }
 
-#popup:not(.hidden) {
+#popup-message:not(.hidden) {
     opacity: 1;
     visibility: visible;
 }
@@ -283,9 +283,8 @@ button:hover {
     margin-right: 10px;
 }
 
-/* סגנונות חדשים עבור בחירת תוצאה */
 #result-selection-popup {
-    display: none; /* נסתר כברירת מחדל */
+    display: none;
 }
 
 #result-selection-popup.active {
@@ -304,15 +303,15 @@ button:hover {
 }
 
 .result-btn.good {
-    background-color: #4CAF50; /* ירוק */
+    background-color: #4CAF50;
 }
 
 .result-btn.bad {
-    background-color: #f44336; /* אדום */
+    background-color: #f44336;
 }
 
 .result-btn.neutral {
-    background-color: #9E9E9E; /* אפור */
+    background-color: #9E9E9E;
 }
 
 .result-btn:hover {
@@ -322,18 +321,18 @@ button:hover {
 
 @media (max-width: 600px) {
     .actions-grid {
-        grid-template-columns: 1fr; /* פעולה אחת לכל שורה במסכים קטנים */
-        gap: 8px; /* רווח קטן יותר בין האלמנטים */
+        grid-template-columns: 1fr;
+        gap: 8px;
     }
 
     .action-group {
-        padding: 5px; /* רווח פנימי קטן יותר */
-        font-size: 12px; /* טקסט קטן יותר */
-        height: 50px; /* גובה קטן יותר */
+        padding: 5px;
+        font-size: 12px;
+        height: 50px;
     }
 
     button {
-        font-size: 12px; /* כפתורים קטנים יותר */
+        font-size: 12px;
         padding: 5px 8px;
     }
 
