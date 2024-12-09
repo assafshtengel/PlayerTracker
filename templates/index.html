@@ -4,22 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>מערכת מעקב שחקנים</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <header>
-        <!-- כותרת ראשית קטנה יותר -->
-        <h3 id="main-coach-title">אסף שטנגל - מאמן מנטאלי לשחקנים</h3>
-    </header>
-
-    <!-- כותרת "ברוך הבא" בצבע נעים -->
-    <h1 id="welcome-message" style="color:#4A90E2;margin-bottom:20px;">ברוך הבא למערכת מעקב שחקנים</h1>
-
-    <!-- לוגו טקסטואלי מעוצב -->
+    <!-- הסרנו את ה-header עם h3, עכשיו יש רק לוגו מעוצב -->
     <div id="logo">
         <span class="logo-text">אסף שטנגל - מאמן מנטלי לשחקנים</span>
     </div>
+
+    <!-- כותרת "ברוך הבא" -->
+    <h1 id="welcome-message" style="color:#4A90E2;margin-bottom:20px;">ברוך הבא למערכת מעקב שחקנים</h1>
 
     <!-- שלב מילוי פרטים -->
     <div id="user-input-container" class="game-info-container">
@@ -37,7 +32,6 @@
                 <option value="כנף">כנף</option>
             </select>
         </div>
-        <!-- כפתור אישור -->
         <button id="submit-user-button" onclick="submitUserInfo()">אישור</button>
     </div>
 
@@ -104,7 +98,7 @@
         <div class="popup-content" id="game-summary-content">
             <span class="close-btn big-close" onclick="closePopup()">&times;</span>
             <div id="summary-content">
-                <p style="color: blue;">אסף שטנגל - מאמן מנטאלי לשחקנים</p>
+                <!-- הסרנו את השורה הנוספת של אסף שטנגל כאן -->
                 <p>שם השחקן: <span id="player-display-summary"></span></p>
                 <p>תאריך המשחק: <span id="game-date-summary"></span></p>
                 <p>קבוצה יריבה: <span id="team-display-summary"></span></p>
