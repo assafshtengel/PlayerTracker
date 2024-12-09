@@ -41,9 +41,9 @@
     </div>
 
     <!-- בחירת פעולות -->
-    <div id="actions-selection-container" class="hidden game-info-container">
+    <div id="actions-selection-container" class="game-info-container hidden">
         <h3>בחר בין 6 ל-10 פעולות להתמקד בהן</h3>
-        <p>מתוך הפעולות המקצועיות (מותאמות לתפקיד) והפעולות המנטאליות</p>
+        <p>מתוך הפעולות המקצועיות והמנטאליות</p>
         <h4>פעולות מקצועיות:</h4>
         <div id="professional-actions"></div>
         <h4>פעולות מנטאליות:</h4>
@@ -61,9 +61,14 @@
         <p>דקה: <span id="minute-counter">0</span></p>
     </div>
 
-    <p class="hidden" id="actions-title">בחר את תוצאת הפעולה (V=מוצלח, X=לא מוצלח):</p>
-    <div class="actions-grid hidden" id="actions-container">
-        <!-- פעולות שנבחרו יופיעו כאן: כפתור V, שם פעולה, כפתור X -->
+    <p class="hidden" id="actions-title">סמן פעולה מוצלחת (V) או לא מוצלחת (X), או הוסף הערה:</p>
+
+    <!-- חלוקה לפעולות מקצועיות ומנטאליות בנפרד -->
+    <div id="game-actions-container" class="hidden">
+        <h3>פעולות מקצועיות</h3>
+        <div class="actions-grid" id="prof-actions-chosen"></div>
+        <h3>פעולות מנטאליות</h3>
+        <div class="actions-grid" id="mental-actions-chosen"></div>
     </div>
 
     <div id="end-buttons-container" class="hidden">
@@ -112,6 +117,16 @@
             <h3>כל הפעולות שבוצעו במהלך המשחק:</h3>
             <div id="all-actions-list"></div>
             <button onclick="closeAllActionsPopup()">סגור</button>
+        </div>
+    </div>
+
+    <!-- פופ אפ הערות הורה -->
+    <div id="parent-note-popup" class="popup hidden">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeParentNotePopup()">&times;</span>
+            <h3>הערת הורה</h3>
+            <textarea id="parent-note-text" placeholder="הקלד הערה..."></textarea>
+            <button class="view-all-btn" onclick="saveParentNote()">שמור הערה</button>
         </div>
     </div>
 
