@@ -1,3 +1,7 @@
+// הקוד זהה לקודם, ללא כפתור הורדת נתונים (כבר הוסר מ-HTML), 
+// endGame() כבר מכביא סיים מחצית ומסתיר כפתור הערת הורה.
+// לאחר סיום המשחק "סיים משחק" לא יוצג שוב כי אין חזרה למצב משחק.
+
 let actions = [];
 let selectedActions = [];
 let gameInterval = null;
@@ -161,7 +165,6 @@ function submitUserInfo() {
     document.getElementById("game-date").textContent = today;
     document.getElementById("player-position-display").textContent = playerPosition;
 
-    // הסתרת "ברוך הבא"
     const welcomeMessage = document.getElementById("welcome-message");
     if (welcomeMessage) {
         welcomeMessage.style.display = 'none';
@@ -439,6 +442,9 @@ function endGame() {
     // הסרת סיים מחצית
     document.getElementById("end-half").style.display = 'none';
 
+    // הסרת כפתור סיים משחק (כבר לא רלוונטי)
+    document.getElementById("end-game").style.display = 'none';
+
     // להציג כפתור לצפייה בסיכום מחדש אם נסגר
     document.getElementById("reopen-summary-container").classList.remove("hidden");
 
@@ -460,7 +466,6 @@ function closePopup() {
 }
 
 function reopenSummary() {
-    // פתיחת שוב את פופאפ הסיכום
     const popup = document.getElementById("game-summary-popup");
     popup.classList.remove("hidden");
     popup.classList.add("active");
@@ -545,7 +550,7 @@ function calculateScore(minutesPlayed) {
     let successfulActions = 0;
     let badActions = 0;
     let totalActions = actions.length;
-    let negativeHoradaCount = 0; // הורדת ראש שלילית
+    let negativeHoradaCount = 0;
 
     actions.forEach(({ action, result }) => {
         const resLower = result.toLowerCase();
@@ -587,9 +592,9 @@ function showFeedback(score, minutesPlayed) {
     } else if (score > 70) {
         feedback = "ביצוע טוב מאוד. שים לב לדייק יותר בחלק מהפעולות.";
     } else if (score > 55) {
-        feedback = "עשית עבודה טובה, אך יש מקום לשיפור. התמקד בדיוק וחדות.";
+        feedback = "עשית עבודה טובה, אך יש מקום לשיפור.";
     } else {
-        feedback = "יש הרבה מקום לשיפור. אל תתייאש, למד מהטעויות ושפר את מיומנויותיך.";
+        feedback = "יש הרבה מקום לשיפור. אל תתייאש, למד ושפר!";
     }
 
     if (minutesPlayed < 30) {
@@ -605,7 +610,7 @@ function showFeedback(score, minutesPlayed) {
     }
 
     if (score < 50 && successfulActions > 3) {
-        feedback += " למרות הציון הנמוך, ראינו מספר פעולות מוצלחות. המשך להשתפר!";
+        feedback += " למרות הציון הנמוך, ראינו מספר פעולות מוצלחות.";
     }
 
     if (actions.length > 15) {
