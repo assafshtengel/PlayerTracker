@@ -8,12 +8,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <!-- הסרנו את ה-header עם h3, עכשיו יש רק לוגו מעוצב -->
+    <!-- לוגו טקסטואלי -->
     <div id="logo">
         <span class="logo-text">אסף שטנגל - מאמן מנטלי לשחקנים</span>
     </div>
 
-    <!-- כותרת "ברוך הבא" -->
+    <!-- כותרת ברוך הבא -->
     <h1 id="welcome-message" style="color:#4A90E2;margin-bottom:20px;">ברוך הבא למערכת מעקב שחקנים</h1>
 
     <!-- שלב מילוי פרטים -->
@@ -98,7 +98,6 @@
         <div class="popup-content" id="game-summary-content">
             <span class="close-btn big-close" onclick="closePopup()">&times;</span>
             <div id="summary-content">
-                <!-- הסרנו את השורה הנוספת של אסף שטנגל כאן -->
                 <p>שם השחקן: <span id="player-display-summary"></span></p>
                 <p>תאריך המשחק: <span id="game-date-summary"></span></p>
                 <p>קבוצה יריבה: <span id="team-display-summary"></span></p>
@@ -157,6 +156,7 @@
     <!-- פופ אפ הודעה -->
     <div id="popup" class="hidden">פעולה נרשמה</div>
 
+    <!-- טעינת הסקריפט בתחתית העמוד -->
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
