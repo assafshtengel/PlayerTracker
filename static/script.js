@@ -1,111 +1,23 @@
 let actions = [];
-let selectedActions = [];
 let gameInterval = null;
 let gameMinute = 0;
 
-// הגדרת פעולות לפי תפקיד
-const positionActions = {
-    "שוער": [
-        "שמירה על השער", "הפצצה", "תפיסה", "הפעלה מהשער", "תמרון", "התמודדות עם כדרור", "משחק רגל",
-        "יציאה לשליפה", "שליטה בכדור", "חסימה", "הפניה", "שליחת כדור לעומק", "לחץ אחרי איבוד כדור",
-        "הפסקת משחק", "הנעת הגנת הקבוצה"
-    ],
-    "בלם": [
-        "כיבוש אזור הגנה", "חסימה", "הובלת ההגנה", "שינוי כיוון", "לחץ על התוקף", "התמודדות עם חבטות",
-        "תפיסה במרחק", "הפנייה לצדדים", "משחק עם הכדור", "הובלת הכדור לאחור", "שליטה בכדור",
-        "הפנייה למגן", "הפסקת מהירות", "מניעת מעברים", "הנעת ההגנה"
-    ],
-    "מגן": [
-        "הפנייה קדימה", "משחק קשר", "שליטה בכדור", "הובלת הכדור", "יצירת קשרים", "לחץ על התוקפים",
-        "התמודדות עם כדרור", "הפנייה לצדדים", "משחק רגל", "הפצצה", "חסימה", "שינוי כיוון",
-        "הובלת הכדור קדימה", "משחק קצר", "הנעת הקבוצה"
-    ],
-    "קשר": [
-        "יצירת קשרים", "הובלת הכדור", "שליטה בכדור", "הפנייה למתקפה", "משחק קצר", "הפצצה",
-        "שליחת כדור לעומק", "לחץ על התוקפים", "התמודדות עם כדרור", "משחק רגל", "הובלת המשחק",
-        "משחק מהיר", "הפנייה לצדדים", "משחק ריצה", "הנעת המתקפה"
-    ],
-    "חלוץ": [
-        "גול", "חבטה בכיוון", "לחיצה על השוער", "קבלת כדור", "סיום מהירות", "משחק אוויר",
-        "שליטה בכדור בסמוך לשער", "שינוי כיוון", "חסימה", "התמודדות עם הגנה", "משחק עם השוער",
-        "שליחת כדור חזרה", "משחק רגל", "הפצנה מהירה", "הנעת ההתקפה"
-    ]
-};
-
-// פעולות מנהיגות
-const leadershipActions = [
-    "הנעת הקבוצה", "תקשורת עם השחקנים", "הכוונת ההגנה", "מתן עצות", "שמירה על רוח גבוהה",
-    "תיאום עם השופט", "ניהול זמן המשחק", "פתרון סכסוכים", "הובלת האימונים", "קבלת החלטות"
-];
-
-// פעולה נבחרת כרגע לבחירת תוצאה
-let currentAction = null;
-
-function submitUserInfo() {
-    const playerName = document.getElementById("player-name").value.trim();
-    const teamName = document.getElementById("team-name").value.trim();
-    const playerPosition = document.getElementById("player-position").value;
-
-    if (!playerName || !teamName || !playerPosition) {
-        alert("אנא מלא את כל השדות");
+function trackAction(action, result) {
+    if (!gameInterval) {
+        alert("לא ניתן לרשום פעולה כאשר הסטופר לא פעיל!");
         return;
     }
-
-    document.getElementById("player-display").textContent = `שם: ${playerName}`;
-    document.getElementById("team-display").textContent = `קבוצה: ${teamName}`;
-    document.getElementById("player-position-display").textContent = playerPosition;
-
-    const today = new Date().toLocaleDateString("he-IL");
-    document.getElementById("game-date").textContent = `תאריך: ${today}`;
-
-    document.getElementById("user-input-container").classList.add("hidden");
-    document.getElementById("game-info").classList.remove("hidden");
-
-    loadActionsSelection(playerPosition);
+    actions.push({ action, result, minute: gameMinute });
+    showPopup(`הפעולה "${action} - ${result}" נרשמה!`);
 }
 
-function loadActionsSelection(position) {
-    const actionsContainer = document.getElementById("actions-selection-container");
-    const actionsList = document.getElementById("actions-list");
-    actionsList.innerHTML = "";
-
-    const actionsForPosition = positionActions[position] || [];
-    const allActions = [...actionsForPosition, ...leadershipActions];
-
-    allActions.forEach((action, index) => {
-        const actionId = `action-${index}`;
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.id = actionId;
-        checkbox.value = action;
-        checkbox.name = "selected-actions";
-
-        const label = document.createElement("label");
-        label.htmlFor = actionId;
-        label.textContent = action;
-
-        const div = document.createElement("div");
-        div.classList.add("action-item");
-        div.appendChild(checkbox);
-        div.appendChild(label);
-
-        actionsList.appendChild(div);
-    });
-
-    actionsContainer.classList.remove("hidden");
-}
-
-function confirmActions() {
-    const checkboxes = document.querySelectorAll('input[name="selected-actions"]:checked');
-    if (checkboxes.length < 7 || checkboxes.length > 9) {
-        alert("אנא בחר בין 7 ל-9 פעולות.");
-        return;
-    }
-
-    selectedActions = Array.from(checkboxes).map(cb => cb.value);
-
-    document.getElementById("actions-selection-container").classList.add("hidden");
-    document.getElementById("start-game-container").classList.remove("hidden");
+function showPopup(message) {
+    const popup = document.getElementById("popup");
+    popup.textContent = message;
+    popup.classList.remove("hidden");
+    setTimeout(() => {
+        popup.classList.add("hidden");
+    }, 1000);
 }
 
 function startGame() {
@@ -120,23 +32,13 @@ function startGame() {
     actionsTitle.classList.remove("hidden");
     actionsContainer.classList.remove("hidden");
 
-    actionsContainer.innerHTML = "";
-    selectedActions.forEach(action => {
-        const button = document.createElement("button");
-        button.textContent = action;
-        button.classList.add("action-button");
-        button.onclick = () => openResultSelection(action);
-        actionsContainer.appendChild(button);
-    });
-
     enableActions(true);
 
     gameMinute = 0;
     actions = [];
-
     document.getElementById("minute-counter").textContent = gameMinute;
 
-    // סטופר - כל דקה מעלה את הדקה
+    // כל 60 שניות מוסיף דקה
     gameInterval = setInterval(() => {
         gameMinute++;
         document.getElementById("minute-counter").textContent = gameMinute;
@@ -144,47 +46,6 @@ function startGame() {
 
     const endButtons = document.getElementById("end-buttons-container");
     endButtons.classList.remove("hidden");
-}
-
-function openResultSelection(action) {
-    currentAction = action;
-    const resultPopup = document.getElementById("result-selection-popup");
-    resultPopup.classList.remove("hidden");
-    resultPopup.classList.add("active");
-}
-
-function selectResult(result) {
-    if (!currentAction) {
-        alert("פעולה לא מוגדרת!");
-        return;
-    }
-    trackAction(currentAction, result);
-    currentAction = null;
-    closeResultSelection();
-}
-
-function closeResultSelection() {
-    const resultPopup = document.getElementById("result-selection-popup");
-    resultPopup.classList.add("hidden");
-    resultPopup.classList.remove("active");
-}
-
-function trackAction(action, result) {
-    if (!gameInterval) {
-        alert("לא ניתן לרשום פעולה כאשר הסטופר לא פעיל!");
-        return;
-    }
-    actions.push({ action, result, minute: gameMinute });
-    showPopup(`הפעולה "${action} - ${result}" נרשמה!`);
-}
-
-function showPopup(message) {
-    const popup = document.getElementById("popup-message");
-    popup.textContent = message;
-    popup.classList.remove("hidden");
-    setTimeout(() => {
-        popup.classList.add("hidden");
-    }, 2000);
 }
 
 function endHalfTime() {
@@ -218,7 +79,6 @@ function resumeHalf() {
 }
 
 function endGame() {
-    console.log("endGame called"); // בדיקה האם הפונקציה רצה
     if (gameInterval) {
         clearInterval(gameInterval);
         gameInterval = null;
@@ -226,24 +86,24 @@ function endGame() {
 
     enableActions(false);
 
-    const counts = getActionCounts();
-    const summaryContent = document.getElementById("summary-content");
-    summaryContent.innerHTML = getSummaryHTML(counts, "סיכום המשחק");
+    // שאל המשתמש כמה דקות שיחק
+    const minutesPlayed = parseInt(prompt("כמה דקות שיחקת?", "60")) || 0;
+    const score = calculateScore(minutesPlayed);
 
     // עדכון פרטי השחקן בסיכום המשחק
     document.getElementById("player-display-summary").textContent = document.getElementById("player-display").textContent;
     document.getElementById("game-date-summary").textContent = document.getElementById("game-date").textContent;
     document.getElementById("team-display-summary").textContent = document.getElementById("team-display").textContent;
 
-    const minutesPlayed = gameMinute;
-    const score = calculateScore(minutesPlayed);
+    const counts = getActionCounts();
+    const summaryContent = document.getElementById("summary-content");
+    summaryContent.innerHTML = getSummaryHTML(counts, "סיכום המשחק");
     summaryContent.innerHTML += `<h3>ציון סיום המשחק שלך: ${score}</h3>`;
 
     const popup = document.getElementById("game-summary-popup");
     popup.classList.remove("hidden");
     popup.classList.add("active");
 
-    // הצגת פידבק אישי
     setTimeout(() => {
         showFeedback(score, minutesPlayed);
     }, 500);
@@ -263,6 +123,7 @@ function showAllActions() {
         let className = classifyResult(result);
         return `<p class="${className}">דקה ${minute}: ${action} - ${result}</p>`;
     }).join("");
+
     allActionsList.innerHTML = allActionsHTML;
 
     const actionsDetailPopup = document.getElementById("actions-detail-popup");
@@ -274,6 +135,26 @@ function closeAllActionsPopup() {
     const actionsDetailPopup = document.getElementById("actions-detail-popup");
     actionsDetailPopup.classList.remove("active");
     actionsDetailPopup.classList.add("hidden");
+}
+
+function submitUserInfo() {
+    const playerName = document.getElementById("player-name").value.trim();
+    const teamName = document.getElementById("team-name").value.trim();
+
+    if (!playerName || !teamName) {
+        alert("אנא מלא את כל השדות");
+        return;
+    }
+
+    document.getElementById("player-display").textContent = playerName;
+    document.getElementById("team-display").textContent = teamName;
+
+    const today = new Date().toLocaleDateString("he-IL");
+    document.getElementById("game-date").textContent = today;
+
+    document.getElementById("user-input-container").classList.add("hidden");
+    document.getElementById("game-info").classList.remove("hidden");
+    document.getElementById("start-game-container").classList.remove("hidden");
 }
 
 function getActionCounts() {
@@ -301,13 +182,13 @@ function classifyKey(key) {
 }
 
 function classifyResult(result) {
-    if (["מוצלח", "טוב", "חיובית"].includes(result)) return "good";
-    if (["רעה", "לא מוצלח", "לא טוב", "שלילית"].includes(result)) return "bad";
+    if (result.includes("מוצלח") || result.includes("טוב") || result.includes("חיובית")) return "good";
+    if (result.includes("רעה") || result.includes("לא מוצלח") || result.includes("לא טוב") || result.includes("שלילית")) return "bad";
     return "neutral";
 }
 
 function enableActions(enable) {
-    const buttons = document.querySelectorAll('#actions-container .action-button');
+    const buttons = document.querySelectorAll('.good-action, .bad-action, .neutral-action');
     buttons.forEach(button => {
         if (enable) {
             button.removeAttribute('disabled');
@@ -322,11 +203,11 @@ function calculateScore(minutesPlayed) {
     let successfulActions = 0;
     let totalActions = actions.length;
 
-    actions.forEach(({ action, result }) => {
-        if (["מוצלח", "טוב", "חיובית"].includes(result)) {
+    actions.forEach(({ result }) => {
+        if (result.includes("מוצלח") || result.includes("טוב") || result.includes("חיובית")) {
             score += 3;
             successfulActions++;
-        } else if (["רעה", "לא מוצלח", "לא טוב", "שלילית"].includes(result)) {
+        } else if (result.includes("רעה") || result.includes("לא מוצלח") || result.includes("לא טוב") || result.includes("שלילית")) {
             score += 1;
         }
     });
@@ -348,40 +229,44 @@ function calculateScore(minutesPlayed) {
 
 function showFeedback(score, minutesPlayed) {
     let feedback = "";
+    let successfulActions = actions.filter(a => 
+        a.result.includes("מוצלח") || a.result.includes("טוב") || a.result.includes("חיובית")
+    ).length;
+
     if (score > 85) {
         feedback = "מצוין! נתת משחק יוצא דופן. המשך להתאמן ולהיות ממוקד!";
     } else if (score > 70) {
         feedback = "ביצוע טוב מאוד, רואים שהשקעת מאמץ רב. שים לב לדייק יותר בפעולות מסוימות.";
     } else if (score > 55) {
-        feedback = "עשית עבודה טובה, אך יש מקום לשיפור.";
+        feedback = "עשית עבודה טובה, אך יש מקום לשיפור. נסה לשפר את הדיוק והקבלת החלטות.";
     } else {
-        feedback = "יש הרבה מקום לשיפור. אל תתייאש, התמקד בלמידה מהטעויות ושיפור המיומנויות שלך.";
+        feedback = "יש הרבה מקום לשיפור. אל תתייאש, למד מהטעויות ושפר את המיומנויות שלך.";
     }
 
     if (minutesPlayed < 30) {
-        feedback += " שיחקת פחות מ-30 דקות, נסה לשפר את הכושר ולשחק יותר זמן.";
+        feedback += " שיחקת פחות מ-30 דקות, נסה להעלות את הכושר.";
     }
 
-    let successfulActions = actions.filter(a => ["מוצלח", "טוב", "חיובית"].includes(a.result)).length;
-
     if (actions.length >= 4) {
-        feedback += " ביצעת יותר מ-4 פעולות מוצלחות - כל הכבוד!";
+        feedback += " ביצעת יותר מ-4 פעולות מוצלחות - יפה!";
     }
 
     if (successfulActions > 5) {
-        feedback += " מעל 5 פעולות מוצלחות, המשך כך!";
+        feedback += " יש לך מעל 5 פעולות מוצלחות, המשך כך!";
     }
 
     if (score < 50 && successfulActions > 3) {
-        feedback += " למרות הציון הנמוך, רואים שיש לך פעולות מוצלחות - המשך לעבוד!";
+        feedback += " למרות הציון הנמוך, יש פעולות מוצלחות. המשך לעבוד!";
     }
 
     if (actions.length > 15) {
-        feedback += " ביצעת הרבה פעולות - נחישות ופעילות גבוהה!";
+        feedback += " ביצעת הרבה פעולות - נחישות יפה!";
     }
 
-    if (getActionCounts()['מנהיגות: חיובית'] > 3) {
-        feedback += " אתה מראה מנהיגות חזקה, כל הכבוד!";
+    // נבדוק מנהיגות: חיובית ולא רק מנהיגות
+    let counts = getActionCounts();
+    if ((counts['מנהיגות: חיובית'] || 0) > 3) {
+        feedback += " אתה מראה כישורי מנהיגות מרשימים!";
     }
 
     document.getElementById("feedback-text").textContent = feedback;
@@ -390,6 +275,5 @@ function showFeedback(score, minutesPlayed) {
 }
 
 function closeFeedbackPopup() {
-    const feedbackPopup = document.getElementById("feedback-popup");
-    feedbackPopup.classList.add("hidden");
+    document.getElementById("feedback-popup").classList.add("hidden");
 }
