@@ -80,7 +80,6 @@ h1#welcome-message {
     text-align: right;
 }
 
-/* פעולות - פונט גדול יותר ותיבת סימון גדולה יותר */
 .action-item label {
     font-size: 18px;
 }
@@ -161,7 +160,6 @@ button:hover {
     box-shadow: 0 6px 8px rgba(0,0,0,0.2);
 }
 
-/* כפתור הוסף פעולה בצבע שונה */
 #add-custom-action-btn {
     background-color: #6C757D;
     color: white;
@@ -169,7 +167,6 @@ button:hover {
     padding:10px 20px;
 }
 
-/* כפתור אשר בחירה גדול יותר */
 #confirm-actions-btn {
     font-size:22px;
     padding:20px 40px;
@@ -331,6 +328,10 @@ textarea {
     border-radius: 5px;
     padding: 10px;
     box-sizing: border-box;
+}
+
+#reopen-summary-container {
+    margin-top:20px;
 }
 
 @media (max-width: 600px) {
