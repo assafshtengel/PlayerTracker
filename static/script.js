@@ -5,40 +5,35 @@ let gameMinute = 0;
 let chosenProfessional = [];
 let chosenMental = [];
 let chosenCustom = [];
-let parentNotes = []; // מערך להערות הורה מרובות
+let parentNotes = [];
 let gameFinished = false;
 
 const positionActions = {
-    "שוער": [ ... ],
-    "בלם": [ ... ],
-    "מגן": [ ... ],
-    "קשר": [ ... ],
-    "חלוץ": [ ... ],
-    "כנף": [ ... ]
+    "שוער": [
+        "עצירת כדור קשה","יציאה לאגרוף","משחק רגל מדויק","שליטה ברחבה","תקשורת עם ההגנה","יציאה לכדורי גובה","מסירה ארוכה מדויקת","סגירת זויות בעיטות","תגובות מהירות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"
+    ],
+    "בלם": [
+        "בלימת התקפה יריבה","משחק ראש מוצלח","סגירת תוקף","חטיפת כדור","הנעת כדור אחורה בבטחה","משחק רוחב מדויק","סגירת קווי מסירה","הגנה על הרחבה","הובלת הכדור קדימה","החזרת כדור לשוער","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
+    ],
+    "מגן": [
+        "הגבהה מדויקת לרחבה","תמיכה בהתקפה באגף","כיסוי הגנתי באגף","תקשורת עם הקשר","ריצה לאורך הקו","קרוס מדויק","חטיפת כדור באגף","מעבר מהיר להתקפה","משחק רוחב בטוח","שמירה על חלוץ יריב","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
+    ],
+    "קשר": [
+        "מסירה חכמה קדימה","שמירה על קצב המשחק","חטיפת כדור במרכז","משחק קצר מדויק","שליחת כדור לעומק","שליטה בקישור","החלפת אגף","תמיכה בהגנה","ארגון ההתקפה","ראיית משחק רחבה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
+    ],
+    "חלוץ": [
+        "בעיטה למסגרת","בעיטה לשער","תנועה ללא כדור","קבלת כדור תחת לחץ","סיום מצבים","נוכחות ברחבה","ניצול הזדמנויות","תקשורת עם הקשרים","לחץ על ההגנה היריבה","נגיחה למסגרת","שמירה על הכדור מול הגנה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"
+    ],
+    "כנף": [
+        "עקיפת מגן באגף","הגבהה איכותית","ריצה מהירה בקו","חדירה לרחבה מהאגף","משחק עומק","קידום הכדור קדימה","יצירת יתרון מספרי","משחק רוחב לשינוי אגף","הפתעת ההגנה בתנועה","השגת פינות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
+    ]
 };
 
-// כאן העתק את התוכן המלא של הרשימות positionActions וmentalActions מהקוד הקודם...
-const mentalActions = [ ... ];
+const mentalActions = [
+    "שמירה על ריכוז","התמודדות עם לחץ","תקשורת חיובית עם חברי הקבוצה","אמונה עצמית","ניהול רגשות","קבלת החלטות מהירה","התמדה במאמץ","מנהיגות חיובית","יצירת מוטיבציה","התמודדות עם טעויות","הורדת ראש","הרמת ראש"
+];
 
 let customActionsArr = [];
-
-function trackAction(action, result) {
-    if (!gameInterval || gameFinished) {
-        alert("לא ניתן לרשום פעולה כאשר הסטופר לא פעיל או כשהמשחק הסתיים!");
-        return;
-    }
-    actions.push({ action, result, minute: gameMinute });
-    showPopup(`הפעולה "${action} - ${result}" נרשמה!`);
-}
-
-function showPopup(message) {
-    const popup = document.getElementById("popup");
-    popup.textContent = message;
-    popup.classList.remove("hidden");
-    setTimeout(() => {
-        popup.classList.add("hidden");
-    }, 1000);
-}
 
 function submitUserInfo() {
     const playerName = document.getElementById("player-name").value.trim();
@@ -342,12 +337,10 @@ function endGame() {
         showFeedback(score, minutesPlayed);
     }, 500);
 
-    // לאחר סיום המשחק
     document.getElementById("notes-container").style.display = 'none';
     document.getElementById("end-half").style.display = 'none';
     document.getElementById("end-game").style.display = 'none';
 
-    // להציג כפתור לצפייה בסיכום מחדש
     document.getElementById("reopen-summary-container").classList.remove("hidden");
 
     popup.addEventListener("transitionend", makeActionsGreyAfterGame, {once:true});
@@ -377,20 +370,17 @@ function showAllActions() {
     const allActionsList = document.getElementById("all-actions-list");
     allActionsList.innerHTML = "";
 
-    // הצגת הפעולות עם minute-badge
     actions.forEach(({action, result, minute}) => {
         let className = classifyResult(result);
         const p = document.createElement("p");
         p.className = className + " action-line";
 
-        // תגית דקה קטנה
         const minuteBadge = document.createElement("span");
         minuteBadge.className = "minute-badge";
         minuteBadge.textContent = "דקה " + minute;
         p.appendChild(minuteBadge);
 
-        // טקסט הפעולה
-        const textNode = document.createTextNode(` ${action} - ${result}`);
+        const textNode = document.createTextNode(" " + action + " - " + result);
         p.appendChild(textNode);
 
         allActionsList.appendChild(p);
