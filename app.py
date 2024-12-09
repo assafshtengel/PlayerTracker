@@ -20,6 +20,7 @@ def init_db():
         score INTEGER,
         actions TEXT,
         parentNotes TEXT
+        email TEXT
     )
     ''')
     conn.commit()
