@@ -1,6 +1,97 @@
 let actions = [];
+let selectedActions = [];
 let gameInterval = null;
 let gameMinute = 0;
+
+// פעולות מקצועיות לפי תפקיד
+const positionActions = {
+    "שוער": [
+        "עצירת כדור קשה",
+        "יציאה לאגרוף",
+        "משחק רגל מדויק",
+        "שליטה ברחבה",
+        "תקשורת עם ההגנה",
+        "יציאה לכדורי גובה",
+        "מסירה ארוכה מדויקת",
+        "סגירת זויות בעיטות",
+        "הפעלה מהירה עם הידיים",
+        "תגובות מהירות"
+    ],
+    "בלם": [
+        "בלימת התקפה יריבה",
+        "משחק ראש מוצלח",
+        "סגירת תוקף",
+        "חטיפת כדור",
+        "הנעת כדור אחורה בבטחה",
+        "משחק רוחב מדויק",
+        "סגירת קווי מסירה",
+        "הגנה על הרחבה",
+        "הובלת הכדור קדימה",
+        "החזרת כדור לשוער"
+    ],
+    "מגן": [
+        "הגבהה מדויקת לרחבה",
+        "תמיכה בהתקפה באגף",
+        "כיסוי הגנתי באגף",
+        "תקשורת עם הקשר",
+        "ריצה לאורך הקו",
+        "קרוס מדויק",
+        "חטיפת כדור באגף",
+        "מעבר מהיר להתקפה",
+        "משחק רוחב בטוח",
+        "שמירה על חלוץ יריב"
+    ],
+    "קשר": [
+        "מסירה חכמה קדימה",
+        "שמירה על קצב המשחק",
+        "חטיפת כדור במרכז המגרש",
+        "משחק קצר מדויק",
+        "שליחת כדור לעומק",
+        "שליטה בקישור",
+        "החלפת אגף",
+        "תמיכה בהגנה",
+        "ארגון ההתקפה",
+        "ראיית משחק רחבה"
+    ],
+    "חלוץ": [
+        "בעיטה למסגרת",
+        "תנועה ללא כדור",
+        "קבלת כדור תחת לחץ",
+        "סיום מצבים",
+        "נוכחות ברחבה",
+        "ניצול הזדמנויות",
+        "תקשורת עם הקשרים",
+        "לחץ על ההגנה היריבה",
+        "נגיחה למסגרת",
+        "שמירה על הכדור מול הגנה"
+    ],
+    "כנף": [
+        "עקיפת מגן באגף",
+        "הגבהה איכותית",
+        "ריצה מהירה בקו",
+        "חדירה לרחבה מהאגף",
+        "משחק עומק",
+        "קידום הכדור קדימה",
+        "יצירת יתרון מספרי",
+        "משחק רוחב לשינוי אגף",
+        "הפתעת ההגנה בתנועה",
+        "השגת פינות"
+    ]
+};
+
+// פעולות מנטאליות
+const mentalActions = [
+    "שמירה על ריכוז",
+    "התמודדות עם לחץ",
+    "תקשורת חיובית עם חברי הקבוצה",
+    "אמונה עצמית",
+    "ניהול רגשות",
+    "קבלת החלטות מהירה",
+    "התמדה במאמץ",
+    "מנהיגות חיובית",
+    "יצירת מוטיבציה",
+    "התמודדות עם טעויות"
+];
 
 function trackAction(action, result) {
     if (!gameInterval) {
@@ -20,6 +111,73 @@ function showPopup(message) {
     }, 1000);
 }
 
+function submitUserInfo() {
+    const playerName = document.getElementById("player-name").value.trim();
+    const teamName = document.getElementById("team-name").value.trim();
+    const playerPosition = document.getElementById("player-position").value;
+
+    if (!playerName || !teamName || !playerPosition) {
+        alert("אנא מלא את כל השדות (כולל תפקיד)");
+        return;
+    }
+
+    document.getElementById("player-display").textContent = playerName;
+    document.getElementById("team-display").textContent = teamName;
+
+    const today = new Date().toLocaleDateString("he-IL");
+    document.getElementById("game-date").textContent = today;
+    document.getElementById("player-position-display").textContent = playerPosition;
+
+    document.getElementById("user-input-container").classList.add("hidden");
+    document.getElementById("game-info").classList.remove("hidden");
+
+    loadActionsSelection(playerPosition);
+}
+
+function loadActionsSelection(position) {
+    const actionsContainer = document.getElementById("actions-selection-container");
+    const actionsList = document.getElementById("actions-list");
+    actionsList.innerHTML = "";
+
+    const actionsForPosition = positionActions[position] || [];
+    const allActions = [...actionsForPosition, ...mentalActions];
+
+    allActions.forEach((action, index) => {
+        const actionId = `action-${index}`;
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.id = actionId;
+        checkbox.value = action;
+        checkbox.name = "selected-actions";
+
+        const label = document.createElement("label");
+        label.htmlFor = actionId;
+        label.textContent = action;
+
+        const div = document.createElement("div");
+        div.classList.add("action-item");
+        div.appendChild(checkbox);
+        div.appendChild(label);
+
+        actionsList.appendChild(div);
+    });
+
+    actionsContainer.classList.remove("hidden");
+}
+
+function confirmActions() {
+    const checkboxes = document.querySelectorAll('input[name="selected-actions"]:checked');
+    if (checkboxes.length < 6 || checkboxes.length > 10) {
+        alert("אנא בחר בין 6 ל-10 פעולות.");
+        return;
+    }
+
+    selectedActions = Array.from(checkboxes).map(cb => cb.value);
+
+    document.getElementById("actions-selection-container").classList.add("hidden");
+    document.getElementById("start-game-container").classList.remove("hidden");
+}
+
 function startGame() {
     const startGameButton = document.getElementById("start-game-container");
     startGameButton.classList.add("hidden");
@@ -32,13 +190,27 @@ function startGame() {
     actionsTitle.classList.remove("hidden");
     actionsContainer.classList.remove("hidden");
 
+    // יצירת כפתורי הפעולות הנבחרות בלבד
+    actionsContainer.innerHTML = "";
+    selectedActions.forEach(action => {
+        const button = document.createElement("button");
+        button.textContent = action;
+        // כפתור לחיובי/שלילי
+        // נניח שהמשתמש יבחר בכל לחיצה את התוצאה
+        // כדי לא complicate, נשאל בפופ-אפ:
+        button.onclick = () => {
+            const result = prompt("הזן את התוצאה (מוצלח/רעה/ניטרלית/לא מוצלח/טוב/לא טוב/חיובית/שלילית):", "מוצלח");
+            trackAction(action, result || "ניטרלית");
+        };
+        actionsContainer.appendChild(button);
+    });
+
     enableActions(true);
 
     gameMinute = 0;
     actions = [];
     document.getElementById("minute-counter").textContent = gameMinute;
 
-    // כל 60 שניות מוסיף דקה
     gameInterval = setInterval(() => {
         gameMinute++;
         document.getElementById("minute-counter").textContent = gameMinute;
@@ -86,11 +258,9 @@ function endGame() {
 
     enableActions(false);
 
-    // שאל המשתמש כמה דקות שיחק
     const minutesPlayed = parseInt(prompt("כמה דקות שיחקת?", "60")) || 0;
     const score = calculateScore(minutesPlayed);
 
-    // עדכון פרטי השחקן בסיכום המשחק
     document.getElementById("player-display-summary").textContent = document.getElementById("player-display").textContent;
     document.getElementById("game-date-summary").textContent = document.getElementById("game-date").textContent;
     document.getElementById("team-display-summary").textContent = document.getElementById("team-display").textContent;
@@ -137,32 +307,34 @@ function closeAllActionsPopup() {
     actionsDetailPopup.classList.add("hidden");
 }
 
-function submitUserInfo() {
-    const playerName = document.getElementById("player-name").value.trim();
-    const teamName = document.getElementById("team-name").value.trim();
-
-    if (!playerName || !teamName) {
-        alert("אנא מלא את כל השדות");
-        return;
-    }
-
-    document.getElementById("player-display").textContent = playerName;
-    document.getElementById("team-display").textContent = teamName;
-
-    const today = new Date().toLocaleDateString("he-IL");
-    document.getElementById("game-date").textContent = today;
-
-    document.getElementById("user-input-container").classList.add("hidden");
-    document.getElementById("game-info").classList.remove("hidden");
-    document.getElementById("start-game-container").classList.remove("hidden");
-}
-
 function getActionCounts() {
     return actions.reduce((acc, { action, result }) => {
         const key = `${action}: ${result}`;
         acc[key] = (acc[key] || 0) + 1;
         return acc;
     }, {});
+}
+
+function classifyKey(key) {
+    let lowerKey = key.toLowerCase();
+    if (lowerKey.includes("לא מוצלח") || lowerKey.includes("רעה") || lowerKey.includes("לא טוב") || lowerKey.includes("שלילית")) {
+        return "bad";
+    }
+    if (lowerKey.includes("מוצלח") || lowerKey.includes("טוב") || lowerKey.includes("חיובית")) {
+        return "good";
+    }
+    return "neutral";
+}
+
+function classifyResult(result) {
+    let lowerResult = result.toLowerCase();
+    if (lowerResult.includes("לא מוצלח") || lowerResult.includes("רעה") || lowerResult.includes("לא טוב") || lowerResult.includes("שלילית")) {
+        return "bad";
+    }
+    if (lowerResult.includes("מוצלח") || lowerResult.includes("טוב") || lowerResult.includes("חיובית")) {
+        return "good";
+    }
+    return "neutral";
 }
 
 function getSummaryHTML(counts, title) {
@@ -175,20 +347,8 @@ function getSummaryHTML(counts, title) {
     return `<h3>${title}:</h3>${summaryHTML}`;
 }
 
-function classifyKey(key) {
-    if (key.includes("מוצלח") || key.includes("טוב") || key.includes("חיובית")) return "good";
-    if (key.includes("רעה") || key.includes("לא מוצלח") || key.includes("לא טוב") || key.includes("שלילית")) return "bad";
-    return "neutral";
-}
-
-function classifyResult(result) {
-    if (result.includes("מוצלח") || result.includes("טוב") || result.includes("חיובית")) return "good";
-    if (result.includes("רעה") || result.includes("לא מוצלח") || result.includes("לא טוב") || result.includes("שלילית")) return "bad";
-    return "neutral";
-}
-
 function enableActions(enable) {
-    const buttons = document.querySelectorAll('.good-action, .bad-action, .neutral-action');
+    const buttons = document.querySelectorAll('#actions-container button');
     buttons.forEach(button => {
         if (enable) {
             button.removeAttribute('disabled');
@@ -229,7 +389,7 @@ function calculateScore(minutesPlayed) {
 
 function showFeedback(score, minutesPlayed) {
     let feedback = "";
-    let successfulActions = actions.filter(a => 
+    let successfulActions = actions.filter(a =>
         a.result.includes("מוצלח") || a.result.includes("טוב") || a.result.includes("חיובית")
     ).length;
 
@@ -263,7 +423,6 @@ function showFeedback(score, minutesPlayed) {
         feedback += " ביצעת הרבה פעולות - נחישות יפה!";
     }
 
-    // נבדוק מנהיגות: חיובית ולא רק מנהיגות
     let counts = getActionCounts();
     if ((counts['מנהיגות: חיובית'] || 0) > 3) {
         feedback += " אתה מראה כישורי מנהיגות מרשימים!";
