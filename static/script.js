@@ -9,10 +9,11 @@ let parentNotes = [];
 let gameFinished = false;
 let customActionsArr = [];
 
-const API_KEY = "63c5b5f5d363cf845ffcfa3a98f97fed";
+// החלף כאן את ה-API KEY החדש שסיפקת:
+const API_KEY = "00a349c4bb51ad4b6a7f1d2df12b4ba3"; // דוגמה, הכנס את ה-API Key החדש
 const FORM_ID = "230789031560051";
 
-// פעולות לפי תפקיד
+// פעולות לפי תפקיד (לא משנים כי זה כבר תואם)
 const positionActions = {
     "שוער": [
         "עצירת כדור קשה","יציאה לאגרוף","משחק רגל מדויק","שליטה ברחבה","תקשורת עם ההגנה","יציאה לכדורי גובה",
@@ -44,7 +45,6 @@ const positionActions = {
     ]
 };
 
-// פעולות מנטאליות
 const mentalActions = [
     "שמירה על ריכוז","התמודדות עם לחץ","תקשורת חיובית עם חברי הקבוצה","אמונה עצמית","ניהול רגשות","קבלת החלטות מהירה",
     "התמדה במאמץ","מנהיגות חיובית","יצירת מוטיבציה","התמודדות עם טעויות","הורדת ראש","הרמת ראש"
@@ -57,15 +57,24 @@ function sendToJotForm(playerName, teamName, position, gameDate, actionsSummary,
     });
 
     const formEncodedData = new URLSearchParams();
+    // לפי השדות הייחודיים שאתה הראית:
+    // שם השחקן: nameplayer
     formEncodedData.append("submission[nameplayer]", playerName);
+    // שם הקבוצה היריבה: nameagainst
     formEncodedData.append("submission[nameagainst]", teamName);
+    // תפקיד השחקן: tafkid
     formEncodedData.append("submission[tafkid]", position);
+    // תאריך: date
     formEncodedData.append("submission[date]", gameDate);
+    // סיכום הפעולות: sumall
     formEncodedData.append("submission[sumall]", actionsSummary);
+    // הערות ההורה: sumdad
+    // אם אתה שולח הערות הורה, נניח parentNotesStr הוא sumdad
+    formEncodedData.append("submission[sumdad]", parentNotesStr);
+    // ציון למשחק: price
     formEncodedData.append("submission[price]", score.toString());
+    // שדה המייל: emailField
     formEncodedData.append("submission[emailField]", parentEmail);
-    // ניתן להוסיף:
-    // formEncodedData.append("submission[sumdad]", parentNotesStr);
 
     fetch(`https://api.jotform.com/form/${FORM_ID}/submissions?apiKey=${API_KEY}`, {
         method: "POST",
@@ -77,7 +86,11 @@ function sendToJotForm(playerName, teamName, position, gameDate, actionsSummary,
     .then(response => response.json())
     .then(data => {
         console.log("Submission Created:", data);
-        showPopup("הנתונים נשלחו למייל בהצלחה!", "good");
+        if (data.error) {
+            showPopup("שגיאה בשליחה: " + data.error, "bad");
+        } else {
+            showPopup("הנתונים נשלחו למייל בהצלחה!", "good");
+        }
     })
     .catch(err => {
         console.error(err);
@@ -417,16 +430,13 @@ function endGame() {
     document.getElementById("reopen-summary-container").classList.remove("hidden");
 }
 
-// פונקציה חדשה לשליחת הנתונים במייל (ל-JotForm) בלחיצה על הכפתור "שלח למייל"
 function sendGameDataToMail() {
     const playerName = window.playerNameGlobal || "";
     const teamName = window.teamNameGlobal || "";
     const position = window.playerPositionGlobal || "";
     const parentEmail = window.parentEmailGlobal || "";
-
     const today = new Date().toLocaleDateString("he-IL");
     const gameDate = today;
-
     let actionsSummary = "";
     actions.forEach(a => {
         actionsSummary += `דקה ${a.minute}: ${a.action} - ${a.result}\n`;
@@ -537,34 +547,29 @@ function enableActions(enable) {
         }
     });
 }
+
+// שינוי חישוב הציון כמו שביקשת - אך לא ציינת שוב, נשאיר לפי הנוסחה הקודמת או החדשה - נניח החדשה:
 function calculateScore(minutesPlayed) {
-    let score = 35; // ציון התחלתי
+    let score = 35; 
     let successfulActions = 0;
     let badActions = 0;
     let negativeHoradaCount = 0;
 
-    // פעולות מיוחדות שמוצלחות נותנות +5 נק'
-    const specialActions = ["בעיטה לשער", "בעיטה למסגרת", "מסירת מפתח", "נגיחה למסגרת"];
+    const specialActions = ["בעיטה לשער","בעיטה למסגרת","מסירת מפתח","נגיחה למסגרת"];
 
     actions.forEach(({ action, result }) => {
         const resLower = result.toLowerCase();
         const actLower = action.toLowerCase();
-
-        // בדיקת סוג הפעולה
         let isSpecial = specialActions.some(sa => actLower.includes(sa.toLowerCase()));
 
-        // פעולות מוצלחות/טובות
         if (resLower.includes("מוצלח") || resLower.includes("טוב") || resLower.includes("חיובית")) {
             if (isSpecial) {
-                // פעולה מיוחדת מוצלחת
                 score += 5;
             } else {
-                // פעולה מוצלחת רגילה
                 score += 3;
             }
             successfulActions++;
         } else if (resLower.includes("רעה") || resLower.includes("לא מוצלח") || resLower.includes("לא טוב") || resLower.includes("שלילית")) {
-            // פעולה לא טובה
             score -= 2;
             badActions++;
             if (action === "הורדת ראש") {
@@ -573,27 +578,9 @@ function calculateScore(minutesPlayed) {
         }
     });
 
-    // בונוסים/קנסות נוספים ניתן להוסיף לפי הצורך
-    // לדוגמה: אם רוצים להתחשב במספר הפעולות שנבחרו - אפשר, אבל לפי הבקשה הנוכחית לא חייבים.
-
-    // הגבלת הציון בין 35 ל-100
     if (score > 100) score = 100;
     if (score < 35) score = 35;
 
-    return score;
-}
-
-
-    const chosenCount = chosenProfessional.length + chosenMental.length + chosenCustom.length;
-    if (chosenCount < 6 || chosenCount > 10) {
-        score -= 5;
-    }
-
-    if (negativeHoradaCount > 0) {
-        score -= (negativeHoradaCount * 3);
-    }
-
-    if (score > 200) score = 200;
     return score; 
 }
 
@@ -603,8 +590,8 @@ function showFeedback(score, minutesPlayed) {
         a.result.includes("מוצלח") || a.result.includes("טוב") || a.result.includes("חיובית")
     ).length;
 
-    if (score > 150) {
-        feedback = "מעולה! נתת משחק יוצא דופן ומעל המצופה!";
+    if (score > 92) {
+        feedback = "מעולה פלוס! משחק יוצא דופן!";
     } else if (score > 85) {
         feedback = "מצוין! נתת משחק חזק. המשך לעבוד קשה!";
     } else if (score > 70) {
