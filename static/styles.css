@@ -26,7 +26,6 @@ h1#welcome-message {
     font-size: 24px;
 }
 
-/* הגדלת תיבות הקלט */
 .input-group input, .input-group select {
     font-size:20px;
     height:45px;
@@ -255,12 +254,12 @@ button:hover {
 .popup.active {
     display: block;
 }
+
 .popup-content {
     position: relative;
-    overflow-y: auto; 
-    max-height: 80vh; /* מאפשר גלילה אם התוכן ארוך */
+    overflow-y: auto;
+    max-height: 80vh;
 }
-
 
 .popup-content h3 {
     margin-top: 0;
