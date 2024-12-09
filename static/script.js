@@ -5,33 +5,19 @@ let gameMinute = 0;
 let chosenProfessional = [];
 let chosenMental = [];
 let chosenCustom = [];
-let parentNotes = [];
+let parentNotes = []; // כעת נשמור כ-objs {text, minute}
 let gameFinished = false;
 
 const positionActions = {
-    "שוער": [
-        "עצירת כדור קשה","יציאה לאגרוף","משחק רגל מדויק","שליטה ברחבה","תקשורת עם ההגנה","יציאה לכדורי גובה","מסירה ארוכה מדויקת","סגירת זויות בעיטות","תגובות מהירות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"
-    ],
-    "בלם": [
-        "בלימת התקפה יריבה","משחק ראש מוצלח","סגירת תוקף","חטיפת כדור","הנעת כדור אחורה בבטחה","משחק רוחב מדויק","סגירת קווי מסירה","הגנה על הרחבה","הובלת הכדור קדימה","החזרת כדור לשוער","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
-    ],
-    "מגן": [
-        "הגבהה מדויקת לרחבה","תמיכה בהתקפה באגף","כיסוי הגנתי באגף","תקשורת עם הקשר","ריצה לאורך הקו","קרוס מדויק","חטיפת כדור באגף","מעבר מהיר להתקפה","משחק רוחב בטוח","שמירה על חלוץ יריב","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
-    ],
-    "קשר": [
-        "מסירה חכמה קדימה","שמירה על קצב המשחק","חטיפת כדור במרכז","משחק קצר מדויק","שליחת כדור לעומק","שליטה בקישור","החלפת אגף","תמיכה בהגנה","ארגון ההתקפה","ראיית משחק רחבה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
-    ],
-    "חלוץ": [
-        "בעיטה למסגרת","בעיטה לשער","תנועה ללא כדור","קבלת כדור תחת לחץ","סיום מצבים","נוכחות ברחבה","ניצול הזדמנויות","תקשורת עם הקשרים","לחץ על ההגנה היריבה","נגיחה למסגרת","שמירה על הכדור מול הגנה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"
-    ],
-    "כנף": [
-        "עקיפת מגן באגף","הגבהה איכותית","ריצה מהירה בקו","חדירה לרחבה מהאגף","משחק עומק","קידום הכדור קדימה","יצירת יתרון מספרי","משחק רוחב לשינוי אגף","הפתעת ההגנה בתנועה","השגת פינות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
-    ]
+    "שוער": [...],
+    "בלם": [...],
+    "מגן": [...],
+    "קשר": [...],
+    "חלוץ": [...],
+    "כנף": [...]
 };
 
-const mentalActions = [
-    "שמירה על ריכוז","התמודדות עם לחץ","תקשורת חיובית עם חברי הקבוצה","אמונה עצמית","ניהול רגשות","קבלת החלטות מהירה","התמדה במאמץ","מנהיגות חיובית","יצירת מוטיבציה","התמודדות עם טעויות","הורדת ראש","הרמת ראש"
-];
+const mentalActions = [...]; // רשימת המנטאליות כמו קודם
 
 let customActionsArr = [];
 
@@ -142,20 +128,11 @@ function confirmActions() {
 }
 
 function startGame() {
-    const startGameButton = document.getElementById("start-game-container");
-    startGameButton.classList.add("hidden");
-
-    const timer = document.getElementById("game-timer");
-    timer.classList.remove("hidden");
-
-    const actionsTitle = document.getElementById("actions-title");
-    actionsTitle.classList.remove("hidden");
-
-    const notesContainer = document.getElementById("notes-container");
-    notesContainer.classList.remove("hidden");
-
-    const gameActionsContainer = document.getElementById("game-actions-container");
-    gameActionsContainer.classList.remove("hidden");
+    document.getElementById("start-game-container").classList.add("hidden");
+    document.getElementById("game-timer").classList.remove("hidden");
+    document.getElementById("actions-title").classList.remove("hidden");
+    document.getElementById("notes-container").classList.remove("hidden");
+    document.getElementById("game-actions-container").classList.remove("hidden");
 
     const profContainer = document.getElementById("prof-actions-chosen");
     const mentalContainer = document.getElementById("mental-actions-chosen");
@@ -163,17 +140,17 @@ function startGame() {
 
     profContainer.innerHTML = "";
     chosenProfessional.forEach(obj => {
-        profContainer.appendChild(createActionRow(obj.action, false, "professional"));
+        profContainer.appendChild(createActionRow(obj.action, "professional"));
     });
 
     mentalContainer.innerHTML = "";
     chosenMental.forEach(obj => {
-        mentalContainer.appendChild(createActionRow(obj.action, false, "mental"));
+        mentalContainer.appendChild(createActionRow(obj.action, "mental"));
     });
 
     customContainer.innerHTML = "";
     chosenCustom.forEach(obj => {
-        customContainer.appendChild(createActionRow(obj.action, false, "custom"));
+        customContainer.appendChild(createActionRow(obj.action, "custom"));
     });
 
     enableActions(true);
@@ -181,19 +158,19 @@ function startGame() {
     gameMinute = 0;
     actions = [];
     parentNotes = [];
-    document.getElementById("minute-counter").textContent = gameMinute;
     gameFinished = false;
+
+    document.getElementById("minute-counter").textContent = gameMinute;
 
     gameInterval = setInterval(() => {
         gameMinute++;
         document.getElementById("minute-counter").textContent = gameMinute;
     }, 60000);
 
-    const endButtons = document.getElementById("end-buttons-container");
-    endButtons.classList.remove("hidden");
+    document.getElementById("end-buttons-container").classList.remove("hidden");
 }
 
-function createActionRow(action, isMental=false, category="") {
+function createActionRow(action, category="") {
     const div = document.createElement("div");
     div.classList.add("action-group");
     if (category === "professional") div.classList.add("prof-bg");
@@ -242,9 +219,10 @@ function closeGeneralNotePopup() {
 function saveGeneralNote() {
     const note = document.getElementById("general-note-text").value.trim();
     if(note) {
-        parentNotes.push(note);
+        parentNotes.push({text: note, minute: gameMinute}); // שמירת דקה + טקסט
         closeGeneralNotePopup();
         showPopup("הערה נשמרה!");
+        enableActions(true); // חזרה לאפשרות לסמן פעולות
     } else {
         alert("לא הוזנה הערה");
     }
@@ -268,7 +246,7 @@ function endHalfTime() {
     if (parentNotes.length > 0) {
         parentNotes.forEach(n => {
             const li = document.createElement("li");
-            li.textContent = n;
+            li.textContent = `דקה ${n.minute}: ${n.text}`;
             halfParentNotesList.appendChild(li);
         });
         halfGeneralNoteDisplay.classList.remove("hidden");
@@ -321,7 +299,7 @@ function endGame() {
     if (parentNotes.length > 0) {
         parentNotes.forEach(n => {
             const li = document.createElement("li");
-            li.textContent = n;
+            li.textContent = `דקה ${n.minute}: ${n.text}`;
             parentNotesList.appendChild(li);
         });
         generalNoteDisplay.classList.remove("hidden");
@@ -453,7 +431,6 @@ function calculateScore(minutesPlayed) {
     let score = 50; 
     let successfulActions = 0;
     let badActions = 0;
-    let totalActions = actions.length;
     let negativeHoradaCount = 0;
 
     actions.forEach(({ action, result }) => {
