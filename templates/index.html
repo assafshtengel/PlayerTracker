@@ -40,11 +40,14 @@
         <p>תפקיד השחקן: <span id="player-position-display"></span></p>
     </div>
 
-    <!-- בחירת פעולות בהתאם לתפקיד ולמנטאליות -->
+    <!-- בחירת פעולות -->
     <div id="actions-selection-container" class="hidden game-info-container">
         <h3>בחר בין 6 ל-10 פעולות להתמקד בהן</h3>
-        <p>פעולות מקצועיות (מותאמות לתפקיד) ופעולות מנטאליות:</p>
-        <div id="actions-list"></div>
+        <p>מתוך הפעולות המקצועיות (מותאמות לתפקיד) והפעולות המנטאליות</p>
+        <h4>פעולות מקצועיות:</h4>
+        <div id="professional-actions"></div>
+        <h4>פעולות מנטאליות:</h4>
+        <div id="mental-actions"></div>
         <button onclick="confirmActions()">אשר בחירה</button>
     </div>
 
@@ -58,9 +61,9 @@
         <p>דקה: <span id="minute-counter">0</span></p>
     </div>
 
-    <p class="hidden" id="actions-title">בחר פעולות לביצוע במהלך המשחק:</p>
+    <p class="hidden" id="actions-title">בחר את תוצאת הפעולה (V=מוצלח, X=לא מוצלח):</p>
     <div class="actions-grid hidden" id="actions-container">
-        <!-- הכפתורים נטענים דינמית בהתאם לבחירת המשתמש -->
+        <!-- פעולות שנבחרו יופיעו כאן: כפתור V, שם פעולה, כפתור X -->
     </div>
 
     <div id="end-buttons-container" class="hidden">
