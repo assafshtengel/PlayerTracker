@@ -10,8 +10,6 @@ h1#welcome-message {
     color: #4A90E2;
 }
 
-/* הסרנו את main-coach-title מה-HTML */
-
 #logo {
     margin:20px auto;
     background: linear-gradient(to right, #4A90E2, #5F9EA0);
@@ -28,7 +26,7 @@ h1#welcome-message {
     font-size: 24px;
 }
 
-/* ליישר את הטקסט לימין, כולל הפעולות */
+/* כל הטקסט לימין */
 .game-info-container,
 #actions-selection-container,
 #game-actions-container,
@@ -81,19 +79,17 @@ h1#welcome-message {
     margin: 0 auto;
 }
 
-/* עיצוב הפעולות */
 .action-item {
-    margin-bottom: 10px; /* רווח בין הפעולות */
-}
-
-.action-item input[type=checkbox] {
-    transform: scale(1.5);
-    margin-left:5px;
+    margin-bottom: 10px;
 }
 
 .action-item label {
     font-size: 18px;
     margin:0;
+}
+.action-item input[type=checkbox] {
+    transform: scale(1.5);
+    margin-left:5px;
 }
 
 .actions-grid {
