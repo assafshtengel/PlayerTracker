@@ -287,11 +287,15 @@ function endHalfTime() {
     halfPopup.classList.remove("hidden");
     halfPopup.classList.add("active");
 }
+// הקוד נשאר זהה לקוד שנתנו בעבר, עם שינוי קטן ב-resumeHalf() להסתרת כפתור end-half
 
 function resumeHalf() {
     const halfPopup = document.getElementById("half-time-summary-popup");
     halfPopup.classList.remove("active");
     halfPopup.classList.add("hidden");
+
+    // אחרי חידוש המחצית לא נוכל שוב לסיים מחצית שנייה:
+    document.getElementById("end-half").style.display = 'none';
 
     gameInterval = setInterval(() => {
         gameMinute++;
@@ -300,6 +304,11 @@ function resumeHalf() {
 
     enableActions(true);
 }
+
+// שאר הקוד זהה לקוד הקודם שסיפקנו, לא צריך שינוי נוסף לגלילה (מתבצע ב-CSS) או לכפתור "צפה בכל הפעולות" שכבר הוספנו ב-HTML.
+// רק ודא שהפונקציות האחרות כמו showAllActions, trackAction וכו' נשארות כמו בקוד האחרון שסיפקנו.
+
+
 
 function endGame() {
     if (gameInterval) {
