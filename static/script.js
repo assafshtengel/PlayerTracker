@@ -54,6 +54,15 @@ function sendToJotForm(playerName, teamName, position, gameDate, actionsSummary,
     let parentNotesStr = "";
     parentNotesArr.forEach(n => {
         parentNotesStr += `דקה ${n.minute}: ${n.text}\n`;
+        formEncodedData.append("submission[nameplayer]", playerName);
+formEncodedData.append("submission[nameagainst]", teamName);
+formEncodedData.append("submission[tafkid]", position);
+formEncodedData.append("submission[date]", gameDate);
+formEncodedData.append("submission[sumall]", actionsSummary);
+formEncodedData.append("submission[sumdad]", parentNotesStr);
+formEncodedData.append("submission[price]", score.toString());
+formEncodedData.append("submission[emailField]", parentEmail);
+
     });
 
     const formEncodedData = new URLSearchParams();
