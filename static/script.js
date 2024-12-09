@@ -537,26 +537,52 @@ function enableActions(enable) {
         }
     });
 }
-
 function calculateScore(minutesPlayed) {
-    let score = 50; 
+    let score = 35; // ציון התחלתי
     let successfulActions = 0;
     let badActions = 0;
     let negativeHoradaCount = 0;
 
+    // פעולות מיוחדות שמוצלחות נותנות +5 נק'
+    const specialActions = ["בעיטה לשער", "בעיטה למסגרת", "מסירת מפתח", "נגיחה למסגרת"];
+
     actions.forEach(({ action, result }) => {
         const resLower = result.toLowerCase();
+        const actLower = action.toLowerCase();
+
+        // בדיקת סוג הפעולה
+        let isSpecial = specialActions.some(sa => actLower.includes(sa.toLowerCase()));
+
+        // פעולות מוצלחות/טובות
         if (resLower.includes("מוצלח") || resLower.includes("טוב") || resLower.includes("חיובית")) {
-            score += 3;
+            if (isSpecial) {
+                // פעולה מיוחדת מוצלחת
+                score += 5;
+            } else {
+                // פעולה מוצלחת רגילה
+                score += 3;
+            }
             successfulActions++;
         } else if (resLower.includes("רעה") || resLower.includes("לא מוצלח") || resLower.includes("לא טוב") || resLower.includes("שלילית")) {
+            // פעולה לא טובה
             score -= 2;
             badActions++;
             if (action === "הורדת ראש") {
                 negativeHoradaCount++;
             }
-        } 
+        }
     });
+
+    // בונוסים/קנסות נוספים ניתן להוסיף לפי הצורך
+    // לדוגמה: אם רוצים להתחשב במספר הפעולות שנבחרו - אפשר, אבל לפי הבקשה הנוכחית לא חייבים.
+
+    // הגבלת הציון בין 35 ל-100
+    if (score > 100) score = 100;
+    if (score < 35) score = 35;
+
+    return score;
+}
+
 
     const chosenCount = chosenProfessional.length + chosenMental.length + chosenCustom.length;
     if (chosenCount < 6 || chosenCount > 10) {
