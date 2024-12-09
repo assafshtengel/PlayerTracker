@@ -55,17 +55,31 @@
     </header>
     <h1>ברוך הבא למערכת מעקב שחקנים</h1>
 
-    <!-- שלב מילוי שם משתמש וקבוצה -->
+ <!-- שלב מילוי פרטים אישיים -->
     <div id="user-input-container">
         <h2>ברוך הבא! הזן פרטים להתחלת המשחק</h2>
         <div class="input-group">
             <input type="text" id="player-name" placeholder="הכנס שם שחקן" />
             <input type="text" id="team-name" placeholder="הכנס שם הקבוצה היריבה" />
+            <select id="player-role">
+                <option value="">בחר תפקיד</option>
+                <option value="שוער">שוער</option>
+                <option value="בלם">בלם</option>
+                <option value="מגן">מגן</option>
+                <option value="קשר">קשר</option>
+                <option value="חלוץ">חלוץ</option>
+            </select>
         </div>
-        <button id="submit-user-info" onclick="submitUserInfo()">אישור</button>
+        <button id="submit-role" onclick="submitRole()">אישור</button>
     </div>
 
-    <!-- מידע על שם וקבוצה -->
+    <!-- שלב בחירת פעולות -->
+    <div id="action-selection-container" class="hidden">
+        <h2>בחר 7-9 פעולות למעקב:</h2>
+        <div id="action-checkboxes" class="actions-grid"></div>
+        <button id="confirm-actions" onclick="confirmActions()">אישור פעולות</button>
+    </div>
+<!-- מידע על המשחק -->
     <div id="game-info" class="hidden game-info-container">
         <h2><span id="player-display"></span></h2>
         <h3>מול <span id="team-display"></span></h3>
@@ -81,10 +95,30 @@
     <div id="game-timer" class="hidden">
         <p>דקה: <span id="minute-counter">0</span></p>
     </div>
+<!-- מעקב פעולות -->
+    <div id="game-timer" class="hidden">
+        <p>דקה: <span id="minute-counter">0</span></p>
+    </div>
 
     <p class="hidden" id="actions-title">בחר את הפעולות שהשחקן מבצע במהלך המשחק:</p>
-    <div class="actions-grid hidden" id="actions-container">
-        
+    <div class="actions-grid hidden" id="actions-container"></div>
+
+   <!-- סיום משחק -->
+    <div id="end-buttons-container" class="hidden">
+        <button id="end-half" class="half-time-btn" onclick="endHalfTime()">סיום מחצית</button>
+        <button id="end-game" class="end-game-btn" onclick="endGame()">סיים משחק</button>
+    </div>
+
+    <!-- פופ-אפ סיכום משחק -->
+    <div id="game-summary-popup" class="popup hidden">
+        <div class="popup-content" id="game-summary-content">
+            <span class="close-btn" onclick="closePopup()">&times;</span>
+            <div id="summary-content"></div>
+            <button id="view-all-actions" class="view-all-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
+            <button id="download-csv" class="view-all-btn" onclick="downloadCSV()">הורד נתוני משחק</button>
+        </div>
+    </div>
+
         <!-- כל 15 הפעולות -->
         <div class="action-group">
             <button class="good-action" onclick="trackAction('הגבהה לרחבה', 'מוצלחת')">מוצלחת</button>
