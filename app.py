@@ -38,8 +38,6 @@ def save_data():
     score = data.get('score', 0)
     actions = data.get('actions', [])
     parentNotes = data.get('parentNotes', [])
-     email = data.get('email', [])
-
     # שמור את הנתונים בבסיס הנתונים
     conn = sqlite3.connect('games.db')
     c = conn.cursor()
