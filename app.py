@@ -67,3 +67,25 @@ def home():
 
 if __name__ == '__main__':
     app.run(debug=True)
+    @app.route('/view_data', methods=['GET'])
+def view_data():
+    conn = sqlite3.connect('games.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM games")
+    rows = c.fetchall()
+    conn.close()
+
+    data = []
+    for r in rows:
+        data.append({
+            "id": r[0],
+            "playerName": r[1],
+            "teamName": r[2],
+            "position": r[3],
+            "gameDate": r[4],
+            "score": r[5],
+            "actions": r[6],
+            "parentNotes": r[7]
+        })
+    return jsonify(data)
+
