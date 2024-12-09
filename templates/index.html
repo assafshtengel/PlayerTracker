@@ -16,14 +16,9 @@
     <!-- כותרת "ברוך הבא" בצבע נעים -->
     <h1 id="welcome-message" style="color:#4A90E2;margin-bottom:20px;">ברוך הבא למערכת מעקב שחקנים</h1>
 
-    <!-- לוגו מהקישור שניתן -->
+    <!-- לוגו טקסטואלי מעוצב במקום תמונה -->
     <div id="logo">
-        <img src="https://via.placeholder.com/350x100.png?text=Logo" alt="לוגו אסף שטנגל" style="width:100px;height:auto;border-radius:50%;">
-        <!-- 
-        הערה: החלף את ה-URL לאחד אמיתי של התמונה.
-        למשל: 
-        <img src="https://www.canva.com/design/DAFrG8qeD2w/-fDPtwL7_jud7xogM4lLXQ/view?..." alt="לוגו" style="width:100px;height:auto;border-radius:50%;">
-        -->
+        <span class="logo-text">אסף שטנגל - מאמן מנטלי לשחקנים</span>
     </div>
 
     <!-- שלב מילוי פרטים -->
@@ -83,9 +78,9 @@
         <p>דקה: <span id="minute-counter">0</span></p>
     </div>
 
-    <p class="hidden" id="actions-title">סמן פעולה מוצלחת (V) או לא מוצלחת (X). באפשרותך גם להוסיף הערה כללית:</p>
+    <p class="hidden" id="actions-title">סמן פעולה מוצלחת (V) או לא מוצלחת (X). באפשרותך גם להוסיף הערה כללית: <span style="font-size:20px;">🖉</span></p>
     <div class="hidden" id="notes-container">
-        <button class="view-all-btn" onclick="openGeneralNotePopup()">הערת הורה</button>
+        <button class="view-all-btn" onclick="openGeneralNotePopup()">הערת הורה <span style="font-size:20px;">🖉</span></button>
     </div>
 
     <div id="game-actions-container" class="hidden">
@@ -110,7 +105,7 @@
     <!-- פופ אפ סיכום המשחק -->
     <div id="game-summary-popup" class="popup hidden">
         <div class="popup-content" id="game-summary-content">
-            <span class="close-btn" onclick="closePopup()">&times;</span>
+            <span class="close-btn big-close" onclick="closePopup()">&times;</span>
             <div id="summary-content">
                 <p style="color: blue;">אסף שטנגל - מאמן מנטאלי לשחקנים</p>
                 <p>שם השחקן: <span id="player-display-summary"></span></p>
@@ -118,12 +113,11 @@
                 <p>קבוצה יריבה: <span id="team-display-summary"></span></p>
             </div>
             <div id="general-note-display" class="hidden">
-                <h4>הערת הורה:</h4>
-                <p id="general-note-text-display"></p>
+                <h4>הערות הורה:</h4>
+                <ul id="parent-notes-list"></ul>
             </div>
-            <button id="view-all-actions" class="view-all-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
-            <!-- הסרנו את "הורד נתוני משחק" כRequested -->
-            <button onclick="takeScreenshot()">צלם מסך</button>
+            <button id="view-all-actions" class="view-all-btn same-size-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
+            <button onclick="takeScreenshot()" class="view-all-btn same-size-btn">צלם מסך</button>
         </div>
     </div>
 
@@ -141,8 +135,8 @@
         <div class="popup-content">
             <div id="half-summary-content"></div>
             <div id="half-general-note-display" class="hidden">
-                <h4>הערת הורה:</h4>
-                <p id="half-general-note-text-display"></p>
+                <h4>הערות הורה:</h4>
+                <ul id="half-parent-notes-list"></ul>
             </div>
             <button id="resume-half" class="resume-half-btn" onclick="resumeHalf()">חידוש מחצית</button>
             <button id="view-all-actions-half" class="view-all-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
@@ -151,7 +145,7 @@
 
     <!-- פופ אפ לכל הפעולות שבוצעו -->
     <div id="actions-detail-popup" class="popup hidden">
-        <div class="popup-content">
+        <div class="popup-content actions-popup-content">
             <span class="close-btn" onclick="closeAllActionsPopup()">&times;</span>
             <h3>כל הפעולות שבוצעו במהלך המשחק:</h3>
             <div id="all-actions-list"></div>
@@ -163,7 +157,7 @@
     <div id="general-note-popup" class="popup hidden">
         <div class="popup-content">
             <span class="close-btn" onclick="closeGeneralNotePopup()">&times;</span>
-            <h3>הערת הורה</h3>
+            <h3>הערת הורה <span style="font-size:20px;">🖉</span></h3>
             <textarea id="general-note-text" placeholder="הקלד הערה..."></textarea>
             <button class="view-all-btn" onclick="saveGeneralNote()">שמור הערה</button>
         </div>
