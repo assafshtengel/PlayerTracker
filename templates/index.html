@@ -63,7 +63,7 @@
 
     <!-- תצוגת פעולות במהלך המשחק -->
     <div class="actions-grid hidden" id="actions-container">
-        <!-- כפתורי הפעולות יטענו כאן דינמית -->
+        <!-- כפתורי הפעולות ייטענו כאן דינמית -->
     </div>
 
     <!-- כפתורי סיום המשחק -->
@@ -132,6 +132,17 @@
 
     <!-- Popup כללי -->
     <div id="popup" class="hidden">פעולה נרשמה</div>
+
+    <!-- Popup לבחירת תוצאה -->
+    <div id="result-selection-popup" class="popup hidden">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeResultSelection()">&times;</span>
+            <h3>בחר את תוצאת הפעולה:</h3>
+            <button class="result-btn good" onclick="selectResult('מוצלח')">מוצלח</button>
+            <button class="result-btn bad" onclick="selectResult('רעה')">רעה</button>
+            <button class="result-btn neutral" onclick="selectResult('ניטרלית')">ניטרלית</button>
+        </div>
+    </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <script>
