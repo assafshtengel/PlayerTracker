@@ -657,5 +657,26 @@ function takeScreenshot() {
         link.href = canvas.toDataURL();
         link.download = 'game_summary_screenshot.png';
         link.click();
-    });
+    }
+    function saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes) {
+    fetch('/save_data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            playerName: playerName,
+            teamName: teamName,
+            position: position,
+            gameDate: gameDate,
+            score: score,
+            actions: actions,
+            parentNotes: parentNotes
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Data saved to server:", data);
+    })
+    .catch(err => console.error(err));
+});
+
 }
