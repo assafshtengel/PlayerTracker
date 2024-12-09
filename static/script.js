@@ -7,9 +7,37 @@ let chosenMental = [];
 let chosenCustom = [];
 let parentNotes = [];
 let gameFinished = false;
+let customActionsArr = []; // הגדרה של מערך הפעולות המותאמות אישית
 
 const API_KEY = "63c5b5f5d363cf845ffcfa3a98f97fed"; // המפתח שסיפקת
 const FORM_ID = "230789031560051"; // ה-ID שסיפקת
+
+// הגדרת הפעולות בהתאם לתפקיד השחקן
+const positionActions = {
+    "שוער": [
+        "עצירת כדור קשה","יציאה לאגרוף","משחק רגל מדויק","שליטה ברחבה","תקשורת עם ההגנה","יציאה לכדורי גובה","מסירה ארוכה מדויקת","סגירת זויות בעיטות","תגובות מהירות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"
+    ],
+    "בלם": [
+        "בלימת התקפה יריבה","משחק ראש מוצלח","סגירת תוקף","חטיפת כדור","הנעת כדור אחורה בבטחה","משחק רוחב מדויק","סגירת קווי מסירה","הגנה על הרחבה","הובלת הכדור קדימה","החזרת כדור לשוער","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
+    ],
+    "מגן": [
+        "הגבהה מדויקת לרחבה","תמיכה בהתקפה באגף","כיסוי הגנתי באגף","תקשורת עם הקשר","ריצה לאורך הקו","קרוס מדויק","חטיפת כדור באגף","מעבר מהיר להתקפה","משחק רוחב בטוח","שמירה על חלוץ יריב","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
+    ],
+    "קשר": [
+        "מסירה חכמה קדימה","שמירה על קצב המשחק","חטיפת כדור במרכז","משחק קצר מדויק","שליחת כדור לעומק","שליטה בקישור","החלפת אגף","תמיכה בהגנה","ארגון ההתקפה","ראיית משחק רחבה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
+    ],
+    "חלוץ": [
+        "בעיטה למסגרת","בעיטה לשער","תנועה ללא כדור","קבלת כדור תחת לחץ","סיום מצבים","נוכחות ברחבה","ניצול הזדמנויות","תקשורת עם הקשרים","לחץ על ההגנה היריבה","נגיחה למסגרת","שמירה על הכדור מול הגנה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"
+    ],
+    "כנף": [
+        "עקיפת מגן באגף","הגבהה איכותית","ריצה מהירה בקו","חדירה לרחבה מהאגף","משחק עומק","קידום הכדור קדימה","יצירת יתרון מספרי","משחק רוחב לשינוי אגף","הפתעת ההגנה בתנועה","השגת פינות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
+    ]
+};
+
+// פעולות מנטאליות:
+const mentalActions = [
+    "שמירה על ריכוז","התמודדות עם לחץ","תקשורת חיובית עם חברי הקבוצה","אמונה עצמית","ניהול רגשות","קבלת החלטות מהירה","התמדה במאמץ","מנהיגות חיובית","יצירת מוטיבציה","התמודדות עם טעויות","הורדת ראש","הרמת ראש"
+];
 
 // פונקציה לשליחת הנתונים ל-JotForm
 function sendToJotForm(playerName, teamName, position, gameDate, actionsSummary, score, parentEmail, parentNotesArr) {
@@ -19,7 +47,6 @@ function sendToJotForm(playerName, teamName, position, gameDate, actionsSummary,
     });
 
     const formEncodedData = new URLSearchParams();
-    // בהתאם לשמות השדות שהגדרת: nameplayer / nameagainst / tafkid / date / sumall / price / emailField
     formEncodedData.append("submission[nameplayer]", playerName);
     formEncodedData.append("submission[nameagainst]", teamName);
     formEncodedData.append("submission[tafkid]", position);
@@ -27,7 +54,7 @@ function sendToJotForm(playerName, teamName, position, gameDate, actionsSummary,
     formEncodedData.append("submission[sumall]", actionsSummary);
     formEncodedData.append("submission[price]", score.toString());
     formEncodedData.append("submission[emailField]", parentEmail);
-    // אם תרצה לשלוח הערות הורה לשדה ייעודי נוסף (לדוגמה sumdad), הוסף כאן:
+    // אם תרצה לשלוח הערות הורה לשדה ייעודי נוסף:
     // formEncodedData.append("submission[sumdad]", parentNotesStr);
 
     fetch(`https://api.jotform.com/form/${FORM_ID}/submissions?apiKey=${API_KEY}`, {
@@ -40,7 +67,6 @@ function sendToJotForm(playerName, teamName, position, gameDate, actionsSummary,
     .then(response => response.json())
     .then(data => {
         console.log("Submission Created:", data);
-        // JotForm ישלח את האימייל להורה אם הוגדר Autoresponder
     })
     .catch(err => console.error(err));
 }
@@ -89,7 +115,6 @@ function submitUserInfo() {
     // הסתרת טופס הפרטים ועוברים ישירות לבחירת פעולות
     document.getElementById("user-input-container").classList.add("hidden");
 
-    // שמירת הנתונים הגלובליים
     window.parentEmailGlobal = parentEmail;
     window.playerNameGlobal = playerName;
     window.teamNameGlobal = teamName;
@@ -99,11 +124,7 @@ function submitUserInfo() {
     document.getElementById("actions-selection-container").classList.remove("hidden");
 }
 
-// הנח שהגדרת את מערך positionActions ו-mentalActions קודם לכן בקוד המקורי שלך.
-// כאן רק הפונקציות הקיימות.
-
 function loadActionsSelection(position) {
-    const actionsContainer = document.getElementById("actions-selection-container");
     const professionalContainer = document.getElementById("professional-actions");
     const mentalContainer = document.getElementById("mental-actions");
     const customContainer = document.getElementById("custom-actions");
@@ -350,7 +371,6 @@ function endGame() {
 
     const parentEmail = window.parentEmailGlobal || "";
 
-    // לא מציגים כעת שם שחקן ותפקיד בסיכום המשחק, אם תרצה אפשר להוסיף:
     const summaryContent = document.getElementById("summary-content");
     summaryContent.innerHTML = getSummaryHTML(getActionCounts(), "סיכום המשחק");
     summaryContent.innerHTML += `<h3 id="final-score">ציון סיום המשחק שלך: ${score}</h3>`;
