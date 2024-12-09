@@ -255,10 +255,12 @@ button:hover {
 .popup.active {
     display: block;
 }
-
 .popup-content {
     position: relative;
+    overflow-y: auto; 
+    max-height: 80vh; /* מאפשר גלילה אם התוכן ארוך */
 }
+
 
 .popup-content h3 {
     margin-top: 0;
