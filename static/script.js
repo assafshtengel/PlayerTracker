@@ -5,23 +5,38 @@ let gameMinute = 0;
 let chosenProfessional = [];
 let chosenMental = [];
 let chosenCustom = [];
-let parentNotes = []; // כעת נשמור כ-objs {text, minute}
+let parentNotes = []; // {text, minute}
 let gameFinished = false;
 
 const positionActions = {
-    "שוער": [...],
-    "בלם": [...],
-    "מגן": [...],
-    "קשר": [...],
-    "חלוץ": [...],
-    "כנף": [...]
+    "שוער": [
+        "עצירת כדור קשה","יציאה לאגרוף","משחק רגל מדויק","שליטה ברחבה","תקשורת עם ההגנה","יציאה לכדורי גובה","מסירה ארוכה מדויקת","סגירת זויות בעיטות","תגובות מהירות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"
+    ],
+    "בלם": [
+        "בלימת התקפה יריבה","משחק ראש מוצלח","סגירת תוקף","חטיפת כדור","הנעת כדור אחורה בבטחה","משחק רוחב מדויק","סגירת קווי מסירה","הגנה על הרחבה","הובלת הכדור קדימה","החזרת כדור לשוער","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
+    ],
+    "מגן": [
+        "הגבהה מדויקת לרחבה","תמיכה בהתקפה באגף","כיסוי הגנתי באגף","תקשורת עם הקשר","ריצה לאורך הקו","קרוס מדויק","חטיפת כדור באגף","מעבר מהיר להתקפה","משחק רוחב בטוח","שמירה על חלוץ יריב","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
+    ],
+    "קשר": [
+        "מסירה חכמה קדימה","שמירה על קצב המשחק","חטיפת כדור במרכז","משחק קצר מדויק","שליחת כדור לעומק","שליטה בקישור","החלפת אגף","תמיכה בהגנה","ארגון ההתקפה","ראיית משחק רחבה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
+    ],
+    "חלוץ": [
+        "בעיטה למסגרת","בעיטה לשער","תנועה ללא כדור","קבלת כדור תחת לחץ","סיום מצבים","נוכחות ברחבה","ניצול הזדמנויות","תקשורת עם הקשרים","לחץ על ההגנה היריבה","נגיחה למסגרת","שמירה על הכדור מול הגנה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"
+    ],
+    "כנף": [
+        "עקיפת מגן באגף","הגבהה איכותית","ריצה מהירה בקו","חדירה לרחבה מהאגף","משחק עומק","קידום הכדור קדימה","יצירת יתרון מספרי","משחק רוחב לשינוי אגף","הפתעת ההגנה בתנועה","השגת פינות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
+    ]
 };
 
-const mentalActions = [...]; // רשימת המנטאליות כמו קודם
+const mentalActions = [
+    "שמירה על ריכוז","התמודדות עם לחץ","תקשורת חיובית עם חברי הקבוצה","אמונה עצמית","ניהול רגשות","קבלת החלטות מהירה","התמדה במאמץ","מנהיגות חיובית","יצירת מוטיבציה","התמודדות עם טעויות","הורדת ראש","הרמת ראש"
+];
 
 let customActionsArr = [];
 
 function submitUserInfo() {
+    console.log("submitUserInfo called"); // debug
     const playerName = document.getElementById("player-name").value.trim();
     const teamName = document.getElementById("team-name").value.trim();
     const playerPosition = document.getElementById("player-position").value;
@@ -111,6 +126,7 @@ function addCustomAction() {
 }
 
 function confirmActions() {
+    console.log("confirmActions called"); // debug
     const checkboxes = document.querySelectorAll('input[name="selected-actions"]:checked');
     if (checkboxes.length < 6 || checkboxes.length > 10) {
         alert(`בחרת ${checkboxes.length} פעולות. אנא בחר בין 6 ל-10 פעולות.`);
@@ -203,6 +219,15 @@ function createActionRow(action, category="") {
     return div;
 }
 
+function trackAction(action, result) {
+    if (!gameInterval || gameFinished) {
+        alert("לא ניתן לרשום פעולה כאשר הסטופר לא פעיל או כשהמשחק הסתיים!");
+        return;
+    }
+    actions.push({ action, result, minute: gameMinute });
+    showPopup(`הפעולה "${action} - ${result}" נרשמה!`);
+}
+
 function openGeneralNotePopup() {
     document.getElementById("general-note-text").value = "";
     const popup = document.getElementById("general-note-popup");
@@ -219,10 +244,10 @@ function closeGeneralNotePopup() {
 function saveGeneralNote() {
     const note = document.getElementById("general-note-text").value.trim();
     if(note) {
-        parentNotes.push({text: note, minute: gameMinute}); // שמירת דקה + טקסט
+        parentNotes.push({text: note, minute: gameMinute});
         closeGeneralNotePopup();
         showPopup("הערה נשמרה!");
-        enableActions(true); // חזרה לאפשרות לסמן פעולות
+        enableActions(true); // אפשר להמשיך לסמן פעולות
     } else {
         alert("לא הוזנה הערה");
     }
