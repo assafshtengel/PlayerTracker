@@ -54,7 +54,6 @@
             <input type="text" id="custom-action-input" placeholder="הכנס פעולה מותאמת אישית">
             <button onclick="addCustomAction()">הוסף פעולה</button>
         </div>
-        <p id="selection-error" class="error-msg hidden"></p>
         <button onclick="confirmActions()">אשר בחירה</button>
     </div>
 
@@ -68,10 +67,10 @@
         <p>דקה: <span id="minute-counter">0</span></p>
     </div>
 
-    <p class="hidden" id="actions-title">סמן פעולה מוצלחת (V) / לא מוצלחת (X). באפשרותך להוסיף הערת הורה (כחול):</p>
+    <p class="hidden" id="actions-title">סמן פעולה מוצלחת (V) או לא מוצלחת (X). באפשרותך גם להוסיף הערה כללית:</p>
 
-    <div id="notes-container" class="hidden">
-        <button class="parent-note-btn" onclick="openGeneralNotePopup()">🖉 הערת הורה</button>
+    <div class="hidden" id="notes-container">
+        <button class="view-all-btn" onclick="openGeneralNotePopup()">הערת הורה</button>
     </div>
 
     <!-- חלוקה לפעולות מקצועיות, מנטאליות ופעולות מותאמות אישית במשחק -->
@@ -99,8 +98,8 @@
                 <p>תאריך המשחק: <span id="game-date-summary"></span></p>
                 <p>קבוצה יריבה: <span id="team-display-summary"></span></p>
             </div>
-            <div id="general-note-display" class="hidden note-box">
-                <h4>🖉 הערת הורה:</h4>
+            <div id="general-note-display" class="hidden">
+                <h4>הערת הורה:</h4>
                 <p id="general-note-text-display"></p>
             </div>
             <button id="view-all-actions" class="view-all-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
@@ -122,8 +121,8 @@
     <div id="half-time-summary-popup" class="popup hidden">
         <div class="popup-content">
             <div id="half-summary-content"></div>
-            <div id="half-general-note-display" class="hidden note-box">
-                <h4>🖉 הערת הורה:</h4>
+            <div id="half-general-note-display" class="hidden">
+                <h4>הערת הורה:</h4>
                 <p id="half-general-note-text-display"></p>
             </div>
             <button id="resume-half" class="resume-half-btn" onclick="resumeHalf()">חידוש מחצית</button>
@@ -143,9 +142,9 @@
 
     <!-- פופ אפ הערה כללית -->
     <div id="general-note-popup" class="popup hidden">
-        <div class="popup-content note-popup-content">
+        <div class="popup-content">
             <span class="close-btn" onclick="closeGeneralNotePopup()">&times;</span>
-            <h3>🖉 הערת הורה</h3>
+            <h3>הערת הורה</h3>
             <textarea id="general-note-text" placeholder="הקלד הערה..."></textarea>
             <button class="view-all-btn" onclick="saveGeneralNote()">שמור הערה</button>
         </div>
