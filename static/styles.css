@@ -39,13 +39,12 @@ body {
     margin: 0 auto;
 }
 
-.input-group input, .input-group select, textarea {
+.input-group input, .input-group select {
     padding: 10px;
     font-size: 16px;
     border-radius: 5px;
     border: 1px solid #ccc;
     text-align: right;
-    box-sizing: border-box;
 }
 
 .action-item {
@@ -65,13 +64,14 @@ body {
     margin: 0 auto;
 }
 
-/* רקעים */
 .prof-bg {
     background-color: #e8f4fc;
 }
+
 .mental-bg {
     background-color: #fce8f4;
 }
+
 .custom-bg {
     background-color: #f9fbe7;
 }
@@ -139,14 +139,6 @@ button:hover {
     display: inline-block;
 }
 
-.parent-note-btn {
-    background-color: #ffa726; /* כתום */
-    font-size: 18px;
-    padding: 10px 20px;
-    border-radius: 5px;
-    margin:10px;
-}
-
 #game-timer {
     position: fixed;
     top: 10px;
@@ -160,12 +152,6 @@ button:hover {
 
 .hidden {
     display: none;
-}
-
-.error-msg {
-    color: red;
-    font-weight: bold;
-    margin-top: 10px;
 }
 
 #popup {
@@ -258,17 +244,6 @@ button:hover {
     display: inline-block;
 }
 
-.note-box {
-    background-color: #ffecb3; /* רקע צהבהב/כתמתם כדי לבלוט */
-    padding: 10px;
-    border-radius: 5px;
-    margin: 10px 0;
-}
-
-.note-popup-content {
-    background-color: #e3f2fd; /* רקע בהיר כחול */
-}
-
 #end-buttons-container {
     margin: 20px;
 }
@@ -296,6 +271,16 @@ button:hover {
     padding: 10px 20px;
     border-radius: 5px;
     margin-right: 10px;
+}
+
+textarea {
+    width: 100%;
+    height: 100px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 @media (max-width: 600px) {
