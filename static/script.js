@@ -36,7 +36,6 @@ const mentalActions = [
 let customActionsArr = [];
 
 function submitUserInfo() {
-    console.log("submitUserInfo called"); // debug
     const playerName = document.getElementById("player-name").value.trim();
     const teamName = document.getElementById("team-name").value.trim();
     const playerPosition = document.getElementById("player-position").value;
@@ -126,7 +125,6 @@ function addCustomAction() {
 }
 
 function confirmActions() {
-    console.log("confirmActions called"); // debug
     const checkboxes = document.querySelectorAll('input[name="selected-actions"]:checked');
     if (checkboxes.length < 6 || checkboxes.length > 10) {
         alert(`בחרת ${checkboxes.length} פעולות. אנא בחר בין 6 ל-10 פעולות.`);
@@ -193,14 +191,7 @@ function createActionRow(action, category="") {
     else if (category === "mental") div.classList.add("mental-bg");
     else if (category === "custom") div.classList.add("custom-bg");
 
-    const goodBtn = document.createElement("button");
-    goodBtn.textContent = "V";
-    goodBtn.style.backgroundColor = "#4CAF50";
-    goodBtn.style.width = "50px";
-    goodBtn.style.fontSize = "24px";
-    goodBtn.style.fontWeight = "bold";
-    goodBtn.onclick = () => trackAction(action, "מוצלח");
-
+    // X אדום משמאל, V ירוק מימין
     const badBtn = document.createElement("button");
     badBtn.textContent = "X";
     badBtn.style.backgroundColor = "#f44336";
@@ -211,6 +202,14 @@ function createActionRow(action, category="") {
 
     const h2 = document.createElement("h2");
     h2.textContent = action;
+
+    const goodBtn = document.createElement("button");
+    goodBtn.textContent = "V";
+    goodBtn.style.backgroundColor = "#4CAF50";
+    goodBtn.style.width = "50px";
+    goodBtn.style.fontSize = "24px";
+    goodBtn.style.fontWeight = "bold";
+    goodBtn.onclick = () => trackAction(action, "מוצלח");
 
     div.appendChild(badBtn);
     div.appendChild(h2);
@@ -225,7 +224,12 @@ function trackAction(action, result) {
         return;
     }
     actions.push({ action, result, minute: gameMinute });
-    showPopup(`הפעולה "${action} - ${result}" נרשמה!`);
+
+    // סיווג התוצאה לצבע
+    const type = classifyResult(result); // מחזיר "good","bad","neutral"
+    // הצגת פופ-אפ צבעוני ל-0.8 שניות
+    let message = `הפעולה "${action}" (${result}) נרשמה!`;
+    showPopup(message, type);
 }
 
 function openGeneralNotePopup() {
@@ -246,8 +250,8 @@ function saveGeneralNote() {
     if(note) {
         parentNotes.push({text: note, minute: gameMinute});
         closeGeneralNotePopup();
-        showPopup("הערה נשמרה!");
-        enableActions(true); // אפשר להמשיך לסמן פעולות
+        showPopup("הערה נשמרה!", "neutral");
+        enableActions(true); // לחזור לאפשרות לסמן פעולות
     } else {
         alert("לא הוזנה הערה");
     }
@@ -556,4 +560,30 @@ function reopenSummary() {
     const popup = document.getElementById("game-summary-popup");
     popup.classList.remove("hidden");
     popup.classList.add("active");
+}
+
+/**
+ * הצגת פופ-אפ צבעוני ל-0.8 שניות לפי סוג הפעולה
+ * type יכול להיות "good", "bad", "neutral"
+ */
+function showPopup(message, type="neutral") {
+    const popup = document.getElementById("popup");
+    popup.textContent = message;
+    popup.classList.remove("hidden","good-popup","bad-popup","neutral-popup");
+
+    // הסרת כל הקלאסים של סוגים
+    popup.classList.remove("popup-good","popup-bad","popup-neutral");
+
+    // הוספת קלאס לפי הסוג
+    if (type === "good") {
+        popup.classList.add("popup-good");
+    } else if (type === "bad") {
+        popup.classList.add("popup-bad");
+    } else {
+        popup.classList.add("popup-neutral");
+    }
+
+    setTimeout(() => {
+        popup.classList.add("hidden");
+    }, 800); // 0.8 שניות
 }
