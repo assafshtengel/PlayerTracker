@@ -8,19 +8,17 @@ let chosenCustom = [];
 let parentNotes = []; // {text, minute}
 let gameFinished = false;
 
-const API_KEY = "63c5b5f5d363cf845ffcfa3a98f97fed"; // מה שסיפקת
-const FORM_ID = "230789031560051"; // מה שסיפקת
+const API_KEY = "63c5b5f5d363cf845ffcfa3a98f97fed"; // המפתח שסיפקת
+const FORM_ID = "230789031560051"; // ה-ID שסיפקת
 
-// פונקציה לבניית הבקשה ל-JotForm
 function sendToJotForm(playerName, teamName, position, gameDate, actionsSummary, score, parentEmail, parentNotesArr) {
-  // הפיכת הערות הורה למחרוזת (אם צריך)
   let parentNotesStr = "";
   parentNotesArr.forEach(n => {
     parentNotesStr += `דקה ${n.minute}: ${n.text}\n`;
   });
 
   const formEncodedData = new URLSearchParams();
-  // שמות השדות כפי שסיפקת: nameplayer / nameagainst / tafkid / date / sumall / price / emailField
+  // בהתאם לשמות השדות שהגדרת: nameplayer / nameagainst / tafkid / date / sumall / price / emailField
   formEncodedData.append("submission[nameplayer]", playerName);
   formEncodedData.append("submission[nameagainst]", teamName);
   formEncodedData.append("submission[tafkid]", position);
@@ -28,8 +26,7 @@ function sendToJotForm(playerName, teamName, position, gameDate, actionsSummary,
   formEncodedData.append("submission[sumall]", actionsSummary);
   formEncodedData.append("submission[price]", score.toString());
   formEncodedData.append("submission[emailField]", parentEmail);
-  // במידה ותרצה לשלוח הערות הורה גם לשדה אחר בטופס תוכל להוסיף שדה משלו:
-  // נניח שיצרת שדה בשם "sumdad" לערות הורה:
+  // אם תרצה לשלוח הערות הורה לשדה מיוחד בטופס, הוסף כאן:
   // formEncodedData.append("submission[sumdad]", parentNotesStr);
 
   fetch(`https://api.jotform.com/form/${FORM_ID}/submissions?apiKey=${API_KEY}`, {
@@ -42,8 +39,7 @@ function sendToJotForm(playerName, teamName, position, gameDate, actionsSummary,
   .then(response => response.json())
   .then(data => {
     console.log("Submission Created:", data);
-    // בשלב זה נוצרה Submission חדשה בטופס בג'וטפורם
-    // JotForm ישלח אוטומטית מייל להורה אם הגדרת Autoresponder
+    // JotForm ישלח את האימייל להורה אם הוגדר Autoresponder
   })
   .catch(err => console.error(err));
 }
@@ -55,8 +51,7 @@ function trackAction(action, result) {
     }
     actions.push({ action, result, minute: gameMinute });
 
-    // סיווג התוצאה לצבע
-    const type = classifyResult(result); // "good","bad","neutral"
+    const type = classifyResult(result);
     let message = `הפעולה "${action}" (${result}) נרשמה!`;
     showPopup(message, type);
 }
@@ -83,9 +78,10 @@ function submitUserInfo() {
     const playerName = document.getElementById("player-name").value.trim();
     const teamName = document.getElementById("team-name").value.trim();
     const playerPosition = document.getElementById("player-position").value;
+    const parentEmail = document.getElementById("parent-email").value.trim();
 
-    if (!playerName || !teamName || !playerPosition) {
-        alert("אנא מלא את כל השדות (כולל תפקיד)");
+    if (!playerName || !teamName || !playerPosition || !parentEmail) {
+        alert("אנא מלא את כל השדות (כולל תפקיד ומייל הורה)");
         return;
     }
 
@@ -103,9 +99,14 @@ function submitUserInfo() {
 
     document.getElementById("user-input-container").classList.add("hidden");
     document.getElementById("game-info").classList.remove("hidden");
+    // נשמור את המייל ההורה ב-Window כדי לגשת אליו ב-endGame
+    window.parentEmailGlobal = parentEmail;
 
     loadActionsSelection(playerPosition);
 }
+
+// כאן צריך להגדיר את positionActions וmentalActions כפי שהיו בקוד המקורי
+// לצורך הפשטות, נניח שהם כבר מוגדרים, כפי שהיה.
 
 function loadActionsSelection(position) {
     const actionsContainer = document.getElementById("actions-selection-container");
@@ -117,7 +118,6 @@ function loadActionsSelection(position) {
     mentalContainer.innerHTML = "";
     customContainer.innerHTML = "";
 
-    // כאן התאם את הפעולות לפי positionActions וmentalActions שהגדרת בעבר (לא מוצג כאן בפירוט)
     const actionsForPosition = positionActions[position] || [];
 
     actionsForPosition.forEach(action => {
@@ -255,7 +255,6 @@ function createActionRow(action, category="") {
     goodBtn.style.fontWeight = "bold";
     goodBtn.onclick = () => trackAction(action, "מוצלח");
 
-    // X משמאל, V מימין
     div.appendChild(badBtn);
     div.appendChild(h2);
     div.appendChild(goodBtn);
@@ -384,22 +383,18 @@ function endGame() {
 
     document.getElementById("reopen-summary-container").classList.remove("hidden");
 
-    // עכשיו לאחר הסיום, נשלח את הנתונים ל-JotForm
+    // כעת נשלח את הנתונים לג'וטפורם
     const playerName = document.getElementById("player-display").textContent;
     const teamName = document.getElementById("team-display").textContent;
     const position = document.getElementById("player-position-display").textContent;
     const gameDate = document.getElementById("game-date").textContent;
-    // נניח actionsSummary הוא מחרוזת של כל הפעולות:
+
     let actionsSummary = "";
     actions.forEach(a => {
         actionsSummary += `דקה ${a.minute}: ${a.action} - ${a.result}\n`;
     });
 
-    // המייל של ההורה:
-    // נניח ששמרת אותו בצד הלקוח אחרי שהורה הזין את המייל היכן שהוא, כאן תצטרך לערוך:
-    // לדוגמה נניח יש לך: const parentEmail = "parent@example.com";
-    // החלף לערך אמיתי או תשמר במקום כלשהו
-    const parentEmail = "parent@example.com";
+    const parentEmail = window.parentEmailGlobal; // המייל של ההורה ששמרנו אחרי submitUserInfo
 
     sendToJotForm(playerName, teamName, position, gameDate, actionsSummary, score, parentEmail, parentNotes);
 }
