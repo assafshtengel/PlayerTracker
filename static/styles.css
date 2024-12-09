@@ -3,6 +3,7 @@ body {
     text-align: center;
     margin: 20px;
     font-size: 16px;
+    direction: rtl; /* לכיוון עברית */
 }
 
 .game-info-container {
@@ -38,12 +39,21 @@ body {
     margin: 0 auto;
 }
 
-.input-group input {
+.input-group input, .input-group select {
     padding: 10px;
     font-size: 16px;
     border-radius: 5px;
     border: 1px solid #ccc;
     text-align: right;
+}
+
+.action-item {
+    text-align: right;
+    margin: 5px 0;
+}
+
+.action-item input {
+    margin-right: 10px;
 }
 
 .actions-grid {
@@ -164,7 +174,7 @@ button:hover {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 85%;
+    width: 90%;
     max-width: 600px;
     background-color: white;
     border: 3px solid #333;
@@ -180,7 +190,7 @@ button:hover {
 }
 
 .popup-content {
-    text-align: left;
+    text-align: right;
     position: relative;
 }
 
@@ -211,7 +221,7 @@ button:hover {
 .close-btn {
     position: absolute;
     top: 10px;
-    right: 15px;
+    left: 15px; /* מצד ימין לשמאל, נשים בצד שמאל כך שייראה טבעי בעברית */
     font-size: 24px;
     font-weight: bold;
     color: red;
