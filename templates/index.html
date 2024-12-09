@@ -9,9 +9,17 @@
 </head>
 <body>
     <header>
-        <h1>אסף שטנגל - מאמן מנטלי לשחקנים</h1>
+        <!-- כותרת ראשית קטנה יותר -->
+        <h3 id="main-coach-title">אסף שטנגל - מאמן מנטאלי לשחקנים</h3>
     </header>
-    <h1>ברוך הבא למערכת מעקב שחקנים</h1>
+
+    <!-- כותרת "ברוך הבא" בצבע נעים ולא שחור -->
+    <h1 id="welcome-message" style="color:#4A90E2;margin-bottom:20px;">ברוך הבא למערכת מעקב שחקנים</h1>
+
+    <!-- לוגו יפה ומיוחד שיופיע בכל העמודים -->
+    <div id="logo">
+        <span>לוגו מיוחד: אסף שטנגל</span>
+    </div>
 
     <!-- שלב מילוי פרטים -->
     <div id="user-input-container" class="game-info-container">
@@ -29,7 +37,8 @@
                 <option value="כנף">כנף</option>
             </select>
         </div>
-        <button onclick="submitUserInfo()">אישור</button>
+        <!-- כפתור אישור מעט יותר נמוך ויותר בולט -->
+        <button id="submit-user-button" onclick="submitUserInfo()">אישור</button>
     </div>
 
     <!-- מידע על השחקן -->
@@ -52,9 +61,11 @@
         <div id="custom-actions"></div>
         <div class="input-group" style="max-width:300px;margin:10px auto;">
             <input type="text" id="custom-action-input" placeholder="הכנס פעולה מותאמת אישית">
-            <button onclick="addCustomAction()">הוסף פעולה</button>
+            <!-- כפתור הוסף פעולה בצבע שונה -->
+            <button id="add-custom-action-btn" onclick="addCustomAction()">הוסף פעולה</button>
         </div>
-        <button onclick="confirmActions()">אשר בחירה</button>
+        <!-- כפתור אשר בחירה גדול יותר -->
+        <button id="confirm-actions-btn" onclick="confirmActions()">אשר בחירה</button>
     </div>
 
     <!-- כפתור תחילת המשחק -->
@@ -68,12 +79,10 @@
     </div>
 
     <p class="hidden" id="actions-title">סמן פעולה מוצלחת (V) או לא מוצלחת (X). באפשרותך גם להוסיף הערה כללית:</p>
-
     <div class="hidden" id="notes-container">
         <button class="view-all-btn" onclick="openGeneralNotePopup()">הערת הורה</button>
     </div>
 
-    <!-- חלוקה לפעולות מקצועיות, מנטאליות ופעולות מותאמות אישית במשחק -->
     <div id="game-actions-container" class="hidden">
         <h3>פעולות מקצועיות</h3>
         <div class="actions-grid" id="prof-actions-chosen"></div>
