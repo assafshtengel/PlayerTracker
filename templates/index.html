@@ -16,9 +16,9 @@
     <!-- כותרת "ברוך הבא" בצבע נעים -->
     <h1 id="welcome-message" style="color:#4A90E2;margin-bottom:20px;">ברוך הבא למערכת מעקב שחקנים</h1>
 
-    <!-- לוגו אמיתי (כאן לוגו דמה), יוצג בכל העמודים -->
+    <!-- לוגו מהקישור שסיפקת (נניח שזה לוגו) -->
     <div id="logo">
-        <img src="https://via.placeholder.com/150/4A90E2/ffffff?text=Asaf+Shtangel+Logo" alt="לוגו אסף שטנגל" style="width:100px;height:auto;border-radius:50%;">
+        <img src="https://www.canva.com/design/DAFrG8qeD2w/-fDPtwL7_jud7xogM4lLXQ/view?utm_content=DAFrG8qeD2w&utm_campaign=designshare&utm_medium=link&utm_source=editor" alt="לוגו אסף שטנגל" style="width:100px;height:auto;border-radius:50%;">
     </div>
 
     <!-- שלב מילוי פרטים -->
@@ -61,7 +61,7 @@
         <div id="custom-actions"></div>
         <div class="input-group" style="max-width:300px;margin:10px auto;">
             <input type="text" id="custom-action-input" placeholder="הכנס פעולה מותאמת אישית">
-            <!-- כפתור "הוסף פעולה" בצבע שונה -->
+            <!-- כפתור הוסף פעולה בצבע שונה -->
             <button id="add-custom-action-btn" onclick="addCustomAction()">הוסף פעולה</button>
         </div>
         <!-- כפתור אשר בחירה גדול יותר -->
@@ -95,6 +95,11 @@
     <div id="end-buttons-container" class="hidden">
         <button id="end-half" class="half-time-btn" onclick="endHalfTime()">סיום מחצית</button>
         <button id="end-game" class="end-game-btn" onclick="endGame()">סיים משחק</button>
+    </div>
+
+    <!-- כפתור לצפייה בסיכום מחדש לאחר סגירה -->
+    <div id="reopen-summary-container" class="hidden">
+        <button id="reopen-summary-btn" class="view-all-btn" onclick="reopenSummary()">צפה בסיכום</button>
     </div>
 
     <!-- פופ אפ סיכום המשחק -->
