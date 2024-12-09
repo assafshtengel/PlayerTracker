@@ -161,6 +161,12 @@ function submitUserInfo() {
     document.getElementById("game-date").textContent = today;
     document.getElementById("player-position-display").textContent = playerPosition;
 
+    // הסתרת "ברוך הבא" לאחר אישור
+    const welcomeMessage = document.getElementById("welcome-message");
+    if (welcomeMessage) {
+        welcomeMessage.style.display = 'none';
+    }
+
     document.getElementById("user-input-container").classList.add("hidden");
     document.getElementById("game-info").classList.remove("hidden");
 
@@ -540,7 +546,8 @@ function calculateScore(minutesPlayed) {
     if (minutesPlayed > 0) {
         let minuteFactor = (60 - minutesPlayed) / 60;
         score = score + Math.floor((successfulActions / minutesPlayed) * 10 * minuteFactor);
-        score = Math.min(196, score); // אפשר להגדיל ליותר מ-100 אם תרצה
+        // לא הגבילו כאן למקסימום 100, אפשר יותר:
+        score = Math.min(196, score);
     }
 
     return score; 
