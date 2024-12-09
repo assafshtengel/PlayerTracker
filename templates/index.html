@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>מערכת מעקב שחקנים</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- ספריית צילום מסך -->
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
@@ -13,7 +14,7 @@
     </header>
     <h1>ברוך הבא למערכת מעקב שחקנים</h1>
 
-    <!-- שלב מילוי שם משתמש, קבוצה ותפקיד -->
+    <!-- חלק בו ממלאים שם שחקן, קבוצה ותפקיד -->
     <div id="user-input-container" class="game-info-container">
         <h2>ברוך הבא! הזן פרטים להתחלת המשחק</h2>
         <div class="input-group">
@@ -31,7 +32,7 @@
         <button id="submit-user-info" onclick="submitUserInfo()">אישור</button>
     </div>
 
-    <!-- מידע על שם, קבוצה ותפקיד -->
+    <!-- מידע על השחקן, קבוצה, תפקיד ותאריך משחק -->
     <div id="game-info" class="hidden game-info-container">
         <h2><span id="player-display"></span></h2>
         <h3>מול <span id="team-display"></span></h3>
@@ -39,16 +40,14 @@
         <p>תאריך המשחק: <span id="game-date"></span></p>
     </div>
 
-    <!-- בחירת פעולות לפי תפקיד -->
+    <!-- בחירת פעולות בהתאם לתפקיד -->
     <div class="game-info-container hidden" id="actions-selection-container">
         <h3>בחר פעולות לתפקיד</h3>
-        <div id="actions-list">
-            <!-- הפעולות ייטענו כאן דינמית -->
-        </div>
+        <div id="actions-list"><!-- כאן נטען דינמית רשימת פעולות --> </div>
         <button onclick="confirmActions()">אשר בחירה</button>
     </div>
 
-    <!-- כפתור תחילת המשחק -->
+    <!-- כפתור תחילת משחק -->
     <div id="start-game-container" class="hidden">
         <button id="start-game" class="start-game-btn" onclick="startGame()">תחילת משחק</button>
     </div>
@@ -58,24 +57,22 @@
         <p>דקה: <span id="minute-counter">0</span></p>
     </div>
 
-    <!-- כותרת פעולות -->
+    <!-- כותרת לפעולות במהלך המשחק -->
     <p class="hidden" id="actions-title">בחר את הפעולות שהשחקן מבצע במהלך המשחק:</p>
 
-    <!-- תצוגת פעולות במהלך המשחק -->
-    <div class="actions-grid hidden" id="actions-container">
-        <!-- כפתורי הפעולות ייטענו כאן דינמית -->
-    </div>
+    <!-- אזור בו יופיעו כפתורי הפעולות במהלך המשחק -->
+    <div class="actions-grid hidden" id="actions-container"></div>
 
-    <!-- כפתורי סיום המשחק -->
+    <!-- כפתורים לסיום מחצית ומשחק -->
     <div id="end-buttons-container" class="hidden">
         <button id="end-half" class="half-time-btn" onclick="endHalfTime()">סיום מחצית</button>
         <button id="end-game" class="end-game-btn" onclick="endGame()">סיים משחק</button>
     </div>
 
-    <!-- Popup עבור הודעות -->
-    <div id="popup" class="hidden"></div>
+    <!-- הודעה מוקפצת לפעולות -->
+    <div id="popup-message" class="hidden"></div>
 
-    <!-- Popup לסיכום מחצית זמן -->
+    <!-- חלונית לסיכום מחצית -->
     <div id="half-time-summary-popup" class="popup hidden">
         <div class="popup-content">
             <span class="close-btn" onclick="resumeHalf()">&times;</span>
@@ -84,7 +81,7 @@
         </div>
     </div>
 
-    <!-- Popup לסיכום המשחק -->
+    <!-- חלונית לסיכום המשחק -->
     <div id="game-summary-popup" class="popup hidden">
         <div class="popup-content" id="game-summary-content">
             <span class="close-btn" onclick="closePopup()">&times;</span>
@@ -95,14 +92,12 @@
                 <p>קבוצה יריבה: <span id="team-display-summary"></span></p>
             </div>
             <button id="view-all-actions" class="view-all-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
-            <!-- כפתור להורדת נתוני המשחק כ-CSV -->
             <button id="download-csv" class="view-all-btn" onclick="downloadCSV()">הורד נתוני משחק</button>
-            <!-- כפתור לצילום מסך של הפופ אפ -->
             <button onclick="takeScreenshot()">צלם מסך</button>
         </div>
     </div>
 
-    <!-- Popup פידבק אישי מותאם לשחקן -->
+    <!-- חלונית פידבק לשחקן -->
     <div id="feedback-popup" class="popup hidden">
         <div class="popup-content" id="feedback-content">
             <span class="close-btn" onclick="closeFeedbackPopup()">&times;</span>
@@ -111,16 +106,7 @@
         </div>
     </div>
 
-    <!-- Popup תוצאות המחצית -->
-    <div id="half-time-summary-popup" class="popup hidden">
-        <div class="popup-content">
-            <div id="half-summary-content"></div>
-            <button id="resume-half" class="resume-half-btn" onclick="resumeHalf()">חידוש מחצית</button>
-            <button id="view-all-actions-half" class="view-all-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
-        </div>
-    </div>
-
-    <!-- Popup להצגת כל הפעולות -->
+    <!-- חלונית לכל הפעולות שבוצעו -->
     <div id="actions-detail-popup" class="popup hidden">
         <div class="popup-content">
             <span class="close-btn" onclick="closeAllActionsPopup()">&times;</span>
@@ -130,10 +116,7 @@
         </div>
     </div>
 
-    <!-- Popup כללי -->
-    <div id="popup" class="hidden">פעולה נרשמה</div>
-
-    <!-- Popup לבחירת תוצאה -->
+    <!-- חלונית לבחירת תוצאה של פעולה -->
     <div id="result-selection-popup" class="popup hidden">
         <div class="popup-content">
             <span class="close-btn" onclick="closeResultSelection()">&times;</span>
@@ -146,9 +129,9 @@
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <script>
-        // פונקציה לצילום מסך של פופאפ הסיכום
+        // פונקציה לצילום מסך של סיכום המשחק
         function takeScreenshot() {
-            const element = document.getElementById('game-summary-content'); // צלם רק את הפופאפ של סיכום המשחק
+            const element = document.getElementById('game-summary-content');
             html2canvas(element).then((canvas) => {
                 const link = document.createElement('a');
                 link.href = canvas.toDataURL();
@@ -157,7 +140,7 @@
             });
         }
 
-        // פונקציה להורדת נתוני המשחק כקובץ CSV
+        // פונקציה להורדת נתוני המשחק כ-CSV
         function downloadCSV() {
             let csvContent = "data:text/csv;charset=utf-8,פעולה,תוצאה,דקה\n";
             actions.forEach(a => {
