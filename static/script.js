@@ -38,6 +38,9 @@ const leadershipActions = [
     "תיאום עם השופט", "ניהול זמן המשחק", "פתרון סכסוכים", "הובלת האימונים", "קבלת החלטות"
 ];
 
+// משתנה לשמירת הפעולה הנבחרת בעת פתיחת תיבת הבחירה
+let currentAction = null;
+
 function submitUserInfo() {
     const playerName = document.getElementById("player-name").value.trim();
     const teamName = document.getElementById("team-name").value.trim();
@@ -124,7 +127,8 @@ function startGame() {
     selectedActions.forEach(action => {
         const button = document.createElement("button");
         button.textContent = action;
-        button.onclick = () => trackAction(action, promptResult());
+        button.classList.add("action-button");
+        button.onclick = () => openResultSelection(action);
         actionsContainer.appendChild(button);
     });
 
@@ -144,17 +148,27 @@ function startGame() {
     endButtons.classList.remove("hidden");
 }
 
-function promptResult() {
-    const result = prompt("הזן את התוצאה של הפעולה (מוצלח/רעה/ניטרלי):");
-    if (result === null) {
-        return "ניטרלי";
+function openResultSelection(action) {
+    currentAction = action;
+    const resultPopup = document.getElementById("result-selection-popup");
+    resultPopup.classList.remove("hidden");
+    resultPopup.classList.add("active");
+}
+
+function selectResult(result) {
+    if (!currentAction) {
+        alert("פעולה לא מוגדרת!");
+        return;
     }
-    const normalized = result.trim().toLowerCase();
-    if (["מוצלח", "רעה", "ניטרלי", "טוב", "לא טוב", "חיובית", "שלילית"].includes(normalized)) {
-        return normalized;
-    }
-    alert("ערך לא תקין, הפעולה תסומן כניטרלית.");
-    return "ניטרלי";
+    trackAction(currentAction, result);
+    currentAction = null;
+    closeResultSelection();
+}
+
+function closeResultSelection() {
+    const resultPopup = document.getElementById("result-selection-popup");
+    resultPopup.classList.add("hidden");
+    resultPopup.classList.remove("active");
 }
 
 function trackAction(action, result) {
@@ -218,19 +232,21 @@ function endGame() {
     const summaryContent = document.getElementById("summary-content");
     summaryContent.innerHTML = getSummaryHTML(counts, "סיכום המשחק");
 
-    const popup = document.getElementById("game-summary-popup");
-    popup.classList.remove("hidden");
-    popup.classList.add("active");
-
     // עדכון פרטי השחקן לסיכום המשחק
     document.getElementById("player-display-summary").textContent = document.getElementById("player-display").textContent;
     document.getElementById("game-date-summary").textContent = document.getElementById("game-date").textContent;
     document.getElementById("team-display-summary").textContent = document.getElementById("team-display").textContent;
 
+    const minutesPlayed = gameMinute;
+    const score = calculateScore(minutesPlayed);
+    summaryContent.innerHTML += `<h3>ציון סיום המשחק שלך: ${score}</h3>`;
+
+    const popup = document.getElementById("game-summary-popup");
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
+
     // הצגת פידבק מותאם אישית מיד לאחר הצגת הסיכום
     setTimeout(() => {
-        const minutesPlayed = gameMinute;
-        const score = calculateScore(minutesPlayed);
         showFeedback(score, minutesPlayed);
     }, 500);
 }
@@ -294,7 +310,7 @@ function classifyResult(result) {
 }
 
 function enableActions(enable) {
-    const buttons = document.querySelectorAll('#actions-container button');
+    const buttons = document.querySelectorAll('#actions-container .action-button');
     buttons.forEach(button => {
         if (enable) {
             button.removeAttribute('disabled');
@@ -302,22 +318,6 @@ function enableActions(enable) {
             button.setAttribute('disabled', 'disabled');
         }
     });
-}
-
-// פונקציית הורדת CSV חדשה:
-function downloadCSV() {
-    let csvContent = "data:text/csv;charset=utf-8,פעולה,תוצאה,דקה\n";
-    actions.forEach(a => {
-        csvContent += `${a.action},${a.result},${a.minute}\n`;
-    });
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "game_summary.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
 }
 
 // פונקציה לחישוב ציון סיום המשחק
