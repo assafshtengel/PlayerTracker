@@ -43,11 +43,17 @@
     <!-- בחירת פעולות -->
     <div id="actions-selection-container" class="game-info-container hidden">
         <h3>בחר בין 6 ל-10 פעולות להתמקד בהן</h3>
-        <p>מתוך הפעולות המקצועיות והמנטאליות</p>
+        <p>מתוך הפעולות המקצועיות, המנטאליות או הוספת פעולות מותאמות אישית</p>
         <h4>פעולות מקצועיות:</h4>
         <div id="professional-actions"></div>
         <h4>פעולות מנטאליות:</h4>
         <div id="mental-actions"></div>
+        <h4>פעולות מותאמות אישית:</h4>
+        <div id="custom-actions"></div>
+        <div class="input-group" style="max-width:300px;margin:10px auto;">
+            <input type="text" id="custom-action-input" placeholder="הכנס פעולה מותאמת אישית">
+            <button onclick="addCustomAction()">הוסף פעולה</button>
+        </div>
         <button onclick="confirmActions()">אשר בחירה</button>
     </div>
 
@@ -61,14 +67,20 @@
         <p>דקה: <span id="minute-counter">0</span></p>
     </div>
 
-    <p class="hidden" id="actions-title">סמן פעולה מוצלחת (V) או לא מוצלחת (X), או הוסף הערה:</p>
+    <p class="hidden" id="actions-title">סמן פעולה מוצלחת (V) או לא מוצלחת (X). באפשרותך גם להוסיף הערה כללית:</p>
 
-    <!-- חלוקה לפעולות מקצועיות ומנטאליות בנפרד -->
+    <div class="hidden" id="notes-container">
+        <button class="view-all-btn" onclick="openGeneralNotePopup()">הערת הורה</button>
+    </div>
+
+    <!-- חלוקה לפעולות מקצועיות, מנטאליות ופעולות מותאמות אישית במשחק -->
     <div id="game-actions-container" class="hidden">
         <h3>פעולות מקצועיות</h3>
         <div class="actions-grid" id="prof-actions-chosen"></div>
         <h3>פעולות מנטאליות</h3>
         <div class="actions-grid" id="mental-actions-chosen"></div>
+        <h3>פעולות מותאמות אישית</h3>
+        <div class="actions-grid" id="custom-actions-chosen"></div>
     </div>
 
     <div id="end-buttons-container" class="hidden">
@@ -85,6 +97,10 @@
                 <p>שם השחקן: <span id="player-display-summary"></span></p>
                 <p>תאריך המשחק: <span id="game-date-summary"></span></p>
                 <p>קבוצה יריבה: <span id="team-display-summary"></span></p>
+            </div>
+            <div id="general-note-display" class="hidden">
+                <h4>הערת הורה:</h4>
+                <p id="general-note-text-display"></p>
             </div>
             <button id="view-all-actions" class="view-all-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
             <button id="download-csv" class="view-all-btn" onclick="downloadCSV()">הורד נתוני משחק</button>
@@ -105,12 +121,16 @@
     <div id="half-time-summary-popup" class="popup hidden">
         <div class="popup-content">
             <div id="half-summary-content"></div>
+            <div id="half-general-note-display" class="hidden">
+                <h4>הערת הורה:</h4>
+                <p id="half-general-note-text-display"></p>
+            </div>
             <button id="resume-half" class="resume-half-btn" onclick="resumeHalf()">חידוש מחצית</button>
             <button id="view-all-actions-half" class="view-all-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
         </div>
     </div>
 
-    <!-- פופ אפ כל הפעולות שבוצעו -->
+    <!-- פופ אפ לכל הפעולות שבוצעו -->
     <div id="actions-detail-popup" class="popup hidden">
         <div class="popup-content">
             <span class="close-btn" onclick="closeAllActionsPopup()">&times;</span>
@@ -120,13 +140,13 @@
         </div>
     </div>
 
-    <!-- פופ אפ הערות הורה -->
-    <div id="parent-note-popup" class="popup hidden">
+    <!-- פופ אפ הערה כללית -->
+    <div id="general-note-popup" class="popup hidden">
         <div class="popup-content">
-            <span class="close-btn" onclick="closeParentNotePopup()">&times;</span>
+            <span class="close-btn" onclick="closeGeneralNotePopup()">&times;</span>
             <h3>הערת הורה</h3>
-            <textarea id="parent-note-text" placeholder="הקלד הערה..."></textarea>
-            <button class="view-all-btn" onclick="saveParentNote()">שמור הערה</button>
+            <textarea id="general-note-text" placeholder="הקלד הערה..."></textarea>
+            <button class="view-all-btn" onclick="saveGeneralNote()">שמור הערה</button>
         </div>
     </div>
 
