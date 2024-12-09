@@ -50,24 +50,7 @@ def save_data():
 
     return jsonify({"status": "success"})
 
-# הגדרת לוגים
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-
-print("Current directory:", os.getcwd())
-if os.path.exists('templates'):
-    print("Templates:", os.listdir('templates'))
-else:
-    print("No templates directory found.")
-
-@app.route('/')
-def home():
-    logger.debug("Home route was accessed.")
-    return render_template('index.html')
-
-if __name__ == '__main__':
-    app.run(debug=True)
-    @app.route('/view_data', methods=['GET'])
+@app.route('/view_data', methods=['GET'])
 def view_data():
     conn = sqlite3.connect('games.db')
     c = conn.cursor()
@@ -89,3 +72,20 @@ def view_data():
         })
     return jsonify(data)
 
+# הגדרת לוגים
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+print("Current directory:", os.getcwd())
+if os.path.exists('templates'):
+    print("Templates:", os.listdir('templates'))
+else:
+    print("No templates directory found.")
+
+@app.route('/')
+def home():
+    logger.debug("Home route was accessed.")
+    return render_template('index.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)
