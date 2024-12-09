@@ -5,12 +5,6 @@ body {
     font-size: 16px;
 }
 
-header h1 {
-    color: blue; 
-    text-align: center; 
-    margin-top: 20px; 
-}
-
 .game-info-container {
     background: #f5f5f5;
     padding: 20px;
@@ -44,7 +38,7 @@ header h1 {
     margin: 0 auto;
 }
 
-.input-group input, .input-group select {
+.input-group input {
     padding: 10px;
     font-size: 16px;
     border-radius: 5px;
@@ -52,29 +46,9 @@ header h1 {
     text-align: right;
 }
 
-.actions-selection-container {
-    background: #f5f5f5;
-    padding: 20px;
-    max-width: 600px;
-    margin: 20px auto;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-}
-
-.action-item {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    margin: 5px 0;
-}
-
-.action-item input {
-    margin-right: 10px;
-}
-
 .actions-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: 1fr;
     gap: 8px;
     max-width: 100%;
     margin: 0 auto;
@@ -88,7 +62,7 @@ header h1 {
     border: 1px solid #ddd;
     border-radius: 5px;
     background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     font-size: 14px;
     height: 60px;
 }
@@ -114,13 +88,13 @@ button {
     cursor: pointer;
     background-color: #4CAF50;
     color: white;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 button:hover {
     transform: scale(1.05);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.2);
 }
 
 .good-action {
@@ -164,7 +138,7 @@ button:hover {
     display: none;
 }
 
-#popup-message {
+#popup {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -180,7 +154,7 @@ button:hover {
     transition: opacity 0.3s ease-in-out, visibility 0.3s;
 }
 
-#popup-message:not(.hidden) {
+#popup:not(.hidden) {
     opacity: 1;
     visibility: visible;
 }
@@ -283,42 +257,6 @@ button:hover {
     margin-right: 10px;
 }
 
-#result-selection-popup {
-    display: none;
-}
-
-#result-selection-popup.active {
-    display: block;
-}
-
-.result-btn {
-    margin: 10px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    color: white;
-    font-size: 16px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.result-btn.good {
-    background-color: #4CAF50;
-}
-
-.result-btn.bad {
-    background-color: #f44336;
-}
-
-.result-btn.neutral {
-    background-color: #9E9E9E;
-}
-
-.result-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
-}
-
 @media (max-width: 600px) {
     .actions-grid {
         grid-template-columns: 1fr;
@@ -338,10 +276,5 @@ button:hover {
 
     .action-item label {
         font-size: 14px;
-    }
-
-    .result-btn {
-        font-size: 14px;
-        padding: 8px 16px;
     }
 }
