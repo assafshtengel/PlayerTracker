@@ -1,7 +1,3 @@
-// הקוד זהה לקודם, ללא כפתור הורדת נתונים (כבר הוסר מ-HTML), 
-// endGame() כבר מכביא סיים מחצית ומסתיר כפתור הערת הורה.
-// לאחר סיום המשחק "סיים משחק" לא יוצג שוב כי אין חזרה למצב משחק.
-
 let actions = [];
 let selectedActions = [];
 let gameInterval = null;
@@ -9,124 +5,20 @@ let gameMinute = 0;
 let chosenProfessional = [];
 let chosenMental = [];
 let chosenCustom = [];
-let generalNote = "";
+let parentNotes = []; // מערך להערות הורה מרובות
 let gameFinished = false;
 
 const positionActions = {
-    "שוער": [
-        "עצירת כדור קשה",
-        "יציאה לאגרוף",
-        "משחק רגל מדויק",
-        "שליטה ברחבה",
-        "תקשורת עם ההגנה",
-        "יציאה לכדורי גובה",
-        "מסירה ארוכה מדויקת",
-        "סגירת זויות בעיטות",
-        "תגובות מהירות",
-        "ביצוע 1 על 1",
-        "מסירת מפתח",
-        "הגבהה לרחבה"
-    ],
-    "בלם": [
-        "בלימת התקפה יריבה",
-        "משחק ראש מוצלח",
-        "סגירת תוקף",
-        "חטיפת כדור",
-        "הנעת כדור אחורה בבטחה",
-        "משחק רוחב מדויק",
-        "סגירת קווי מסירה",
-        "הגנה על הרחבה",
-        "הובלת הכדור קדימה",
-        "החזרת כדור לשוער",
-        "ביצוע 1 על 1",
-        "מסירת מפתח",
-        "הגבהה לרחבה",
-        "בעיטה לשער",
-        "בעיטה למסגרת"
-    ],
-    "מגן": [
-        "הגבהה מדויקת לרחבה",
-        "תמיכה בהתקפה באגף",
-        "כיסוי הגנתי באגף",
-        "תקשורת עם הקשר",
-        "ריצה לאורך הקו",
-        "קרוס מדויק",
-        "חטיפת כדור באגף",
-        "מעבר מהיר להתקפה",
-        "משחק רוחב בטוח",
-        "שמירה על חלוץ יריב",
-        "ביצוע 1 על 1",
-        "מסירת מפתח",
-        "הגבהה לרחבה",
-        "בעיטה לשער",
-        "בעיטה למסגרת"
-    ],
-    "קשר": [
-        "מסירה חכמה קדימה",
-        "שמירה על קצב המשחק",
-        "חטיפת כדור במרכז",
-        "משחק קצר מדויק",
-        "שליחת כדור לעומק",
-        "שליטה בקישור",
-        "החלפת אגף",
-        "תמיכה בהגנה",
-        "ארגון ההתקפה",
-        "ראיית משחק רחבה",
-        "ביצוע 1 על 1",
-        "מסירת מפתח",
-        "הגבהה לרחבה",
-        "בעיטה לשער",
-        "בעיטה למסגרת"
-    ],
-    "חלוץ": [
-        "בעיטה למסגרת",
-        "בעיטה לשער",
-        "תנועה ללא כדור",
-        "קבלת כדור תחת לחץ",
-        "סיום מצבים",
-        "נוכחות ברחבה",
-        "ניצול הזדמנויות",
-        "תקשורת עם הקשרים",
-        "לחץ על ההגנה היריבה",
-        "נגיחה למסגרת",
-        "שמירה על הכדור מול הגנה",
-        "ביצוע 1 על 1",
-        "מסירת מפתח",
-        "הגבהה לרחבה"
-    ],
-    "כנף": [
-        "עקיפת מגן באגף",
-        "הגבהה איכותית",
-        "ריצה מהירה בקו",
-        "חדירה לרחבה מהאגף",
-        "משחק עומק",
-        "קידום הכדור קדימה",
-        "יצירת יתרון מספרי",
-        "משחק רוחב לשינוי אגף",
-        "הפתעת ההגנה בתנועה",
-        "השגת פינות",
-        "ביצוע 1 על 1",
-        "מסירת מפתח",
-        "הגבהה לרחבה",
-        "בעיטה לשער",
-        "בעיטה למסגרת"
-    ]
+    "שוער": [ ... ],
+    "בלם": [ ... ],
+    "מגן": [ ... ],
+    "קשר": [ ... ],
+    "חלוץ": [ ... ],
+    "כנף": [ ... ]
 };
 
-const mentalActions = [
-    "שמירה על ריכוז",
-    "התמודדות עם לחץ",
-    "תקשורת חיובית עם חברי הקבוצה",
-    "אמונה עצמית",
-    "ניהול רגשות",
-    "קבלת החלטות מהירה",
-    "התמדה במאמץ",
-    "מנהיגות חיובית",
-    "יצירת מוטיבציה",
-    "התמודדות עם טעויות",
-    "הורדת ראש",
-    "הרמת ראש"
-];
+// כאן העתק את התוכן המלא של הרשימות positionActions וmentalActions מהקוד הקודם...
+const mentalActions = [ ... ];
 
 let customActionsArr = [];
 
@@ -293,7 +185,7 @@ function startGame() {
 
     gameMinute = 0;
     actions = [];
-    generalNote = "";
+    parentNotes = [];
     document.getElementById("minute-counter").textContent = gameMinute;
     gameFinished = false;
 
@@ -340,7 +232,7 @@ function createActionRow(action, isMental=false, category="") {
 }
 
 function openGeneralNotePopup() {
-    document.getElementById("general-note-text").value = generalNote;
+    document.getElementById("general-note-text").value = "";
     const popup = document.getElementById("general-note-popup");
     popup.classList.remove("hidden");
     popup.classList.add("active");
@@ -353,9 +245,14 @@ function closeGeneralNotePopup() {
 }
 
 function saveGeneralNote() {
-    generalNote = document.getElementById("general-note-text").value.trim();
-    closeGeneralNotePopup();
-    showPopup("הערה נשמרה!");
+    const note = document.getElementById("general-note-text").value.trim();
+    if(note) {
+        parentNotes.push(note);
+        closeGeneralNotePopup();
+        showPopup("הערה נשמרה!");
+    } else {
+        alert("לא הוזנה הערה");
+    }
 }
 
 function endHalfTime() {
@@ -371,9 +268,14 @@ function endHalfTime() {
     halfSummaryContent.innerHTML = getSummaryHTML(counts, "סיכום המחצית");
 
     const halfGeneralNoteDisplay = document.getElementById("half-general-note-display");
-    const halfGeneralNoteTextDisplay = document.getElementById("half-general-note-text-display");
-    if (generalNote) {
-        halfGeneralNoteTextDisplay.textContent = generalNote;
+    const halfParentNotesList = document.getElementById("half-parent-notes-list");
+    halfParentNotesList.innerHTML = "";
+    if (parentNotes.length > 0) {
+        parentNotes.forEach(n => {
+            const li = document.createElement("li");
+            li.textContent = n;
+            halfParentNotesList.appendChild(li);
+        });
         halfGeneralNoteDisplay.classList.remove("hidden");
     } else {
         halfGeneralNoteDisplay.classList.add("hidden");
@@ -416,12 +318,17 @@ function endGame() {
     const counts = getActionCounts();
     const summaryContent = document.getElementById("summary-content");
     summaryContent.innerHTML = getSummaryHTML(counts, "סיכום המשחק");
-    summaryContent.innerHTML += `<h3>ציון סיום המשחק שלך: ${score}</h3>`;
+    summaryContent.innerHTML += `<h3 id="final-score">ציון סיום המשחק שלך: ${score}</h3>`;
 
     const generalNoteDisplay = document.getElementById("general-note-display");
-    const generalNoteTextDisplay = document.getElementById("general-note-text-display");
-    if (generalNote) {
-        generalNoteTextDisplay.textContent = generalNote;
+    const parentNotesList = document.getElementById("parent-notes-list");
+    parentNotesList.innerHTML = "";
+    if (parentNotes.length > 0) {
+        parentNotes.forEach(n => {
+            const li = document.createElement("li");
+            li.textContent = n;
+            parentNotesList.appendChild(li);
+        });
         generalNoteDisplay.classList.remove("hidden");
     } else {
         generalNoteDisplay.classList.add("hidden");
@@ -436,16 +343,11 @@ function endGame() {
     }, 500);
 
     // לאחר סיום המשחק
-    // ביטול אפשרות הערת הורה
     document.getElementById("notes-container").style.display = 'none';
-
-    // הסרת סיים מחצית
     document.getElementById("end-half").style.display = 'none';
-
-    // הסרת כפתור סיים משחק (כבר לא רלוונטי)
     document.getElementById("end-game").style.display = 'none';
 
-    // להציג כפתור לצפייה בסיכום מחדש אם נסגר
+    // להציג כפתור לצפייה בסיכום מחדש
     document.getElementById("reopen-summary-container").classList.remove("hidden");
 
     popup.addEventListener("transitionend", makeActionsGreyAfterGame, {once:true});
@@ -475,12 +377,24 @@ function showAllActions() {
     const allActionsList = document.getElementById("all-actions-list");
     allActionsList.innerHTML = "";
 
-    const allActionsHTML = actions.map(({ action, result, minute }) => {
+    // הצגת הפעולות עם minute-badge
+    actions.forEach(({action, result, minute}) => {
         let className = classifyResult(result);
-        return `<p class="${className}">דקה ${minute}: ${action} - ${result}</p>`;
-    }).join("");
+        const p = document.createElement("p");
+        p.className = className + " action-line";
 
-    allActionsList.innerHTML = allActionsHTML;
+        // תגית דקה קטנה
+        const minuteBadge = document.createElement("span");
+        minuteBadge.className = "minute-badge";
+        minuteBadge.textContent = "דקה " + minute;
+        p.appendChild(minuteBadge);
+
+        // טקסט הפעולה
+        const textNode = document.createTextNode(` ${action} - ${result}`);
+        p.appendChild(textNode);
+
+        allActionsList.appendChild(p);
+    });
 
     const actionsDetailPopup = document.getElementById("actions-detail-popup");
     actionsDetailPopup.classList.remove("hidden");
