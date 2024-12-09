@@ -5,10 +5,9 @@ let gameMinute = 0;
 let chosenProfessional = [];
 let chosenMental = [];
 let chosenCustom = [];
-let generalNote = ""; // הערה כללית אחת להורה
+let generalNote = ""; 
 let gameFinished = false;
 
-// פעולות מקצועיות (מוסיפים "בעיטה לשער" ו"בעיטה למסגרת" לכל תפקיד מלבד שוער)
 const positionActions = {
     "שוער": [
         "עצירת כדור קשה",
@@ -110,7 +109,6 @@ const positionActions = {
     ]
 };
 
-// פעולות מנטאליות
 const mentalActions = [
     "שמירה על ריכוז",
     "התמודדות עם לחץ",
@@ -174,25 +172,27 @@ function loadActionsSelection(position) {
     const professionalContainer = document.getElementById("professional-actions");
     const mentalContainer = document.getElementById("mental-actions");
     const customContainer = document.getElementById("custom-actions");
+    const selectionError = document.getElementById("selection-error");
 
     professionalContainer.innerHTML = "";
     mentalContainer.innerHTML = "";
     customContainer.innerHTML = "";
+    selectionError.classList.add("hidden");
 
     const actionsForPosition = positionActions[position] || [];
 
     // פעולות מקצועיות
-    actionsForPosition.forEach((action, index) => {
+    actionsForPosition.forEach((action) => {
         professionalContainer.appendChild(createActionCheckbox(action, "professional"));
     });
 
     // פעולות מנטאליות
-    mentalActions.forEach((action, index) => {
+    mentalActions.forEach((action) => {
         mentalContainer.appendChild(createActionCheckbox(action, "mental"));
     });
 
-    // פעולות מותאמות אישית - בתחילה אין, רק המשתמש יוסיף
-    customActionsArr.forEach((action, index) => {
+    // פעולות מותאמות אישית
+    customActionsArr.forEach((action) => {
         customContainer.appendChild(createActionCheckbox(action, "custom"));
     });
 
@@ -235,8 +235,10 @@ function addCustomAction() {
 
 function confirmActions() {
     const checkboxes = document.querySelectorAll('input[name="selected-actions"]:checked');
+    const selectionError = document.getElementById("selection-error");
     if (checkboxes.length < 6 || checkboxes.length > 10) {
-        alert("אנא בחר בין 6 ל-10 פעולות.");
+        selectionError.textContent = `בחרת ${checkboxes.length} פעולות, אנא בחר בין 6 ל-10 פעולות.`;
+        selectionError.classList.remove("hidden");
         return;
     }
 
@@ -272,17 +274,17 @@ function startGame() {
 
     profContainer.innerHTML = "";
     chosenProfessional.forEach(obj => {
-        profContainer.appendChild(createActionRow(obj.action, false, "professional"));
+        profContainer.appendChild(createActionRow(obj.action, "professional"));
     });
 
     mentalContainer.innerHTML = "";
     chosenMental.forEach(obj => {
-        mentalContainer.appendChild(createActionRow(obj.action, false, "mental"));
+        mentalContainer.appendChild(createActionRow(obj.action, "mental"));
     });
 
     customContainer.innerHTML = "";
     chosenCustom.forEach(obj => {
-        customContainer.appendChild(createActionRow(obj.action, false, "custom"));
+        customContainer.appendChild(createActionRow(obj.action, "custom"));
     });
 
     enableActions(true);
@@ -302,7 +304,7 @@ function startGame() {
     endButtons.classList.remove("hidden");
 }
 
-function createActionRow(action, isMental=false, category="") {
+function createActionRow(action, category="") {
     const div = document.createElement("div");
     div.classList.add("action-group");
     if (category === "professional") div.classList.add("prof-bg");
@@ -336,8 +338,8 @@ function createActionRow(action, isMental=false, category="") {
 }
 
 function openGeneralNotePopup() {
-    const popup = document.getElementById("general-note-popup");
     document.getElementById("general-note-text").value = generalNote;
+    const popup = document.getElementById("general-note-popup");
     popup.classList.remove("hidden");
     popup.classList.add("active");
 }
@@ -431,13 +433,10 @@ function endGame() {
         showFeedback(score, minutesPlayed);
     }, 500);
 
-    // לאחר סיום המשחק וחזרה למסך הראשי, כל הפעולות אפורות ולא לחיצות
-    // נמתין שהמשתמש יסגור את הסיכום, לאחר מכן נהפוך את הכול לאפור.
     popup.addEventListener("transitionend", makeActionsGreyAfterGame, {once:true});
 }
 
 function makeActionsGreyAfterGame() {
-    // כל הכפתורים יעברו למצב אפור ולא לחיץ
     const allButtons = document.querySelectorAll('#prof-actions-chosen button, #mental-actions-chosen button, #custom-actions-chosen button');
     allButtons.forEach(btn => {
         btn.disabled = true;
@@ -493,13 +492,17 @@ function classifyKey(key) {
 }
 
 function classifyResult(result) {
-    let lowerResult = result.toLowerCase();
+    const lowerResult = result.toLowerCase();
+    // חיובי: מוצלח/טוב/חיובית -> +5
+    // ניטרלי: בוצע -> +2
+    // שלילי: לא מוצלח/רעה/לא טוב/שלילית -> +1
     if (lowerResult.includes("לא מוצלח") || lowerResult.includes("רעה") || lowerResult.includes("לא טוב") || lowerResult.includes("שלילית")) {
         return "bad";
     }
     if (lowerResult.includes("מוצלח") || lowerResult.includes("טוב") || lowerResult.includes("חיובית")) {
         return "good";
     }
+    // אחרת ניטרלי (נגיד "בוצע")
     return "neutral";
 }
 
@@ -525,42 +528,67 @@ function enableActions(enable) {
     });
 }
 
+// אלגוריתם ניקוד מעודכן:
 function calculateScore(minutesPlayed) {
-    let score = 40;
+    let score = 0;
     let successfulActions = 0;
     let totalActions = actions.length;
+    let lowerResult;
 
-    actions.forEach(({ result }) => {
-        if (result.includes("מוצלח") || result.includes("טוב") || result.includes("חיובית")) {
-            score += 3;
+    // ספירה
+    actions.forEach(({ action, result }) => {
+        lowerResult = result.toLowerCase();
+        // ניקוד לפי התוצאה:
+        // מוצלח/טוב/חיובית: +5
+        // ניטרלי (בוצע): +2
+        // לא מוצלח/רעה/לא טוב/שלילית: +1
+        if (lowerResult.includes("מוצלח") || lowerResult.includes("טוב") || lowerResult.includes("חיובית")) {
+            score += 5;
             successfulActions++;
-        } else if (result.includes("רעה") || result.includes("לא מוצלח") || result.includes("לא טוב") || result.includes("שלילית")) {
+        } else if (lowerResult.includes("לא מוצלח") || lowerResult.includes("רעה") || lowerResult.includes("לא טוב") || lowerResult.includes("שלילית")) {
             score += 1;
+        } else {
+            // ניטרלי
+            score += 2;
+        }
+
+        // הורדת ראש: כל הופעה -> -3 נק'
+        if (action.includes("הורדת ראש")) {
+            score -= 3;
         }
     });
 
+    // בונוס על מספר הפעולות:
     if (totalActions >= 10) {
+        score += 10;
+    } else if (totalActions >= 6) {
         score += 5;
-    } else if (totalActions >= 5) {
-        score += 2;
     }
 
-    if (minutesPlayed > 0) {
-        let minuteFactor = (60 - minutesPlayed) / 60;
-        score = score + Math.floor((successfulActions / minutesPlayed) * 10 * minuteFactor);
-        score = Math.min(96 - Math.floor(minuteFactor * 10), score);
+    // יחס פעולות מוצלחות:
+    const ratio = totalActions > 0 ? (successfulActions / totalActions) : 0;
+    if (ratio > 0.8) {
+        score += 10;
+    } else if (ratio < 0.5) {
+        score -= 5;
     }
 
-    return Math.min(96, score);
+    // אין התאמה לזמן כרגע (לא הוגדרו כללים), נשאיר ללא התאמת זמן.
+    // אפשר להוסיף אם תרצה:
+    // אם minutesPlayed < 30, אולי אין שינוי; אם >60 נוריד קצת, לא הגדרת אז לא נוסיף.
+
+    return score;
 }
 
 function showFeedback(score, minutesPlayed) {
     let feedback = "";
     let successfulActions = actions.filter(a =>
-        a.result.includes("מוצלח") || a.result.includes("טוב") || a.result.includes("חיובית")
+        a.result.toLowerCase().includes("מוצלח") || a.result.toLowerCase().includes("טוב") || a.result.toLowerCase().includes("חיובית")
     ).length;
 
-    if (score > 85) {
+    if (score > 100) {
+        feedback = "משחק יוצא מן הכלל! הניקוד שלך מעל 100, זה מראה על רמה גבוהה מאוד.";
+    } else if (score > 85) {
         feedback = "מצוין! נתת משחק יוצא דופן. המשך להתאמן ולהיות ממוקד!";
     } else if (score > 70) {
         feedback = "ביצוע טוב מאוד, רואים שהשקעת מאמץ רב. שים לב לדייק יותר בפעולות מסוימות.";
@@ -602,23 +630,4 @@ function showFeedback(score, minutesPlayed) {
 
 function closeFeedbackPopup() {
     document.getElementById("feedback-popup").classList.add("hidden");
-}
-
-function openGeneralNotePopup() {
-    document.getElementById("general-note-text").value = generalNote;
-    const popup = document.getElementById("general-note-popup");
-    popup.classList.remove("hidden");
-    popup.classList.add("active");
-}
-
-function closeGeneralNotePopup() {
-    const popup = document.getElementById("general-note-popup");
-    popup.classList.remove("active");
-    popup.classList.add("hidden");
-}
-
-function saveGeneralNote() {
-    generalNote = document.getElementById("general-note-text").value.trim();
-    closeGeneralNotePopup();
-    showPopup("הערה נשמרה!");
 }
