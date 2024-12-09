@@ -7,39 +7,49 @@ let chosenMental = [];
 let chosenCustom = [];
 let parentNotes = [];
 let gameFinished = false;
-let customActionsArr = []; // הגדרה של מערך הפעולות המותאמות אישית
+let customActionsArr = [];
 
-const API_KEY = "63c5b5f5d363cf845ffcfa3a98f97fed"; // המפתח שסיפקת
-const FORM_ID = "230789031560051"; // ה-ID שסיפקת
+const API_KEY = "63c5b5f5d363cf845ffcfa3a98f97fed";
+const FORM_ID = "230789031560051";
 
-// הגדרת הפעולות בהתאם לתפקיד השחקן
+// פעולות לפי תפקיד
 const positionActions = {
     "שוער": [
-        "עצירת כדור קשה","יציאה לאגרוף","משחק רגל מדויק","שליטה ברחבה","תקשורת עם ההגנה","יציאה לכדורי גובה","מסירה ארוכה מדויקת","סגירת זויות בעיטות","תגובות מהירות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"
+        "עצירת כדור קשה","יציאה לאגרוף","משחק רגל מדויק","שליטה ברחבה","תקשורת עם ההגנה","יציאה לכדורי גובה",
+        "מסירה ארוכה מדויקת","סגירת זויות בעיטות","תגובות מהירות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"
     ],
     "בלם": [
-        "בלימת התקפה יריבה","משחק ראש מוצלח","סגירת תוקף","חטיפת כדור","הנעת כדור אחורה בבטחה","משחק רוחב מדויק","סגירת קווי מסירה","הגנה על הרחבה","הובלת הכדור קדימה","החזרת כדור לשוער","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
+        "בלימת התקפה יריבה","משחק ראש מוצלח","סגירת תוקף","חטיפת כדור","הנעת כדור אחורה בבטחה","משחק רוחב מדויק",
+        "סגירת קווי מסירה","הגנה על הרחבה","הובלת הכדור קדימה","החזרת כדור לשוער","ביצוע 1 על 1","מסירת מפתח",
+        "הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
     ],
     "מגן": [
-        "הגבהה מדויקת לרחבה","תמיכה בהתקפה באגף","כיסוי הגנתי באגף","תקשורת עם הקשר","ריצה לאורך הקו","קרוס מדויק","חטיפת כדור באגף","מעבר מהיר להתקפה","משחק רוחב בטוח","שמירה על חלוץ יריב","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
+        "הגבהה מדויקת לרחבה","תמיכה בהתקפה באגף","כיסוי הגנתי באגף","תקשורת עם הקשר","ריצה לאורך הקו",
+        "קרוס מדויק","חטיפת כדור באגף","מעבר מהיר להתקפה","משחק רוחב בטוח","שמירה על חלוץ יריב",
+        "ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
     ],
     "קשר": [
-        "מסירה חכמה קדימה","שמירה על קצב המשחק","חטיפת כדור במרכז","משחק קצר מדויק","שליחת כדור לעומק","שליטה בקישור","החלפת אגף","תמיכה בהגנה","ארגון ההתקפה","ראיית משחק רחבה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
+        "מסירה חכמה קדימה","שמירה על קצב המשחק","חטיפת כדור במרכז","משחק קצר מדויק","שליחת כדור לעומק","שליטה בקישור",
+        "החלפת אגף","תמיכה בהגנה","ארגון ההתקפה","ראיית משחק רחבה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
     ],
     "חלוץ": [
-        "בעיטה למסגרת","בעיטה לשער","תנועה ללא כדור","קבלת כדור תחת לחץ","סיום מצבים","נוכחות ברחבה","ניצול הזדמנויות","תקשורת עם הקשרים","לחץ על ההגנה היריבה","נגיחה למסגרת","שמירה על הכדור מול הגנה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"
+        "בעיטה למסגרת","בעיטה לשער","תנועה ללא כדור","קבלת כדור תחת לחץ","סיום מצבים","נוכחות ברחבה","ניצול הזדמנויות",
+        "תקשורת עם הקשרים","לחץ על ההגנה היריבה","נגיחה למסגרת","שמירה על הכדור מול הגנה","ביצוע 1 על 1",
+        "מסירת מפתח","הגבהה לרחבה"
     ],
     "כנף": [
-        "עקיפת מגן באגף","הגבהה איכותית","ריצה מהירה בקו","חדירה לרחבה מהאגף","משחק עומק","קידום הכדור קדימה","יצירת יתרון מספרי","משחק רוחב לשינוי אגף","הפתעת ההגנה בתנועה","השגת פינות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
+        "עקיפת מגן באגף","הגבהה איכותית","ריצה מהירה בקו","חדירה לרחבה מהאגף","משחק עומק","קידום הכדור קדימה",
+        "יצירת יתרון מספרי","משחק רוחב לשינוי אגף","הפתעת ההגנה בתנועה","השגת פינות","ביצוע 1 על 1",
+        "מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
     ]
 };
 
-// פעולות מנטאליות:
+// פעולות מנטאליות
 const mentalActions = [
-    "שמירה על ריכוז","התמודדות עם לחץ","תקשורת חיובית עם חברי הקבוצה","אמונה עצמית","ניהול רגשות","קבלת החלטות מהירה","התמדה במאמץ","מנהיגות חיובית","יצירת מוטיבציה","התמודדות עם טעויות","הורדת ראש","הרמת ראש"
+    "שמירה על ריכוז","התמודדות עם לחץ","תקשורת חיובית עם חברי הקבוצה","אמונה עצמית","ניהול רגשות","קבלת החלטות מהירה",
+    "התמדה במאמץ","מנהיגות חיובית","יצירת מוטיבציה","התמודדות עם טעויות","הורדת ראש","הרמת ראש"
 ];
 
-// פונקציה לשליחת הנתונים ל-JotForm
 function sendToJotForm(playerName, teamName, position, gameDate, actionsSummary, score, parentEmail, parentNotesArr) {
     let parentNotesStr = "";
     parentNotesArr.forEach(n => {
@@ -54,7 +64,7 @@ function sendToJotForm(playerName, teamName, position, gameDate, actionsSummary,
     formEncodedData.append("submission[sumall]", actionsSummary);
     formEncodedData.append("submission[price]", score.toString());
     formEncodedData.append("submission[emailField]", parentEmail);
-    // אם תרצה לשלוח הערות הורה לשדה ייעודי נוסף:
+    // ניתן להוסיף:
     // formEncodedData.append("submission[sumdad]", parentNotesStr);
 
     fetch(`https://api.jotform.com/form/${FORM_ID}/submissions?apiKey=${API_KEY}`, {
@@ -67,8 +77,12 @@ function sendToJotForm(playerName, teamName, position, gameDate, actionsSummary,
     .then(response => response.json())
     .then(data => {
         console.log("Submission Created:", data);
+        showPopup("הנתונים נשלחו למייל בהצלחה!", "good");
     })
-    .catch(err => console.error(err));
+    .catch(err => {
+        console.error(err);
+        showPopup("שליחת הנתונים נכשלה!", "bad");
+    });
 }
 
 function trackAction(action, result) {
@@ -112,7 +126,6 @@ function submitUserInfo() {
         return;
     }
 
-    // הסתרת טופס הפרטים ועוברים ישירות לבחירת פעולות
     document.getElementById("user-input-container").classList.add("hidden");
 
     window.parentEmailGlobal = parentEmail;
@@ -402,9 +415,24 @@ function endGame() {
     document.getElementById("end-game").style.display = 'none';
 
     document.getElementById("reopen-summary-container").classList.remove("hidden");
+}
 
-    // שליחה ל-JotForm
-    sendToJotForm(playerName, teamName, position, gameDate, actionsSummary, score, parentEmail, parentNotes);
+// פונקציה חדשה לשליחת הנתונים במייל (ל-JotForm) בלחיצה על הכפתור "שלח למייל"
+function sendGameDataToMail() {
+    const playerName = window.playerNameGlobal || "";
+    const teamName = window.teamNameGlobal || "";
+    const position = window.playerPositionGlobal || "";
+    const parentEmail = window.parentEmailGlobal || "";
+
+    const today = new Date().toLocaleDateString("he-IL");
+    const gameDate = today;
+
+    let actionsSummary = "";
+    actions.forEach(a => {
+        actionsSummary += `דקה ${a.minute}: ${a.action} - ${a.result}\n`;
+    });
+
+    sendToJotForm(playerName, teamName, position, gameDate, actionsSummary, calculateScore(gameMinute), parentEmail, parentNotes);
 }
 
 function makeActionsGreyAfterGame() {
