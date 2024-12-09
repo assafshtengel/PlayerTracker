@@ -8,32 +8,76 @@ let chosenCustom = [];
 let parentNotes = []; // {text, minute}
 let gameFinished = false;
 
-const positionActions = {
-    "שוער": [
-        "עצירת כדור קשה","יציאה לאגרוף","משחק רגל מדויק","שליטה ברחבה","תקשורת עם ההגנה","יציאה לכדורי גובה","מסירה ארוכה מדויקת","סגירת זויות בעיטות","תגובות מהירות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"
-    ],
-    "בלם": [
-        "בלימת התקפה יריבה","משחק ראש מוצלח","סגירת תוקף","חטיפת כדור","הנעת כדור אחורה בבטחה","משחק רוחב מדויק","סגירת קווי מסירה","הגנה על הרחבה","הובלת הכדור קדימה","החזרת כדור לשוער","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
-    ],
-    "מגן": [
-        "הגבהה מדויקת לרחבה","תמיכה בהתקפה באגף","כיסוי הגנתי באגף","תקשורת עם הקשר","ריצה לאורך הקו","קרוס מדויק","חטיפת כדור באגף","מעבר מהיר להתקפה","משחק רוחב בטוח","שמירה על חלוץ יריב","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
-    ],
-    "קשר": [
-        "מסירה חכמה קדימה","שמירה על קצב המשחק","חטיפת כדור במרכז","משחק קצר מדויק","שליחת כדור לעומק","שליטה בקישור","החלפת אגף","תמיכה בהגנה","ארגון ההתקפה","ראיית משחק רחבה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
-    ],
-    "חלוץ": [
-        "בעיטה למסגרת","בעיטה לשער","תנועה ללא כדור","קבלת כדור תחת לחץ","סיום מצבים","נוכחות ברחבה","ניצול הזדמנויות","תקשורת עם הקשרים","לחץ על ההגנה היריבה","נגיחה למסגרת","שמירה על הכדור מול הגנה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"
-    ],
-    "כנף": [
-        "עקיפת מגן באגף","הגבהה איכותית","ריצה מהירה בקו","חדירה לרחבה מהאגף","משחק עומק","קידום הכדור קדימה","יצירת יתרון מספרי","משחק רוחב לשינוי אגף","הפתעת ההגנה בתנועה","השגת פינות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
-    ]
-};
+const API_KEY = "63c5b5f5d363cf845ffcfa3a98f97fed"; // מה שסיפקת
+const FORM_ID = "230789031560051"; // מה שסיפקת
 
-const mentalActions = [
-    "שמירה על ריכוז","התמודדות עם לחץ","תקשורת חיובית עם חברי הקבוצה","אמונה עצמית","ניהול רגשות","קבלת החלטות מהירה","התמדה במאמץ","מנהיגות חיובית","יצירת מוטיבציה","התמודדות עם טעויות","הורדת ראש","הרמת ראש"
-];
+// פונקציה לבניית הבקשה ל-JotForm
+function sendToJotForm(playerName, teamName, position, gameDate, actionsSummary, score, parentEmail, parentNotesArr) {
+  // הפיכת הערות הורה למחרוזת (אם צריך)
+  let parentNotesStr = "";
+  parentNotesArr.forEach(n => {
+    parentNotesStr += `דקה ${n.minute}: ${n.text}\n`;
+  });
 
-let customActionsArr = [];
+  const formEncodedData = new URLSearchParams();
+  // שמות השדות כפי שסיפקת: nameplayer / nameagainst / tafkid / date / sumall / price / emailField
+  formEncodedData.append("submission[nameplayer]", playerName);
+  formEncodedData.append("submission[nameagainst]", teamName);
+  formEncodedData.append("submission[tafkid]", position);
+  formEncodedData.append("submission[date]", gameDate);
+  formEncodedData.append("submission[sumall]", actionsSummary);
+  formEncodedData.append("submission[price]", score.toString());
+  formEncodedData.append("submission[emailField]", parentEmail);
+  // במידה ותרצה לשלוח הערות הורה גם לשדה אחר בטופס תוכל להוסיף שדה משלו:
+  // נניח שיצרת שדה בשם "sumdad" לערות הורה:
+  // formEncodedData.append("submission[sumdad]", parentNotesStr);
+
+  fetch(`https://api.jotform.com/form/${FORM_ID}/submissions?apiKey=${API_KEY}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: formEncodedData
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log("Submission Created:", data);
+    // בשלב זה נוצרה Submission חדשה בטופס בג'וטפורם
+    // JotForm ישלח אוטומטית מייל להורה אם הגדרת Autoresponder
+  })
+  .catch(err => console.error(err));
+}
+
+function trackAction(action, result) {
+    if (!gameInterval || gameFinished) {
+        alert("לא ניתן לרשום פעולה כאשר הסטופר לא פעיל או כשהמשחק הסתיים!");
+        return;
+    }
+    actions.push({ action, result, minute: gameMinute });
+
+    // סיווג התוצאה לצבע
+    const type = classifyResult(result); // "good","bad","neutral"
+    let message = `הפעולה "${action}" (${result}) נרשמה!`;
+    showPopup(message, type);
+}
+
+function showPopup(message, type="neutral") {
+    const popup = document.getElementById("popup");
+    popup.textContent = message;
+    popup.classList.remove("hidden","popup-good","popup-bad","popup-neutral");
+
+    if (type === "good") {
+        popup.classList.add("popup-good");
+    } else if (type === "bad") {
+        popup.classList.add("popup-bad");
+    } else {
+        popup.classList.add("popup-neutral");
+    }
+
+    setTimeout(() => {
+        popup.classList.add("hidden");
+    }, 800);
+}
 
 function submitUserInfo() {
     const playerName = document.getElementById("player-name").value.trim();
@@ -73,6 +117,7 @@ function loadActionsSelection(position) {
     mentalContainer.innerHTML = "";
     customContainer.innerHTML = "";
 
+    // כאן התאם את הפעולות לפי positionActions וmentalActions שהגדרת בעבר (לא מוצג כאן בפירוט)
     const actionsForPosition = positionActions[position] || [];
 
     actionsForPosition.forEach(action => {
@@ -191,7 +236,6 @@ function createActionRow(action, category="") {
     else if (category === "mental") div.classList.add("mental-bg");
     else if (category === "custom") div.classList.add("custom-bg");
 
-    // X אדום משמאל, V ירוק מימין
     const badBtn = document.createElement("button");
     badBtn.textContent = "X";
     badBtn.style.backgroundColor = "#f44336";
@@ -211,25 +255,12 @@ function createActionRow(action, category="") {
     goodBtn.style.fontWeight = "bold";
     goodBtn.onclick = () => trackAction(action, "מוצלח");
 
+    // X משמאל, V מימין
     div.appendChild(badBtn);
     div.appendChild(h2);
     div.appendChild(goodBtn);
 
     return div;
-}
-
-function trackAction(action, result) {
-    if (!gameInterval || gameFinished) {
-        alert("לא ניתן לרשום פעולה כאשר הסטופר לא פעיל או כשהמשחק הסתיים!");
-        return;
-    }
-    actions.push({ action, result, minute: gameMinute });
-
-    // סיווג התוצאה לצבע
-    const type = classifyResult(result); // מחזיר "good","bad","neutral"
-    // הצגת פופ-אפ צבעוני ל-0.8 שניות
-    let message = `הפעולה "${action}" (${result}) נרשמה!`;
-    showPopup(message, type);
 }
 
 function openGeneralNotePopup() {
@@ -251,7 +282,7 @@ function saveGeneralNote() {
         parentNotes.push({text: note, minute: gameMinute});
         closeGeneralNotePopup();
         showPopup("הערה נשמרה!", "neutral");
-        enableActions(true); // לחזור לאפשרות לסמן פעולות
+        enableActions(true);
     } else {
         alert("לא הוזנה הערה");
     }
@@ -287,14 +318,13 @@ function endHalfTime() {
     halfPopup.classList.remove("hidden");
     halfPopup.classList.add("active");
 }
-// הקוד נשאר זהה לקוד שנתנו בעבר, עם שינוי קטן ב-resumeHalf() להסתרת כפתור end-half
 
 function resumeHalf() {
     const halfPopup = document.getElementById("half-time-summary-popup");
     halfPopup.classList.remove("active");
     halfPopup.classList.add("hidden");
 
-    // אחרי חידוש המחצית לא נוכל שוב לסיים מחצית שנייה:
+    // אחרי חידוש המחצית לא נאפשר שוב סיום מחצית:
     document.getElementById("end-half").style.display = 'none';
 
     gameInterval = setInterval(() => {
@@ -304,11 +334,6 @@ function resumeHalf() {
 
     enableActions(true);
 }
-
-// שאר הקוד זהה לקוד הקודם שסיפקנו, לא צריך שינוי נוסף לגלילה (מתבצע ב-CSS) או לכפתור "צפה בכל הפעולות" שכבר הוספנו ב-HTML.
-// רק ודא שהפונקציות האחרות כמו showAllActions, trackAction וכו' נשארות כמו בקוד האחרון שסיפקנו.
-
-
 
 function endGame() {
     if (gameInterval) {
@@ -359,7 +384,24 @@ function endGame() {
 
     document.getElementById("reopen-summary-container").classList.remove("hidden");
 
-    popup.addEventListener("transitionend", makeActionsGreyAfterGame, {once:true});
+    // עכשיו לאחר הסיום, נשלח את הנתונים ל-JotForm
+    const playerName = document.getElementById("player-display").textContent;
+    const teamName = document.getElementById("team-display").textContent;
+    const position = document.getElementById("player-position-display").textContent;
+    const gameDate = document.getElementById("game-date").textContent;
+    // נניח actionsSummary הוא מחרוזת של כל הפעולות:
+    let actionsSummary = "";
+    actions.forEach(a => {
+        actionsSummary += `דקה ${a.minute}: ${a.action} - ${a.result}\n`;
+    });
+
+    // המייל של ההורה:
+    // נניח ששמרת אותו בצד הלקוח אחרי שהורה הזין את המייל היכן שהוא, כאן תצטרך לערוך:
+    // לדוגמה נניח יש לך: const parentEmail = "parent@example.com";
+    // החלף לערך אמיתי או תשמר במקום כלשהו
+    const parentEmail = "parent@example.com";
+
+    sendToJotForm(playerName, teamName, position, gameDate, actionsSummary, score, parentEmail, parentNotes);
 }
 
 function makeActionsGreyAfterGame() {
@@ -563,36 +605,4 @@ function takeScreenshot() {
         link.download = 'game_summary_screenshot.png';
         link.click();
     });
-}
-
-function reopenSummary() {
-    const popup = document.getElementById("game-summary-popup");
-    popup.classList.remove("hidden");
-    popup.classList.add("active");
-}
-
-/**
- * הצגת פופ-אפ צבעוני ל-0.8 שניות לפי סוג הפעולה
- * type יכול להיות "good", "bad", "neutral"
- */
-function showPopup(message, type="neutral") {
-    const popup = document.getElementById("popup");
-    popup.textContent = message;
-    popup.classList.remove("hidden","good-popup","bad-popup","neutral-popup");
-
-    // הסרת כל הקלאסים של סוגים
-    popup.classList.remove("popup-good","popup-bad","popup-neutral");
-
-    // הוספת קלאס לפי הסוג
-    if (type === "good") {
-        popup.classList.add("popup-good");
-    } else if (type === "bad") {
-        popup.classList.add("popup-bad");
-    } else {
-        popup.classList.add("popup-neutral");
-    }
-
-    setTimeout(() => {
-        popup.classList.add("hidden");
-    }, 800); // 0.8 שניות
 }
