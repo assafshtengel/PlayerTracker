@@ -161,7 +161,7 @@ function submitUserInfo() {
     document.getElementById("game-date").textContent = today;
     document.getElementById("player-position-display").textContent = playerPosition;
 
-    // הסתרת "ברוך הבא" לאחר אישור
+    // הסתרת "ברוך הבא"
     const welcomeMessage = document.getElementById("welcome-message");
     if (welcomeMessage) {
         welcomeMessage.style.display = 'none';
@@ -524,31 +524,41 @@ function enableActions(enable) {
 }
 
 function calculateScore(minutesPlayed) {
-    let score = 40;
+    let score = 50; // בסיס גבוה יותר
     let successfulActions = 0;
+    let badActions = 0;
     let totalActions = actions.length;
+    let negativeHoradaCount = 0; // ספירה עבור "הורדת ראש" שלילית
 
-    actions.forEach(({ result }) => {
-        if (result.includes("מוצלח") || result.includes("טוב") || result.includes("חיובית")) {
+    actions.forEach(({ action, result }) => {
+        const resLower = result.toLowerCase();
+        if (resLower.includes("מוצלח") || resLower.includes("טוב") || resLower.includes("חיובית")) {
             score += 3;
             successfulActions++;
-        } else if (result.includes("רעה") || result.includes("לא מוצלח") || result.includes("לא טוב") || result.includes("שלילית")) {
-            score += 1;
+        } else if (resLower.includes("רעה") || resLower.includes("לא מוצלח") || resLower.includes("לא טוב") || resLower.includes("שלילית")) {
+            score -= 2;
+            badActions++;
+            if (action === "הורדת ראש") {
+                negativeHoradaCount++;
+            }
+        } else {
+            // ניטרלי, לא מוסיף ולא מוריד
         }
     });
 
-    if (totalActions >= 10) {
-        score += 5;
-    } else if (totalActions >= 5) {
-        score += 2;
+    // אם השחקן בחר פחות מ-6 או יותר מ-10 פעולות בתחילה: -5 נק'
+    const chosenCount = chosenProfessional.length + chosenMental.length + chosenCustom.length;
+    if (chosenCount < 6 || chosenCount > 10) {
+        score -= 5;
     }
 
-    if (minutesPlayed > 0) {
-        let minuteFactor = (60 - minutesPlayed) / 60;
-        score = score + Math.floor((successfulActions / minutesPlayed) * 10 * minuteFactor);
-        // לא הגבילו כאן למקסימום 100, אפשר יותר:
-        score = Math.min(196, score);
+    // "הורדת ראש" שלילית מורידה עוד 3 נק' עבור כל פעם
+    if (negativeHoradaCount > 0) {
+        score -= (negativeHoradaCount * 3);
     }
+
+    // הגבלת מקסימום 200
+    if (score > 200) score = 200;
 
     return score; 
 }
@@ -559,39 +569,41 @@ function showFeedback(score, minutesPlayed) {
         a.result.includes("מוצלח") || a.result.includes("טוב") || a.result.includes("חיובית")
     ).length;
 
-    if (score > 85) {
-        feedback = "מצוין! נתת משחק יוצא דופן. המשך להתאמן ולהיות ממוקד!";
+    if (score > 150) {
+        feedback = "מעולה! נתת משחק יוצא דופן ומעל המצופה!";
+    } else if (score > 85) {
+        feedback = "מצוין! נתת משחק חזק. המשך לעבוד קשה!";
     } else if (score > 70) {
-        feedback = "ביצוע טוב מאוד, רואים שהשקעת מאמץ רב. שים לב לדייק יותר בפעולות מסוימות.";
+        feedback = "ביצוע טוב מאוד. יש כמה נקודות לשיפור אבל אתה בדרך הנכונה.";
     } else if (score > 55) {
-        feedback = "עשית עבודה טובה, אך יש מקום לשיפור. נסה לשפר את הדיוק והקבלת החלטות.";
+        feedback = "עשית עבודה טובה, אך יש מקום לשיפור. התמקד בדיוק וחדות.";
     } else {
         feedback = "יש הרבה מקום לשיפור. אל תתייאש, למד מהטעויות ושפר את המיומנויות שלך.";
     }
 
     if (minutesPlayed < 30) {
-        feedback += " שיחקת פחות מ-30 דקות, נסה להעלות את הכושר.";
+        feedback += " שיחקת פחות מ-30 דקות, נסה להגדיל את משך המשחק להוכיח את עצמך יותר.";
     }
 
     if (actions.length >= 4) {
-        feedback += " ביצעת יותר מ-4 פעולות מוצלחות - יפה!";
+        feedback += " ביצעת מספר פעולות לא מבוטל - המשך להתמיד!";
     }
 
     if (successfulActions > 5) {
-        feedback += " יש לך מעל 5 פעולות מוצלחות, המשך כך!";
+        feedback += " מעל 5 פעולות מוצלחות - יפה מאוד!";
     }
 
     if (score < 50 && successfulActions > 3) {
-        feedback += " למרות הציון הנמוך, יש פעולות מוצלחות. המשך לעבוד!";
+        feedback += " למרות הציון הנמוך, ראינו כמה פעולות מוצלחות - המשך לשפר!";
     }
 
     if (actions.length > 15) {
-        feedback += " ביצעת הרבה פעולות - נחישות יפה!";
+        feedback += " ביצעת מספר רב של פעולות - מראה על נחישות ופעילות גבוהות!";
     }
 
     let counts = getActionCounts();
     if ((counts['מנהיגות: חיובית'] || 0) > 3) {
-        feedback += " אתה מראה כישורי מנהיגות מרשימים!";
+        feedback += " כישורי המנהיגות שלך בולטים!";
     }
 
     document.getElementById("feedback-text").textContent = feedback;
