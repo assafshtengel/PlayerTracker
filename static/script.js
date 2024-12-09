@@ -38,7 +38,7 @@ const leadershipActions = [
     "תיאום עם השופט", "ניהול זמן המשחק", "פתרון סכסוכים", "הובלת האימונים", "קבלת החלטות"
 ];
 
-// משתנה לשמירת הפעולה הנבחרת בעת פתיחת תיבת הבחירה
+// פעולה נבחרת כרגע לבחירת תוצאה
 let currentAction = null;
 
 function submitUserInfo() {
@@ -61,7 +61,6 @@ function submitUserInfo() {
     document.getElementById("user-input-container").classList.add("hidden");
     document.getElementById("game-info").classList.remove("hidden");
 
-    // טען את בחירת הפעולות לפי התפקיד
     loadActionsSelection(playerPosition);
 }
 
@@ -105,7 +104,6 @@ function confirmActions() {
 
     selectedActions = Array.from(checkboxes).map(cb => cb.value);
 
-    // הסתרת בחירת הפעולות והצגת ממשק המשחק
     document.getElementById("actions-selection-container").classList.add("hidden");
     document.getElementById("start-game-container").classList.remove("hidden");
 }
@@ -122,7 +120,6 @@ function startGame() {
     actionsTitle.classList.remove("hidden");
     actionsContainer.classList.remove("hidden");
 
-    // יצירת כפתורי הפעולות הנבחרות
     actionsContainer.innerHTML = "";
     selectedActions.forEach(action => {
         const button = document.createElement("button");
@@ -139,6 +136,7 @@ function startGame() {
 
     document.getElementById("minute-counter").textContent = gameMinute;
 
+    // סטופר - כל דקה מעלה את הדקה
     gameInterval = setInterval(() => {
         gameMinute++;
         document.getElementById("minute-counter").textContent = gameMinute;
@@ -181,7 +179,7 @@ function trackAction(action, result) {
 }
 
 function showPopup(message) {
-    const popup = document.getElementById("popup");
+    const popup = document.getElementById("popup-message");
     popup.textContent = message;
     popup.classList.remove("hidden");
     setTimeout(() => {
@@ -211,7 +209,6 @@ function resumeHalf() {
     halfPopup.classList.remove("active");
     halfPopup.classList.add("hidden");
 
-    // ממשיכים מהנקודה שעצרנו, בלי איפוס זמן
     gameInterval = setInterval(() => {
         gameMinute++;
         document.getElementById("minute-counter").textContent = gameMinute;
@@ -221,6 +218,7 @@ function resumeHalf() {
 }
 
 function endGame() {
+    console.log("endGame called"); // בדיקה האם הפונקציה רצה
     if (gameInterval) {
         clearInterval(gameInterval);
         gameInterval = null;
@@ -232,7 +230,7 @@ function endGame() {
     const summaryContent = document.getElementById("summary-content");
     summaryContent.innerHTML = getSummaryHTML(counts, "סיכום המשחק");
 
-    // עדכון פרטי השחקן לסיכום המשחק
+    // עדכון פרטי השחקן בסיכום המשחק
     document.getElementById("player-display-summary").textContent = document.getElementById("player-display").textContent;
     document.getElementById("game-date-summary").textContent = document.getElementById("game-date").textContent;
     document.getElementById("team-display-summary").textContent = document.getElementById("team-display").textContent;
@@ -245,7 +243,7 @@ function endGame() {
     popup.classList.remove("hidden");
     popup.classList.add("active");
 
-    // הצגת פידבק מותאם אישית מיד לאחר הצגת הסיכום
+    // הצגת פידבק אישי
     setTimeout(() => {
         showFeedback(score, minutesPlayed);
     }, 500);
@@ -265,7 +263,6 @@ function showAllActions() {
         let className = classifyResult(result);
         return `<p class="${className}">דקה ${minute}: ${action} - ${result}</p>`;
     }).join("");
-
     allActionsList.innerHTML = allActionsHTML;
 
     const actionsDetailPopup = document.getElementById("actions-detail-popup");
@@ -320,9 +317,8 @@ function enableActions(enable) {
     });
 }
 
-// פונקציה לחישוב ציון סיום המשחק
 function calculateScore(minutesPlayed) {
-    let score = 40; // ציון התחלתי
+    let score = 40;
     let successfulActions = 0;
     let totalActions = actions.length;
 
@@ -335,24 +331,21 @@ function calculateScore(minutesPlayed) {
         }
     });
 
-    // בונוס על מספר הפעולות
     if (totalActions >= 10) {
         score += 5;
     } else if (totalActions >= 5) {
         score += 2;
     }
 
-    // התאמת הציון על פי מספר הדקות
     if (minutesPlayed > 0) {
-        let minuteFactor = (60 - minutesPlayed) / 60; // פקטור עבור מספר דקות המשחק
+        let minuteFactor = (60 - minutesPlayed) / 60;
         score = score + Math.floor((successfulActions / minutesPlayed) * 10 * minuteFactor);
-        score = Math.min(96 - Math.floor(minuteFactor * 10), score); // להתחשב במספר הדקות כך שהמקסימום יהיה מותאם
+        score = Math.min(96 - Math.floor(minuteFactor * 10), score);
     }
 
-    return Math.min(96, score); // ציון מקסימלי 96
+    return Math.min(96, score);
 }
 
-// פונקציה להצגת פידבק מותאם אישית לשחקן
 function showFeedback(score, minutesPlayed) {
     let feedback = "";
     if (score > 85) {
@@ -360,35 +353,35 @@ function showFeedback(score, minutesPlayed) {
     } else if (score > 70) {
         feedback = "ביצוע טוב מאוד, רואים שהשקעת מאמץ רב. שים לב לדייק יותר בפעולות מסוימות.";
     } else if (score > 55) {
-        feedback = "עשית עבודה טובה, אך יש מקום לשיפור. נסה לשפר את הדיוק והקבלת החלטות במצבים מסוימים.";
+        feedback = "עשית עבודה טובה, אך יש מקום לשיפור.";
     } else {
         feedback = "יש הרבה מקום לשיפור. אל תתייאש, התמקד בלמידה מהטעויות ושיפור המיומנויות שלך.";
     }
 
     if (minutesPlayed < 30) {
-        feedback += " שיחקת פחות מ-30 דקות, נסה להשתפר ולשחק יותר זמן כדי להוכיח את עצמך.";
+        feedback += " שיחקת פחות מ-30 דקות, נסה לשפר את הכושר ולשחק יותר זמן.";
     }
 
     let successfulActions = actions.filter(a => ["מוצלח", "טוב", "חיובית"].includes(a.result)).length;
 
     if (actions.length >= 4) {
-        feedback += " ראיתי שביצעת יותר מ-4 פעולות מוצלחות - עבודה יפה!";
+        feedback += " ביצעת יותר מ-4 פעולות מוצלחות - כל הכבוד!";
     }
 
     if (successfulActions > 5) {
-        feedback += " יש לך מעל 5 פעולות מוצלחות, המשך כך!";
+        feedback += " מעל 5 פעולות מוצלחות, המשך כך!";
     }
 
     if (score < 50 && successfulActions > 3) {
-        feedback += " למרות הציון הנמוך, רואים שאתה מנסה ויש מספר פעולות מוצלחות. המשך לעבוד קשה!";
+        feedback += " למרות הציון הנמוך, רואים שיש לך פעולות מוצלחות - המשך לעבוד!";
     }
 
     if (actions.length > 15) {
-        feedback += " ביצעת מספר רב של פעולות - זה מראה על נחישות ופעילות גבוהה במהלך המשחק.";
+        feedback += " ביצעת הרבה פעולות - נחישות ופעילות גבוהה!";
     }
 
     if (getActionCounts()['מנהיגות: חיובית'] > 3) {
-        feedback += " הנך מראה כישורי מנהיגות מרשימים, כל הכבוד על כך!";
+        feedback += " אתה מראה מנהיגות חזקה, כל הכבוד!";
     }
 
     document.getElementById("feedback-text").textContent = feedback;
@@ -397,5 +390,6 @@ function showFeedback(score, minutesPlayed) {
 }
 
 function closeFeedbackPopup() {
-    document.getElementById("feedback-popup").classList.add("hidden");
+    const feedbackPopup = document.getElementById("feedback-popup");
+    feedbackPopup.classList.add("hidden");
 }
