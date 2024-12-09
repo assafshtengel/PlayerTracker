@@ -432,6 +432,16 @@ function endGame() {
         showFeedback(score, minutesPlayed);
     }, 500);
 
+    // לאחר סיום המשחק
+    // ביטול אפשרות הערת הורה
+    document.getElementById("notes-container").style.display = 'none';
+
+    // הסרת סיים מחצית
+    document.getElementById("end-half").style.display = 'none';
+
+    // להציג כפתור לצפייה בסיכום מחדש אם נסגר
+    document.getElementById("reopen-summary-container").classList.remove("hidden");
+
     popup.addEventListener("transitionend", makeActionsGreyAfterGame, {once:true});
 }
 
@@ -447,6 +457,13 @@ function closePopup() {
     const popup = document.getElementById("game-summary-popup");
     popup.classList.remove("active");
     popup.classList.add("hidden");
+}
+
+function reopenSummary() {
+    // פתיחת שוב את פופאפ הסיכום
+    const popup = document.getElementById("game-summary-popup");
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
 }
 
 function showAllActions() {
@@ -524,11 +541,11 @@ function enableActions(enable) {
 }
 
 function calculateScore(minutesPlayed) {
-    let score = 50; // בסיס גבוה יותר
+    let score = 50; 
     let successfulActions = 0;
     let badActions = 0;
     let totalActions = actions.length;
-    let negativeHoradaCount = 0; // ספירה עבור "הורדת ראש" שלילית
+    let negativeHoradaCount = 0; // הורדת ראש שלילית
 
     actions.forEach(({ action, result }) => {
         const resLower = result.toLowerCase();
@@ -541,25 +558,19 @@ function calculateScore(minutesPlayed) {
             if (action === "הורדת ראש") {
                 negativeHoradaCount++;
             }
-        } else {
-            // ניטרלי, לא מוסיף ולא מוריד
-        }
+        } 
     });
 
-    // אם השחקן בחר פחות מ-6 או יותר מ-10 פעולות בתחילה: -5 נק'
     const chosenCount = chosenProfessional.length + chosenMental.length + chosenCustom.length;
     if (chosenCount < 6 || chosenCount > 10) {
         score -= 5;
     }
 
-    // "הורדת ראש" שלילית מורידה עוד 3 נק' עבור כל פעם
     if (negativeHoradaCount > 0) {
         score -= (negativeHoradaCount * 3);
     }
 
-    // הגבלת מקסימום 200
     if (score > 200) score = 200;
-
     return score; 
 }
 
@@ -574,15 +585,15 @@ function showFeedback(score, minutesPlayed) {
     } else if (score > 85) {
         feedback = "מצוין! נתת משחק חזק. המשך לעבוד קשה!";
     } else if (score > 70) {
-        feedback = "ביצוע טוב מאוד. יש כמה נקודות לשיפור אבל אתה בדרך הנכונה.";
+        feedback = "ביצוע טוב מאוד. שים לב לדייק יותר בחלק מהפעולות.";
     } else if (score > 55) {
         feedback = "עשית עבודה טובה, אך יש מקום לשיפור. התמקד בדיוק וחדות.";
     } else {
-        feedback = "יש הרבה מקום לשיפור. אל תתייאש, למד מהטעויות ושפר את המיומנויות שלך.";
+        feedback = "יש הרבה מקום לשיפור. אל תתייאש, למד מהטעויות ושפר את מיומנויותיך.";
     }
 
     if (minutesPlayed < 30) {
-        feedback += " שיחקת פחות מ-30 דקות, נסה להגדיל את משך המשחק להוכיח את עצמך יותר.";
+        feedback += " שיחקת פחות מ-30 דקות, נסה להאריך את משך המשחק.";
     }
 
     if (actions.length >= 4) {
@@ -594,16 +605,16 @@ function showFeedback(score, minutesPlayed) {
     }
 
     if (score < 50 && successfulActions > 3) {
-        feedback += " למרות הציון הנמוך, ראינו כמה פעולות מוצלחות - המשך לשפר!";
+        feedback += " למרות הציון הנמוך, ראינו מספר פעולות מוצלחות. המשך להשתפר!";
     }
 
     if (actions.length > 15) {
-        feedback += " ביצעת מספר רב של פעולות - מראה על נחישות ופעילות גבוהות!";
+        feedback += " ביצעת הרבה פעולות - מראה על נחישות!";
     }
 
     let counts = getActionCounts();
     if ((counts['מנהיגות: חיובית'] || 0) > 3) {
-        feedback += " כישורי המנהיגות שלך בולטים!";
+        feedback += " כישורי המנהיגות שלך בולטים מאוד!";
     }
 
     document.getElementById("feedback-text").textContent = feedback;
@@ -628,4 +639,10 @@ function takeScreenshot() {
         link.download = 'game_summary_screenshot.png';
         link.click();
     });
+}
+
+function reopenSummary() {
+    const popup = document.getElementById("game-summary-popup");
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
 }
