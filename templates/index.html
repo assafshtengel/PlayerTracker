@@ -8,12 +8,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <!-- לוגו טקסטואלי -->
     <div id="logo">
         <span class="logo-text">אסף שטנגל - מאמן מנטלי לשחקנים</span>
     </div>
 
-    <!-- כותרת "ברוך הבא" -->
     <h1 id="welcome-message" style="margin-bottom:20px;">ברוך הבא למערכת מעקב שחקנים</h1>
 
     <!-- שלב מילוי פרטים -->
@@ -35,8 +33,6 @@
         </div>
         <button id="submit-user-button" onclick="submitUserInfo()">אישור</button>
     </div>
-
-    <!-- אין עוד הצגה של game-info כאן, הסרנו את זה -->
 
     <!-- בחירת פעולות -->
     <div id="actions-selection-container" class="game-info-container hidden">
@@ -93,13 +89,15 @@
     <div id="game-summary-popup" class="popup hidden">
         <div class="popup-content" id="game-summary-content">
             <span class="close-btn big-close" onclick="closePopup()">&times;</span>
-            <div id="summary-content"></div> <!-- הסרנו את התוכן הקודם כדי לא להציג שם שחקן וכו' -->
+            <div id="summary-content"></div>
             <div id="general-note-display" class="hidden">
                 <h4>הערות הורה:</h4>
                 <ul id="parent-notes-list"></ul>
             </div>
             <button id="view-all-actions" class="view-all-btn same-size-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
             <button onclick="takeScreenshot()" class="view-all-btn same-size-btn">צלם מסך</button>
+            <button class="close-summary-btn" onclick="closePopup()">סגור</button>
+            <button class="send-mail-btn" onclick="sendGameDataToMail()">שלח למייל</button>
         </div>
     </div>
 
