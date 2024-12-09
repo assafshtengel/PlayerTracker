@@ -2,8 +2,12 @@ let actions = [];
 let selectedActions = [];
 let gameInterval = null;
 let gameMinute = 0;
+let chosenProfessional = [];
+let chosenMental = [];
+let currentNoteAction = null;
+let parentNotes = {}; // key: action name, value: note text
 
-// פעולות מקצועיות - נוסיף לכל תפקיד גם "ביצוע 1 על 1", "מסירת מפתח", "הגבהה לרחבה"
+// פעולות מקצועיות (כוללות 1על1, מסירת מפתח, הגבהה לרחבה)
 const positionActions = {
     "שוער": [
         "עצירת כדור קשה",
@@ -96,7 +100,7 @@ const positionActions = {
     ]
 };
 
-// פעולות מנטאליות + הורדת ראש, הרמת ראש
+// פעולות מנטאליות (כוללות הורדת ראש, הרמת ראש)
 const mentalActions = [
     "שמירה על ריכוז",
     "התמודדות עם לחץ",
@@ -171,6 +175,7 @@ function loadActionsSelection(position) {
         checkbox.id = actionId;
         checkbox.value = action;
         checkbox.name = "selected-actions";
+        checkbox.dataset.category = "professional";
 
         const label = document.createElement("label");
         label.htmlFor = actionId;
@@ -192,6 +197,7 @@ function loadActionsSelection(position) {
         checkbox.id = actionId;
         checkbox.value = action;
         checkbox.name = "selected-actions";
+        checkbox.dataset.category = "mental";
 
         const label = document.createElement("label");
         label.htmlFor = actionId;
@@ -215,7 +221,10 @@ function confirmActions() {
         return;
     }
 
-    selectedActions = Array.from(checkboxes).map(cb => cb.value);
+    selectedActions = Array.from(checkboxes).map(cb => ({action: cb.value, category: cb.dataset.category}));
+
+    chosenProfessional = selectedActions.filter(a => a.category === 'professional');
+    chosenMental = selectedActions.filter(a => a.category === 'mental');
 
     document.getElementById("actions-selection-container").classList.add("hidden");
     document.getElementById("start-game-container").classList.remove("hidden");
@@ -229,38 +238,22 @@ function startGame() {
     timer.classList.remove("hidden");
 
     const actionsTitle = document.getElementById("actions-title");
-    const actionsContainer = document.getElementById("actions-container");
     actionsTitle.classList.remove("hidden");
-    actionsContainer.classList.remove("hidden");
 
-    // יצירת כפתורי הפעולות הנבחרות בלבד
-    actionsContainer.innerHTML = "";
-    selectedActions.forEach(action => {
-        const div = document.createElement("div");
-        div.classList.add("action-group");
+    const gameActionsContainer = document.getElementById("game-actions-container");
+    gameActionsContainer.classList.remove("hidden");
 
-        const goodBtn = document.createElement("button");
-        goodBtn.textContent = "V";
-        goodBtn.style.backgroundColor = "#4CAF50";
-        goodBtn.style.width = "50px";
-        goodBtn.style.fontSize = "20px";
-        goodBtn.onclick = () => trackAction(action, "מוצלח");
+    const profContainer = document.getElementById("prof-actions-chosen");
+    const mentalContainer = document.getElementById("mental-actions-chosen");
 
-        const badBtn = document.createElement("button");
-        badBtn.textContent = "X";
-        badBtn.style.backgroundColor = "#f44336";
-        badBtn.style.width = "50px";
-        badBtn.style.fontSize = "20px";
-        badBtn.onclick = () => trackAction(action, "לא מוצלח");
+    profContainer.innerHTML = "";
+    chosenProfessional.forEach(obj => {
+        profContainer.appendChild(createActionRow(obj.action));
+    });
 
-        const h2 = document.createElement("h2");
-        h2.textContent = action;
-
-        div.appendChild(goodBtn);
-        div.appendChild(h2);
-        div.appendChild(badBtn);
-
-        actionsContainer.appendChild(div);
+    mentalContainer.innerHTML = "";
+    chosenMental.forEach(obj => {
+        mentalContainer.appendChild(createActionRow(obj.action, true));
     });
 
     enableActions(true);
@@ -276,6 +269,70 @@ function startGame() {
 
     const endButtons = document.getElementById("end-buttons-container");
     endButtons.classList.remove("hidden");
+}
+
+function createActionRow(action, isMental=false) {
+    const div = document.createElement("div");
+    div.classList.add("action-group");
+    div.classList.add(isMental ? "mental-bg" : "prof-bg");
+
+    const goodBtn = document.createElement("button");
+    goodBtn.textContent = "V";
+    goodBtn.style.backgroundColor = "#4CAF50";
+    goodBtn.style.width = "50px";
+    goodBtn.style.fontSize = "24px";
+    goodBtn.style.fontWeight = "bold";
+    goodBtn.onclick = () => trackAction(action, "מוצלח");
+
+    const badBtn = document.createElement("button");
+    badBtn.textContent = "X";
+    badBtn.style.backgroundColor = "#f44336";
+    badBtn.style.width = "50px";
+    badBtn.style.fontSize = "24px";
+    badBtn.style.fontWeight = "bold";
+    badBtn.onclick = () => trackAction(action, "לא מוצלח");
+
+    const noteBtn = document.createElement("button");
+    noteBtn.textContent = "🖉"; // אייקון עט
+    noteBtn.style.backgroundColor = "#9E9E9E";
+    noteBtn.style.width = "50px";
+    noteBtn.style.fontSize = "24px";
+    noteBtn.style.fontWeight = "bold";
+    noteBtn.onclick = () => openParentNotePopup(action);
+
+    const h2 = document.createElement("h2");
+    h2.textContent = action;
+
+    div.appendChild(badBtn);
+    div.appendChild(h2);
+    div.appendChild(goodBtn);
+    div.appendChild(noteBtn);
+
+    return div;
+}
+
+function openParentNotePopup(action) {
+    currentNoteAction = action;
+    document.getElementById("parent-note-text").value = parentNotes[action] || "";
+    const popup = document.getElementById("parent-note-popup");
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
+}
+
+function closeParentNotePopup() {
+    const popup = document.getElementById("parent-note-popup");
+    popup.classList.remove("active");
+    popup.classList.add("hidden");
+    currentNoteAction = null;
+}
+
+function saveParentNote() {
+    const text = document.getElementById("parent-note-text").value.trim();
+    if (currentNoteAction) {
+        parentNotes[currentNoteAction] = text;
+    }
+    closeParentNotePopup();
+    showPopup("הערה נשמרה!");
 }
 
 function endHalfTime() {
@@ -349,7 +406,8 @@ function showAllActions() {
 
     const allActionsHTML = actions.map(({ action, result, minute }) => {
         let className = classifyResult(result);
-        return `<p class="${className}">דקה ${minute}: ${action} - ${result}</p>`;
+        let noteText = parentNotes[action] ? `<br><small>הערת הורה: ${parentNotes[action]}</small>` : "";
+        return `<p class="${className}">דקה ${minute}: ${action} - ${result}${noteText}</p>`;
     }).join("");
 
     allActionsList.innerHTML = allActionsHTML;
@@ -406,7 +464,7 @@ function getSummaryHTML(counts, title) {
 }
 
 function enableActions(enable) {
-    const buttons = document.querySelectorAll('#actions-container button');
+    const buttons = document.querySelectorAll('#prof-actions-chosen button, #mental-actions-chosen button');
     buttons.forEach(button => {
         if (enable) {
             button.removeAttribute('disabled');
