@@ -22,14 +22,15 @@ let analystTeamAName = "";
 let analystTeamBName = "";
 let analystGameDate = "";
 
+let analystTeamAColor = "שחור"; // צבע ברירת מחדל
+let analystTeamBColor = "שחור"; // צבע ברירת מחדל
+
 const colorMap = {
     "אדום":"red","כחול":"blue","ירוק":"green","צהוב":"yellow","שחור":"black","לבן":"white",
     "כתום":"orange","סגול":"purple","ורוד":"pink","חום":"brown","אפור":"gray","טורקיז":"turquoise"
 };
 const paletteColors = ["אדום","כחול","ירוק","צהוב","שחור","לבן","כתום","סגול","ורוד","חום","אפור","טורקיז"];
-let chosenColor = null;
 
-// בחירת תפקיד
 function selectRole(role) {
     document.getElementById("role-selection-container").classList.add("hidden");
     if (role === 'player') {
@@ -39,8 +40,30 @@ function selectRole(role) {
     } else if (role === 'analyst') {
         const today = new Date().toISOString().split('T')[0];
         document.getElementById("analyst-game-date").value = today;
+        createTeamColorPalette("teamA-color-palette", c => {
+            analystTeamAColor = c;
+        });
+        createTeamColorPalette("teamB-color-palette", c => {
+            analystTeamBColor = c;
+        });
         document.getElementById("analyst-game-info-container").classList.remove("hidden");
     }
+}
+
+function createTeamColorPalette(paletteId, onColorSelect) {
+    const paletteDiv = document.getElementById(paletteId);
+    paletteDiv.innerHTML = "";
+    paletteColors.forEach(c=>{
+        const colorDiv = document.createElement("div");
+        colorDiv.style.backgroundColor=colorMap[c];
+        colorDiv.title = c;
+        colorDiv.onclick = () => {
+            onColorSelect(c);
+            [...paletteDiv.children].forEach(ch=>ch.style.outline="none");
+            colorDiv.style.outline="2px solid #000";
+        };
+        paletteDiv.appendChild(colorDiv);
+    });
 }
 
 function submitAnalystGameInfo() {
@@ -70,8 +93,6 @@ function submitAnalystGameInfo() {
     teamSelect.appendChild(optA);
     teamSelect.appendChild(optB);
 
-    createColorPalette();
-
     const nameInput = document.getElementById("analyst-player-name");
     const addBtn = document.getElementById("add-player-btn");
     nameInput.oninput = () => {
@@ -79,28 +100,6 @@ function submitAnalystGameInfo() {
     };
 
     document.getElementById("analyst-setup-container").classList.remove("hidden");
-}
-
-function createColorPalette() {
-    const paletteDiv = document.getElementById("color-palette");
-    paletteDiv.innerHTML = "";
-    paletteColors.forEach(c=>{
-        const colorDiv = document.createElement("div");
-        colorDiv.style.width="20px";
-        colorDiv.style.height="20px";
-        colorDiv.style.margin="5px";
-        colorDiv.style.display="inline-block";
-        colorDiv.style.cursor="pointer";
-        colorDiv.style.border="1px solid #000";
-        colorDiv.style.backgroundColor=colorMap[c];
-        colorDiv.title = c;
-        colorDiv.onclick = () => {
-            chosenColor = c;
-            [...paletteDiv.children].forEach(ch=>ch.style.outline="none");
-            colorDiv.style.outline="2px solid #000";
-        };
-        paletteDiv.appendChild(colorDiv);
-    });
 }
 
 function checkAccessCode() {
@@ -584,19 +583,15 @@ function addAnalystPlayer() {
     const number = document.getElementById("analyst-player-number").value.trim();
     const position = document.getElementById("analyst-player-position").value;
 
-    const playerColor = chosenColor || "שחור"; 
-    const team = ""; 
+    let playerColor = (teamSide === 'A')? analystTeamAColor : analystTeamBColor;
+    if(!playerColor) playerColor = "שחור";
 
-    analystPlayers.push({name, number, team, position, teamSide, color: playerColor, notes:[]});
+    analystPlayers.push({name, number, team:"", position, teamSide, color: playerColor, notes:[]});
     updateAnalystPlayersList();
 
     document.getElementById("analyst-player-name").value = "";
     document.getElementById("analyst-player-number").value = "";
     document.getElementById("analyst-player-position").value = "";
-    chosenColor = null;
-    const paletteDiv = document.getElementById("color-palette");
-    [...paletteDiv.children].forEach(ch=>ch.style.outline="none");
-
     document.getElementById("add-player-btn").disabled = true;
 }
 
@@ -626,6 +621,15 @@ function updateAnalystPlayersList() {
             const shirtIcon = document.createElement("div");
             shirtIcon.classList.add("shirt-icon");
             shirtIcon.textContent = player.number;
+            // צבע הרקע לפי colorMap
+            shirtIcon.style.backgroundColor=colorMap[player.color]||"black";
+            // אם הצבע בהיר, נבחר טקסט שחור, אחרת לבן
+            // כיוון שאין כ"כ זמן, פשוט אם הצבע == 'yellow' או 'white' נשים שחור אחרת לבן
+            if(['yellow','white','pink'].includes((colorMap[player.color]||"black"))){
+                shirtIcon.style.color="black";
+            } else {
+                shirtIcon.style.color="white";
+            }
             card.appendChild(shirtIcon);
         }
 
@@ -797,9 +801,9 @@ function loadAnalystMarking() {
 
         const header = document.createElement("div");
         header.classList.add("marking-player-header");
-        const shirtNum = player.number ? `<span class="shirt-number">${player.number}</span>` : '';
         let teamNameDisplayed = player.teamSide === 'A' ? analystTeamAName : analystTeamBName;
-        header.innerHTML = `${shirtNum}${player.name || 'שחקן'} - ${player.position || 'ללא תפקיד'} [${teamNameDisplayed}]`;
+        let numHTML = player.number ? `<span class="shirt-number" style="background:${colorMap[player.color]||'black'};padding:2px 5px;border-radius:5px;font-weight:bold;color:${(['yellow','white','pink'].includes((colorMap[player.color]||"black"))?'black':'white')}">${player.number}</span>` : '';
+        header.innerHTML = `${numHTML} ${player.name || 'שחקן'} - ${player.position || 'ללא תפקיד'} [${teamNameDisplayed}]`;
         header.style.color = colorMap[player.color] || "black";
 
         const actionsDiv = document.createElement("div");
@@ -1138,4 +1142,25 @@ async function downloadPDF() {
     const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
     pdf.save("summary.pdf");
+}
+
+function saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes) {
+    fetch('/save_data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            playerName: playerName,
+            teamName: teamName,
+            position: position,
+            gameDate: gameDate,
+            score: score,
+            actions: actions,
+            parentNotes: parentNotes
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Data saved to server:", data);
+    })
+    .catch(err => console.error(err));
 }
