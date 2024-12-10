@@ -474,19 +474,7 @@ function createActionCheckbox(action, category) {
     return div;
 }
 
-// פעולות לפי תפקיד
-const positionActions = {
-    "שוער": ["עצירת כדור קשה","יציאה לאגרוף","משחק רגל מדויק","שליטה ברחבה","תקשורת עם ההגנה","יציאה לכדורי גובה","מסירה ארוכה מדויקת","סגירת זויות בעיטות","תגובות מהירות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"],
-    "בלם": ["בלימת התקפה יריבה","משחק ראש מוצלח","סגירת תוקף","חטיפת כדור","הנעת כדור אחורה בבטחה","משחק רוחב מדויק","סגירת קווי מסירה","הגנה על הרחבה","הובלת הכדור קדימה","החזרת כדור לשוער","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"],
-    "מגן": ["הגבהה מדויקת לרחבה","תמיכה בהתקפה באגף","כיסוי הגנתי באגף","תקשורת עם הקשר","ריצה לאורך הקו","קרוס מדויק","חטיפת כדור באגף","מעבר מהיר להתקפה","משחק רוחב בטוח","שמירה על חלוץ יריב","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"],
-    "קשר": ["מסירה חכמה קדימה","שמירה על קצב המשחק","חטיפת כדור במרכז","משחק קצר מדויק","שליחת כדור לעומק","שליטה בקישור","החלפת אגף","תמיכה בהגנה","ארגון ההתקפה","ראיית משחק רחבה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"],
-    "חלוץ": ["בעיטה למסגרת","בעיטה לשער","תנועה ללא כדור","קבלת כדור תחת לחץ","סיום מצבים","נוכחות ברחבה","ניצול הזדמנויות","תקשורת עם הקשרים","לחץ על ההגנה היריבה","נגיחה למסגרת","שמירה על הכדור מול הגנה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","משחק עם הגב לשער"],
-    "כנף": ["עקיפת מגן באגף","הגבהה איכותית","ריצה מהירה בקו","חדירה לרחבה מהאגף","משחק עומק","קידום הכדור קדימה","יצירת יתרון מספרי","משחק רוחב לשינוי אגף","הפתעת ההגנה בתנועה","השגת פינות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"]
-};
-
-const mentalActions = ["מנטאלי"];
-
-// אנליסט - הוספת שחקנים
+// אנליסט
 function addAnalystPlayer() {
     if (analystPlayers.length >= 10) {
         alert("לא ניתן להוסיף יותר מ-10 שחקנים");
@@ -617,15 +605,6 @@ function loadAnalystActions() {
         playerDiv.appendChild(customActionsDiv);
         playerDiv.appendChild(customGroup);
 
-        // הוספת הערות לשחקן
-        const notesTitle = document.createElement("h4");
-        notesTitle.textContent = "הערות לשחקן:";
-        playerDiv.appendChild(notesTitle);
-        const notesTextarea = document.createElement("textarea");
-        notesTextarea.id = `analyst-player${index}-notes`;
-        notesTextarea.placeholder = "הקלד הערות על השחקן (אופציונלי)";
-        playerDiv.appendChild(notesTextarea);
-
         container.appendChild(playerDiv);
     });
 }
@@ -645,25 +624,18 @@ function createActionCheckboxForAnalyst(action, name) {
 }
 
 function submitAnalystActions() {
-    // נאסוף את הבחירות לכל שחקן
+    // נאסוף את הבחירות לכל שחקן, ללא הערות לשחקן (הוסרו לפי בקשה)
     analystPlayers.forEach((player, index) => {
         let chosenActions = [];
-        let playerNote = "";
         ["professional","mental","custom"].forEach(cat => {
             const checks = document.querySelectorAll(`input[name="analyst-player${index}-${cat}"]:checked`);
             checks.forEach(ch => chosenActions.push(ch.value));
         });
 
-        const noteArea = document.getElementById(`analyst-player${index}-notes`);
-        if (noteArea) {
-            playerNote = noteArea.value.trim();
-        }
-
-        player.finalActions = chosenActions; 
-        player.finalNote = playerNote;
+        player.finalActions = chosenActions;
     });
 
-    // סיימנו בחירת פעולות, נעבור למסך הסימון (marking)
+    // נעבור למסך סימון הפעולות
     document.getElementById("analyst-actions-container").classList.add("hidden");
     loadAnalystMarking();
     document.getElementById("analyst-marking-container").classList.remove("hidden");
@@ -673,8 +645,6 @@ function loadAnalystMarking() {
     const container = document.getElementById("analyst-marking-players");
     container.innerHTML = "";
 
-    // נראה את כל השחקנים עם הפעולות שנבחרו, אפשר לסמן V/X ולערוך הערות שוב
-    // כאן נשמור מחדש את ההערות אם ירצה (נשאיר כמו שהוא)
     analystPlayers.forEach((player, index) => {
         const playerDiv = document.createElement("div");
         playerDiv.style.borderBottom = "1px solid #ddd";
@@ -699,16 +669,6 @@ function loadAnalystMarking() {
             noActions.textContent = "לא נבחרו פעולות.";
             playerDiv.appendChild(noActions);
         }
-
-        // הערות לשחקן
-        const notesTitle = document.createElement("h4");
-        notesTitle.textContent = "הערות לשחקן:";
-        playerDiv.appendChild(notesTitle);
-        const notesTextarea = document.createElement("textarea");
-        notesTextarea.id = `analyst-marking-player${index}-notes`;
-        notesTextarea.placeholder = "הערות (אופציונלי)";
-        notesTextarea.value = player.finalNote || "";
-        playerDiv.appendChild(notesTextarea);
 
         container.appendChild(playerDiv);
     });
@@ -739,29 +699,19 @@ function createMarkingRow(player, index, action) {
 }
 
 function markAnalystAction(playerIndex, action, result) {
-    // נשמור ברשימה
     analystGameActions.push({playerIndex, action, result});
     showPopup(`פעולה "${action}" (${result}) נרשמה!`, result.includes("מוצלח") ? "good" : "bad");
 }
 
 function finishAnalystGame() {
-    // כאן נוכל לאסוף את ההערות הסופיות, הערה כללית
     const generalNote = document.getElementById("analyst-general-note").value.trim();
 
-    analystPlayers.forEach((player, index) => {
-        const noteArea = document.getElementById(`analyst-marking-player${index}-notes`);
-        if (noteArea) {
-            player.finalNote = noteArea.value.trim();
-        }
-    });
-
-    // כעת יש לנו:
-    // analystPlayers[index].finalActions - פעולות שנבחרו
-    // analystPlayers[index].finalNote - הערה לשחקן
-    // analystGameActions[] - רשימת פעולות שסומנו כ-V/X
+    // כאן יש לנו:
+    // analystPlayers[i].finalActions - הפעולות שנבחרו לשחקן i
+    // analystGameActions[] - פעולות שסומנו כמוצלח/לא מוצלח
     // generalNote - הערה כללית
 
-    alert("נשמרו הפעולות וההערות! (כאן ניתן בהמשך לשמור לבסיס נתונים או להציג סיכום)");
+    alert("הנתונים נשמרו! כאן ניתן בהמשך לשמור לבסיס נתונים או להציג סיכום נוסף.");
 }
 
 function saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes) {
@@ -785,7 +735,6 @@ function saveGameDataToServer(playerName, teamName, position, gameDate, score, a
     .catch(err => console.error(err));
 }
 
-// פונקציות עזר לקוד הנוכחי (calculateScore וכו') בלי שינוי
 function calculateScore(minutesPlayed) {
     let score = 0;
     let goodCount = 0;
