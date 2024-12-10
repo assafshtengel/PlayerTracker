@@ -13,8 +13,7 @@ const ACCESS_CODE = "1976";
 const ANALYST_CODE = "2012"; 
 
 let analystPlayers = []; 
-let analystActionsSelections = []; // נשמור בחירה של פעולות באנליסט עם רקע ירוק
-let analystGameActions = []; // שמירת פעולות V/X בשלב marking
+let analystGameActions = []; 
 let analystStartTime = false;
 
 function selectRole(role) {
@@ -78,6 +77,15 @@ function addCustomAction() {
     div.appendChild(checkbox);
     const label = document.createElement("label");
     label.textContent = val;
+    label.onclick = () => {
+        if (checkbox.checked) {
+            checkbox.checked = false;
+            label.classList.remove("selected");
+        } else {
+            checkbox.checked = true;
+            label.classList.add("selected");
+        }
+    }
     div.appendChild(label);
     container.appendChild(div);
     input.value = "";
@@ -135,6 +143,7 @@ function startGame() {
 
     document.getElementById("minute-counter").textContent = gameMinute;
 
+    if (gameInterval) clearInterval(gameInterval);
     gameInterval = setInterval(() => {
         gameMinute++;
         document.getElementById("minute-counter").textContent = gameMinute;
@@ -469,7 +478,6 @@ function createActionCheckbox(action, category) {
     const label = document.createElement("label");
     label.textContent = action;
     label.onclick = () => {
-        // Toggle
         if (checkbox.checked) {
             checkbox.checked = false;
             label.classList.remove("selected");
@@ -482,7 +490,17 @@ function createActionCheckbox(action, category) {
     return div;
 }
 
-// פונקציות לאנליסט
+const positionActions = {
+    "שוער": ["עצירת כדור קשה","יציאה לאגרוף","משחק רגל מדויק","שליטה ברחבה","תקשורת עם ההגנה","יציאה לכדורי גובה","מסירה ארוכה מדויקת","סגירת זויות בעיטות","תגובות מהירות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"],
+    "בלם": ["בלימת התקפה יריבה","משחק ראש מוצלח","סגירת תוקף","חטיפת כדור","הנעת כדור אחורה בבטחה","משחק רוחב מדויק","סגירת קווי מסירה","הגנה על הרחבה","הובלת הכדור קדימה","החזרת כדור לשוער","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"],
+    "מגן": ["הגבהה מדויקת לרחבה","תמיכה בהתקפה באגף","כיסוי הגנתי באגף","תקשורת עם הקשר","ריצה לאורך הקו","קרוס מדויק","חטיפת כדור באגף","מעבר מהיר להתקפה","משחק רוחב בטוח","שמירה על חלוץ יריב","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"],
+    "קשר": ["מסירה חכמה קדימה","שמירה על קצב המשחק","חטיפת כדור במרכז","משחק קצר מדויק","שליחת כדור לעומק","שליטה בקישור","החלפת אגף","תמיכה בהגנה","ארגון ההתקפה","ראיית משחק רחבה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"],
+    "חלוץ": ["בעיטה למסגרת","בעיטה לשער","תנועה ללא כדור","קבלת כדור תחת לחץ","סיום מצבים","נוכחות ברחבה","ניצול הזדמנויות","תקשורת עם הקשרים","לחץ על ההגנה היריבה","נגיחה למסגרת","שמירה על הכדור מול הגנה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","משחק עם הגב לשער"],
+    "כנף": ["עקיפת מגן באגף","הגבהה איכותית","ריצה מהירה בקו","חדירה לרחבה מהאגף","משחק עומק","קידום הכדור קדימה","יצירת יתרון מספרי","משחק רוחב לשינוי אגף","הפתעת ההגנה בתנועה","השגת פינות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"]
+};
+
+const mentalActions = ["מנטאלי"];
+
 function addAnalystPlayer() {
     if (analystPlayers.length >= 10) {
         alert("לא ניתן להוסיף יותר מ-10 שחקנים");
@@ -494,8 +512,7 @@ function addAnalystPlayer() {
     const team = document.getElementById("analyst-player-team").value.trim();
     const position = document.getElementById("analyst-player-position").value;
 
-    const playerObj = {name, number, team, position};
-    analystPlayers.push(playerObj);
+    analystPlayers.push({name, number, team, position});
     updateAnalystPlayersList();
 
     document.getElementById("analyst-player-name").value = "";
@@ -510,7 +527,7 @@ function updateAnalystPlayersList() {
     analystPlayers.forEach((player, i) => {
         const card = document.createElement("div");
         card.classList.add("player-card");
-        
+
         const delBtn = document.createElement("div");
         delBtn.classList.add("delete-player-btn");
         delBtn.textContent = "X";
@@ -559,12 +576,10 @@ function submitAnalystSetup() {
     loadAnalystActions();
     document.getElementById("analyst-actions-container").classList.remove("hidden");
 
-    // התחלת טיימר
     startAnalystTimer();
 }
 
 function startAnalystTimer() {
-    // טיימר כמו אצל השחקן
     document.getElementById("game-timer").classList.remove("hidden");
     gameMinute = 0;
     document.getElementById("minute-counter").textContent = gameMinute;
@@ -604,7 +619,7 @@ function loadAnalystActions() {
         const profActionsDiv = document.createElement("div");
         profActionsDiv.classList.add("actions-grid");
         actionsForPosition.forEach(action => {
-            profActionsDiv.appendChild(createAnalystSelectableAction(action, index, "professional"));
+            profActionsDiv.appendChild(createAnalystSelectableAction(action));
         });
         playerDiv.appendChild(profActionsDiv);
 
@@ -615,7 +630,7 @@ function loadAnalystActions() {
         const mentalActionsDiv = document.createElement("div");
         mentalActionsDiv.classList.add("actions-grid");
         mentalActions.forEach(action => {
-            mentalActionsDiv.appendChild(createAnalystSelectableAction(action, index, "mental"));
+            mentalActionsDiv.appendChild(createAnalystSelectableAction(action));
         });
         playerDiv.appendChild(mentalActionsDiv);
 
@@ -627,7 +642,6 @@ function loadAnalystActions() {
         customActionsDiv.classList.add("actions-grid");
         playerDiv.appendChild(customActionsDiv);
 
-        // כפתור להוספה מותאמת
         const customGroup = document.createElement("div");
         customGroup.classList.add("input-group");
         const customInput = document.createElement("input");
@@ -642,7 +656,7 @@ function loadAnalystActions() {
                 alert("אנא כתוב שם פעולה לפני ההוספה");
                 return;
             }
-            customActionsDiv.appendChild(createAnalystSelectableAction(val, index, "custom"));
+            customActionsDiv.appendChild(createAnalystSelectableAction(val));
             customInput.value = "";
         };
 
@@ -654,7 +668,7 @@ function loadAnalystActions() {
     });
 }
 
-function createAnalystSelectableAction(action, playerIndex, category) {
+function createAnalystSelectableAction(action) {
     const div = document.createElement("div");
     div.classList.add("action-item");
     const label = document.createElement("label");
@@ -671,13 +685,11 @@ function createAnalystSelectableAction(action, playerIndex, category) {
 }
 
 function submitAnalystActions() {
-    // לאסוף פעולות שנבחרו לכל שחקן
-    const playerContainers = document.getElementById("analyst-players-actions").querySelectorAll("div[style]"); // כל DIV של שחקן
+    const containers = document.querySelectorAll('#analyst-players-actions > div[style]');
     analystPlayers.forEach((player, index) => {
         let chosenActions = [];
-        // נחפש label.selected בתוך ה-container
-        const selectedLabels = playerContainers[index].querySelectorAll("label.selected");
-        selectedLabels.forEach(lbl => chosenActions.push(lbl.textContent));
+        const lbls = containers[index].querySelectorAll("label.selected");
+        lbls.forEach(l => chosenActions.push(l.textContent));
         player.finalActions = chosenActions;
     });
 
@@ -743,10 +755,6 @@ function loadAnalystMarking() {
             actionsDiv.appendChild(p);
         }
 
-        // הערה לשחקן
-        // כעת לא ביקשו הערות לכל שחקן בנפרד בשלב הזה - נשאיר אופציונלי אם תרצה
-        // לפי הדרישה האחרונה, רק הערה כללית בסוף.
-
         playerWrapper.appendChild(actionsDiv);
         container.appendChild(playerWrapper);
     });
@@ -759,8 +767,6 @@ function markAnalystAction(playerIndex, action, result) {
 
 function finishAnalystGame() {
     const generalNote = document.getElementById("analyst-general-note").value.trim();
-    // שמירה בבסיס נתונים אפשרית בעתיד.
-
     alert("הנתונים נשמרו!");
 }
 
