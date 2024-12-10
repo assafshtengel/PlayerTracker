@@ -13,7 +13,9 @@ const ACCESS_CODE = "1976";
 const ANALYST_CODE = "2012"; 
 
 let analystPlayers = []; 
-let analystGameActions = []; // כאן נשמור תוצאות V/X
+let analystActionsSelections = []; // נשמור בחירה של פעולות באנליסט עם רקע ירוק
+let analystGameActions = []; // שמירת פעולות V/X בשלב marking
+let analystStartTime = false;
 
 function selectRole(role) {
     document.getElementById("role-selection-container").classList.add("hidden");
@@ -67,12 +69,13 @@ function addCustomAction() {
     const container = document.getElementById("custom-actions");
     const div = document.createElement("div");
     div.classList.add("action-item");
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.value = val;
-    cb.name = "selected-actions";
-    cb.dataset.category = "custom";
-    div.appendChild(cb);
+    const checkbox = document.createElement("input");
+    checkbox.type="checkbox";
+    checkbox.value=val;
+    checkbox.name="selected-actions";
+    checkbox.dataset.category="custom";
+    checkbox.style.display='none';
+    div.appendChild(checkbox);
     const label = document.createElement("label");
     label.textContent = val;
     div.appendChild(label);
@@ -454,37 +457,32 @@ function loadActionsSelection(position) {
 }
 
 function createActionCheckbox(action, category) {
-    const actionId = `action-${category}-${Math.random()}`;
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.id = actionId;
-    checkbox.value = action;
-    checkbox.name = "selected-actions";
-    checkbox.dataset.category = category;
-
-    const label = document.createElement("label");
-    label.htmlFor = actionId;
-    label.textContent = action;
-
     const div = document.createElement("div");
     div.classList.add("action-item");
+    const checkbox = document.createElement("input");
+    checkbox.type="checkbox";
+    checkbox.name="selected-actions";
+    checkbox.value=action;
+    checkbox.dataset.category=category;
+    checkbox.style.display='none';
     div.appendChild(checkbox);
+    const label = document.createElement("label");
+    label.textContent = action;
+    label.onclick = () => {
+        // Toggle
+        if (checkbox.checked) {
+            checkbox.checked = false;
+            label.classList.remove("selected");
+        } else {
+            checkbox.checked = true;
+            label.classList.add("selected");
+        }
+    }
     div.appendChild(label);
-
     return div;
 }
 
-const positionActions = {
-    "שוער": ["עצירת כדור קשה","יציאה לאגרוף","משחק רגל מדויק","שליטה ברחבה","תקשורת עם ההגנה","יציאה לכדורי גובה","מסירה ארוכה מדויקת","סגירת זויות בעיטות","תגובות מהירות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"],
-    "בלם": ["בלימת התקפה יריבה","משחק ראש מוצלח","סגירת תוקף","חטיפת כדור","הנעת כדור אחורה בבטחה","משחק רוחב מדויק","סגירת קווי מסירה","הגנה על הרחבה","הובלת הכדור קדימה","החזרת כדור לשוער","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"],
-    "מגן": ["הגבהה מדויקת לרחבה","תמיכה בהתקפה באגף","כיסוי הגנתי באגף","תקשורת עם הקשר","ריצה לאורך הקו","קרוס מדויק","חטיפת כדור באגף","מעבר מהיר להתקפה","משחק רוחב בטוח","שמירה על חלוץ יריב","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"],
-    "קשר": ["מסירה חכמה קדימה","שמירה על קצב המשחק","חטיפת כדור במרכז","משחק קצר מדויק","שליחת כדור לעומק","שליטה בקישור","החלפת אגף","תמיכה בהגנה","ארגון ההתקפה","ראיית משחק רחבה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"],
-    "חלוץ": ["בעיטה למסגרת","בעיטה לשער","תנועה ללא כדור","קבלת כדור תחת לחץ","סיום מצבים","נוכחות ברחבה","ניצול הזדמנויות","תקשורת עם הקשרים","לחץ על ההגנה היריבה","נגיחה למסגרת","שמירה על הכדור מול הגנה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","משחק עם הגב לשער"],
-    "כנף": ["עקיפת מגן באגף","הגבהה איכותית","ריצה מהירה בקו","חדירה לרחבה מהאגף","משחק עומק","קידום הכדור קדימה","יצירת יתרון מספרי","משחק רוחב לשינוי אגף","הפתעת ההגנה בתנועה","השגת פינות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"]
-};
-
-const mentalActions = ["מנטאלי"];
-
+// פונקציות לאנליסט
 function addAnalystPlayer() {
     if (analystPlayers.length >= 10) {
         alert("לא ניתן להוסיף יותר מ-10 שחקנים");
@@ -496,7 +494,8 @@ function addAnalystPlayer() {
     const team = document.getElementById("analyst-player-team").value.trim();
     const position = document.getElementById("analyst-player-position").value;
 
-    analystPlayers.push({name, number, team, position});
+    const playerObj = {name, number, team, position};
+    analystPlayers.push(playerObj);
     updateAnalystPlayersList();
 
     document.getElementById("analyst-player-name").value = "";
@@ -512,13 +511,21 @@ function updateAnalystPlayersList() {
         const card = document.createElement("div");
         card.classList.add("player-card");
         
+        const delBtn = document.createElement("div");
+        delBtn.classList.add("delete-player-btn");
+        delBtn.textContent = "X";
+        delBtn.onclick = () => {
+            analystPlayers.splice(i,1);
+            updateAnalystPlayersList();
+        };
+        card.appendChild(delBtn);
+
         const title = document.createElement("h4");
         let titleText = player.name || "שחקן ללא שם";
         title.textContent = titleText;
         card.appendChild(title);
 
         if (player.number) {
-            // אייקון חולצה
             const shirtIcon = document.createElement("div");
             shirtIcon.classList.add("shirt-icon");
             shirtIcon.textContent = player.number;
@@ -551,6 +558,22 @@ function submitAnalystSetup() {
     document.getElementById("analyst-setup-container").classList.add("hidden");
     loadAnalystActions();
     document.getElementById("analyst-actions-container").classList.remove("hidden");
+
+    // התחלת טיימר
+    startAnalystTimer();
+}
+
+function startAnalystTimer() {
+    // טיימר כמו אצל השחקן
+    document.getElementById("game-timer").classList.remove("hidden");
+    gameMinute = 0;
+    document.getElementById("minute-counter").textContent = gameMinute;
+    if (gameInterval) clearInterval(gameInterval);
+    gameInterval = setInterval(() => {
+        gameMinute++;
+        document.getElementById("minute-counter").textContent = gameMinute;
+    }, 60000);
+    analystStartTime = true;
 }
 
 function loadAnalystActions() {
@@ -569,27 +592,30 @@ function loadAnalystActions() {
         playerDiv.style.borderBottom = "1px solid #ddd";
         playerDiv.style.marginBottom = "20px";
         const title = document.createElement("h3");
-        title.textContent = `${player.name || 'שחקן'} (#${player.number || '?'}) - ${player.position || 'ללא תפקיד'}`;
+        title.textContent = `${player.name || 'שחקן'} (${player.number ? '#'+player.number:''}) - ${player.position || 'ללא תפקיד'}`;
         playerDiv.appendChild(title);
 
         const actionsForPosition = positionActions[player.position] || [];
+
         const profTitle = document.createElement("h4");
         profTitle.textContent = "פעולות מקצועיות:";
         playerDiv.appendChild(profTitle);
+
         const profActionsDiv = document.createElement("div");
         profActionsDiv.classList.add("actions-grid");
         actionsForPosition.forEach(action => {
-            profActionsDiv.appendChild(createActionCheckboxForAnalyst(action, `analyst-player${index}-professional`));
+            profActionsDiv.appendChild(createAnalystSelectableAction(action, index, "professional"));
         });
         playerDiv.appendChild(profActionsDiv);
 
         const mentalTitle = document.createElement("h4");
         mentalTitle.textContent = "פעולה מנטאלית:";
         playerDiv.appendChild(mentalTitle);
+
         const mentalActionsDiv = document.createElement("div");
         mentalActionsDiv.classList.add("actions-grid");
         mentalActions.forEach(action => {
-            mentalActionsDiv.appendChild(createActionCheckboxForAnalyst(action, `analyst-player${index}-mental`));
+            mentalActionsDiv.appendChild(createAnalystSelectableAction(action, index, "mental"));
         });
         playerDiv.appendChild(mentalActionsDiv);
 
@@ -599,14 +625,14 @@ function loadAnalystActions() {
 
         const customActionsDiv = document.createElement("div");
         customActionsDiv.classList.add("actions-grid");
-        customActionsDiv.id = `analyst-player${index}-custom-actions-div`;
+        playerDiv.appendChild(customActionsDiv);
 
+        // כפתור להוספה מותאמת
         const customGroup = document.createElement("div");
         customGroup.classList.add("input-group");
         const customInput = document.createElement("input");
         customInput.type = "text";
         customInput.placeholder = "הכנס פעולה מותאמת";
-        customInput.id = `analyst-player${index}-custom-input`;
 
         const addButton = document.createElement("button");
         addButton.textContent = "הוסף";
@@ -616,42 +642,42 @@ function loadAnalystActions() {
                 alert("אנא כתוב שם פעולה לפני ההוספה");
                 return;
             }
-            customActionsDiv.appendChild(createActionCheckboxForAnalyst(val, `analyst-player${index}-custom`));
+            customActionsDiv.appendChild(createAnalystSelectableAction(val, index, "custom"));
             customInput.value = "";
         };
 
         customGroup.appendChild(customInput);
         customGroup.appendChild(addButton);
-
-        playerDiv.appendChild(customActionsDiv);
         playerDiv.appendChild(customGroup);
 
         container.appendChild(playerDiv);
     });
 }
 
-function createActionCheckboxForAnalyst(action, name) {
+function createAnalystSelectableAction(action, playerIndex, category) {
     const div = document.createElement("div");
     div.classList.add("action-item");
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.value = action;
-    cb.name = name;
-    div.appendChild(cb);
     const label = document.createElement("label");
     label.textContent = action;
+    label.onclick = () => {
+        if (label.classList.contains("selected")) {
+            label.classList.remove("selected");
+        } else {
+            label.classList.add("selected");
+        }
+    }
     div.appendChild(label);
     return div;
 }
 
 function submitAnalystActions() {
+    // לאסוף פעולות שנבחרו לכל שחקן
+    const playerContainers = document.getElementById("analyst-players-actions").querySelectorAll("div[style]"); // כל DIV של שחקן
     analystPlayers.forEach((player, index) => {
         let chosenActions = [];
-        ["professional","mental","custom"].forEach(cat => {
-            const checks = document.querySelectorAll(`input[name="analyst-player${index}-${cat}"]:checked`);
-            checks.forEach(ch => chosenActions.push(ch.value));
-        });
-
+        // נחפש label.selected בתוך ה-container
+        const selectedLabels = playerContainers[index].querySelectorAll("label.selected");
+        selectedLabels.forEach(lbl => chosenActions.push(lbl.textContent));
         player.finalActions = chosenActions;
     });
 
@@ -672,66 +698,68 @@ function loadAnalystMarking() {
     }
 
     analystPlayers.forEach((player, index) => {
-        const playerDiv = document.createElement("div");
-        playerDiv.style.borderBottom = "1px solid #ddd";
-        playerDiv.style.marginBottom = "20px";
-        const title = document.createElement("h3");
-        title.textContent = `${player.name || 'שחקן'} (#${player.number || '?'}) - ${player.position || 'ללא תפקיד'}`;
-        playerDiv.appendChild(title);
+        const playerWrapper = document.createElement("div");
+        playerWrapper.style.borderBottom = "1px solid #ddd";
+        playerWrapper.style.marginBottom = "20px";
+
+        const header = document.createElement("div");
+        header.classList.add("marking-player-header");
+        const shirtNum = player.number ? `<span class="shirt-number">${player.number}</span>` : '';
+        header.innerHTML = `${shirtNum}${player.name || 'שחקן'} - ${player.position || 'ללא תפקיד'}`;
+        header.onclick = () => {
+            actionsDiv.classList.toggle("visible");
+        }
+        playerWrapper.appendChild(header);
+
+        const actionsDiv = document.createElement("div");
+        actionsDiv.classList.add("marking-player-actions");
 
         if (player.finalActions && player.finalActions.length > 0) {
-            const actionsTitle = document.createElement("h4");
-            actionsTitle.textContent = "סמן פעולות שבוצעו:";
-            playerDiv.appendChild(actionsTitle);
-
-            const actionsContainer = document.createElement("div");
-            actionsContainer.classList.add("actions-grid");
             player.finalActions.forEach(action => {
-                actionsContainer.appendChild(createMarkingRow(player, index, action));
+                const row = document.createElement("div");
+                row.classList.add("action-group");
+
+                const badBtn = document.createElement("button");
+                badBtn.textContent = "X";
+                badBtn.style.backgroundColor = "#f44336";
+                badBtn.onclick = () => markAnalystAction(index, action, "לא מוצלח");
+
+                const h2 = document.createElement("h2");
+                h2.textContent = action;
+
+                const goodBtn = document.createElement("button");
+                goodBtn.textContent = "V";
+                goodBtn.style.backgroundColor = "#4CAF50";
+                goodBtn.onclick = () => markAnalystAction(index, action, "מוצלח");
+
+                row.appendChild(badBtn);
+                row.appendChild(h2);
+                row.appendChild(goodBtn);
+                actionsDiv.appendChild(row);
             });
-            playerDiv.appendChild(actionsContainer);
         } else {
-            const noActions = document.createElement("p");
-            noActions.textContent = "לא נבחרו פעולות.";
-            playerDiv.appendChild(noActions);
+            const p = document.createElement("p");
+            p.textContent = "לא נבחרו פעולות.";
+            actionsDiv.appendChild(p);
         }
 
-        container.appendChild(playerDiv);
+        // הערה לשחקן
+        // כעת לא ביקשו הערות לכל שחקן בנפרד בשלב הזה - נשאיר אופציונלי אם תרצה
+        // לפי הדרישה האחרונה, רק הערה כללית בסוף.
+
+        playerWrapper.appendChild(actionsDiv);
+        container.appendChild(playerWrapper);
     });
 }
 
-function createMarkingRow(player, index, action) {
-    const div = document.createElement("div");
-    div.classList.add("action-group");
-
-    const badBtn = document.createElement("button");
-    badBtn.textContent = "X";
-    badBtn.style.backgroundColor = "#f44336";
-    badBtn.onclick = () => markAnalystAction(index, action, "לא מוצלח");
-
-    const h2 = document.createElement("h2");
-    h2.textContent = action;
-
-    const goodBtn = document.createElement("button");
-    goodBtn.textContent = "V";
-    goodBtn.style.backgroundColor = "#4CAF50";
-    goodBtn.onclick = () => markAnalystAction(index, action, "מוצלח");
-
-    div.appendChild(badBtn);
-    div.appendChild(h2);
-    div.appendChild(goodBtn);
-
-    return div;
-}
-
 function markAnalystAction(playerIndex, action, result) {
-    analystGameActions.push({playerIndex, action, result});
+    analystGameActions.push({playerIndex, action, result, minute: gameMinute});
     showPopup(`פעולה "${action}" (${result}) נרשמה!`, result.includes("מוצלח") ? "good" : "bad");
 }
 
 function finishAnalystGame() {
     const generalNote = document.getElementById("analyst-general-note").value.trim();
-    // כאן נוכל בעתיד לשמור לבסיס נתונים
+    // שמירה בבסיס נתונים אפשרית בעתיד.
 
     alert("הנתונים נשמרו!");
 }
