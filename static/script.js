@@ -1,4 +1,3 @@
-
 let actions = [];
 let selectedActions = [];
 let gameInterval = null;
@@ -10,30 +9,17 @@ let parentNotes = [];
 let gameFinished = false;
 let customActionsArr = [];
 
-// אתה יכול להשאיר את ה-API בצד השרת, כאן אנחנו עובדים רק בצד הלקוח.
-// כאן אין "שלח למייל", אלא שמירה בשרת
-// נניח שהשרת רץ בכתובת /save_data
+const ACCESS_CODE = "1976";
 
-// פונקציה לשמירת הנתונים בשרת
-function saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes) {
-    fetch('/save_data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            playerName: playerName,
-            teamName: teamName,
-            position: position,
-            gameDate: gameDate,
-            score: score,
-            actions: actions,
-            parentNotes: parentNotes
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log("Data saved to server:", data);
-    })
-    .catch(err => console.error(err));
+// פונקציה לבדיקת קוד הגישה
+function checkAccessCode() {
+    const code = document.getElementById("access-code").value.trim();
+    if (code === ACCESS_CODE) {
+        document.getElementById("login-container").classList.add("hidden");
+        document.getElementById("user-input-container").classList.remove("hidden");
+    } else {
+        alert("קוד שגוי, נסה שוב");
+    }
 }
 
 // רשימת פעולות לפי תפקיד ומנטלי
@@ -81,7 +67,6 @@ const mentalActions = [
     "התמודדות עם טעויות",
     "הורדת ראש",
     "הרמת ראש",
-    // פעולות מנטאליות שהצעת:
     "התמודדות עם החמצות (שמירה על ביטחון אחרי החמצה)",
     "ניהול רגשות תחת לחץ תקשורתי",
     "קבלת החלטות מהירה במצבי לחץ",
@@ -89,6 +74,27 @@ const mentalActions = [
     "אמונה עצמית בזמן קושי"
 ];
 
+// פונקציה לשמירת הנתונים בשרת
+function saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes) {
+    fetch('/save_data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            playerName: playerName,
+            teamName: teamName,
+            position: position,
+            gameDate: gameDate,
+            score: score,
+            actions: actions,
+            parentNotes: parentNotes
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Data saved to server:", data);
+    })
+    .catch(err => console.error(err));
+}
 
 function trackAction(action, result) {
     if (!gameInterval || gameFinished) {
@@ -124,16 +130,14 @@ function submitUserInfo() {
     const playerName = document.getElementById("player-name").value.trim();
     const teamName = document.getElementById("team-name").value.trim();
     const playerPosition = document.getElementById("player-position").value;
-    const parentEmail = document.getElementById("parent-email").value.trim();
 
-    if (!playerName || !teamName || !playerPosition || !parentEmail) {
-        alert("אנא מלא את כל השדות (כולל תפקיד ומייל הורה)");
+    if (!playerName || !teamName || !playerPosition) {
+        alert("אנא מלא את כל השדות (כולל תפקיד)");
         return;
     }
 
     document.getElementById("user-input-container").classList.add("hidden");
 
-    window.parentEmailGlobal = parentEmail;
     window.playerNameGlobal = playerName;
     window.teamNameGlobal = teamName;
     window.playerPositionGlobal = playerPosition;
@@ -387,8 +391,6 @@ function endGame() {
         actionsSummary += `דקה ${a.minute}: ${a.action} - ${a.result}\n`;
     });
 
-    const parentEmail = window.parentEmailGlobal || "";
-
     const summaryContent = document.getElementById("summary-content");
     summaryContent.innerHTML = getSummaryHTML(getActionCounts(), "סיכום המשחק");
     summaryContent.innerHTML += `<h3 id="final-score">ציון סיום המשחק שלך: ${score}</h3>`;
@@ -421,7 +423,7 @@ function endGame() {
 
     document.getElementById("reopen-summary-container").classList.remove("hidden");
 
-    // כאן אנו קוראים לפונקציה ששומרת בצד השרת
+    // שמירה בשרת
     saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes);
 }
 
@@ -528,7 +530,7 @@ function enableActions(enable) {
     });
 }
 
-// לוגיקת ציון מעודכנת
+// לוגיקת ציון מעודכנת (ממה שהגדרת לפני כן - אם יש צורך לשלב את האלגוריתם החדש, שלב את כולו כאן)
 function calculateScore(minutesPlayed) {
     let score = 35; 
     let successfulActions = 0;
