@@ -10,6 +10,7 @@ def init_db():
     conn = sqlite3.connect('games.db')
     c = conn.cursor()
     # צור טבלה לשמירת נתוני המשחק
+    # נוסיף עמודת email אם תרצה לשמור מייל בעתיד, כעת נניח שלא חייבים.
     c.execute('''
     CREATE TABLE IF NOT EXISTS games (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,7 +21,6 @@ def init_db():
         score INTEGER,
         actions TEXT,
         parentNotes TEXT
-        email TEXT
     )
     ''')
     conn.commit()
@@ -38,6 +38,7 @@ def save_data():
     score = data.get('score', 0)
     actions = data.get('actions', [])
     parentNotes = data.get('parentNotes', [])
+
     # שמור את הנתונים בבסיס הנתונים
     conn = sqlite3.connect('games.db')
     c = conn.cursor()
