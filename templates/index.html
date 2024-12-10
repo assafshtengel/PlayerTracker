@@ -13,9 +13,20 @@
     </div>
 
     <h1 id="welcome-message" style="margin-bottom:20px;">ברוך הבא למערכת מעקב שחקנים</h1>
+    
+    <!-- עמוד פתיחה חדש -->
+    <div id="login-container" class="game-info-container">
+        <h2>מערכת מעקב שחקנים - גישה מורשית</h2>
+        <p>מערכת זו נועדה לעזור לך כהורה להבין בדיוק מה קרה במשחק, לתעד פעולות, ולשפר את הביצועים של ילדך בכדורגל. אין עוד צורך בניחושים או בצעקות מהיציע. כאן הכל מבוסס עובדות, דקות מדויקות וניתוח מקצועי שיסייע לילד להתקדם.</p>
+        <p>לכניסה, אנא הקש את הסיסמה:</p>
+        <div class="input-group">
+            <input type="password" id="access-code" placeholder="הכנס קוד (1976)" />
+        </div>
+        <button onclick="checkAccessCode()">אישור</button>
+    </div>
 
-    <!-- שלב מילוי פרטים -->
-    <div id="user-input-container" class="game-info-container">
+    <!-- שלב מילוי פרטים (בלי מייל הורה) -->
+    <div id="user-input-container" class="game-info-container hidden">
         <h2>פרטים להתחלת המשחק</h2>
         <div class="input-group">
             <input type="text" id="player-name" placeholder="הכנס שם שחקן" />
@@ -29,7 +40,6 @@
                 <option value="חלוץ">חלוץ</option>
                 <option value="כנף">כנף</option>
             </select>
-            <input type="email" id="parent-email" placeholder="הכנס מייל הורה" />
         </div>
         <button id="submit-user-button" onclick="submitUserInfo()">אישור</button>
     </div>
