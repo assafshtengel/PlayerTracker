@@ -28,7 +28,7 @@
     <!-- מסך הכניסה (login-container) לשחקן -->
     <div id="login-container" class="game-info-container hidden">
         <h2>מערכת מעקב שחקנים - גישה מורשית</h2>
-        <p>מערכת זו נועדה לעזור לך כהורה להבין בדיוק מה קרה במשחק, לתעד פעולות, ולשפר את הביצועים של ילדך בכדורגל. אין עוד צורך בניחושים או בצעקות מהיציע. כאן הכל מבוסס עובדות, דקות מדויקות וניתוח מקצועי שיסייע לילד להתקדם.</p>
+        <p>מערכת זו נועדה לעזור לך כהורה להבין בדיוק מה קרה במשחק, לתעד פעולות, ולשפר את הביצועים של ילדך בכדורגל. אין עוד צורך בניחושים או בצעקות מהיציע.</p>
         <p>לכניסה, אנא הקש את הסיסמה:</p>
         <div class="input-group">
             <input type="password" id="access-code" placeholder="הכנס קוד " />
@@ -42,7 +42,7 @@
         <p>מסך זה עדיין בפיתוח.</p>
     </div>
 
-    <!-- מסך הגדרת אנליסט עם אפשרות להוספת עד 10 שחקנים -->
+    <!-- מסך הגדרת אנליסט -->
     <div id="analyst-setup-container" class="game-info-container hidden analyst-setup-container">
         <h2>הגדרת מעקב כאנליסט</h2>
         <p>הוסף עד 10 שחקנים למעקב. לא חובה למלא הכל. לאחר הוספת כל שחקן הוא יופיע בצד.</p>
@@ -60,7 +60,7 @@
                     <option value="כנף">כנף</option>
                     <option value="חלוץ">חלוץ</option>
                 </select>
-                <button onclick="addAnalystPlayer()">הוסף שחקן</button>
+                <button class="blue-btn" onclick="addAnalystPlayer()">הוסף שחקן</button>
             </div>
             <div class="analyst-players-list-container">
                 <h3>שחקנים שנוספו:</h3>
@@ -69,18 +69,28 @@
         </div>
 
         <p>הכנס קוד גישה לאנליסט:</p>
-        <div class="input-group">
+        <div class="input-group" style="max-width:300px;margin:0 auto;">
             <input type="password" id="analyst-access-code" placeholder="הכנס קוד" />
         </div>
-        <button onclick="submitAnalystSetup()">אישור</button>
+        <button onclick="submitAnalystSetup()">אישור ותחילת משחק</button>
     </div>
 
-    <!-- מסך בחירת פעולות לאנליסט לכל שחקן, כולל הערות -->
+    <!-- מסך בחירת פעולות לאנליסט לכל שחקן (ללא הערות לשחקן) -->
     <div id="analyst-actions-container" class="game-info-container hidden">
         <h2>בחירת פעולות למעקב עבור השחקנים</h2>
-        <p>בחר פעולות מקצועיות בהתאם לתפקיד (אם הוגדר), פעולת מנטאלי אם תרצה, והוסף פעולות מותאמות אישית והערות. הכל אופציונלי.</p>
+        <p>בחר פעולות מקצועיות, מנטאליות, מותאמות אישית (לא חובה לבחור הכל)</p>
         <div id="analyst-players-actions"></div>
-        <button onclick="submitAnalystActions()">אשר בחירה</button>
+        <button onclick="submitAnalystActions()">אישור ותחילת סימון</button>
+    </div>
+
+    <!-- מסך סימון הפעולות והערות כלליות -->
+    <div id="analyst-marking-container" class="game-info-container hidden">
+        <h2>סימון פעולות שבוצעו והוספת הערות</h2>
+        <p>סמן לכל פעולה אם בוצעה (V) או לא (X). הוסף הערה כללית בסוף (אופציונלי).</p>
+        <div id="analyst-marking-players"></div>
+        <h4>הערה כללית:</h4>
+        <textarea id="analyst-general-note" placeholder="הערה כללית (אופציונלי)"></textarea>
+        <button onclick="finishAnalystGame()">סיום</button>
     </div>
 
     <!-- מסכים לשחקן בלבד -->
@@ -116,7 +126,7 @@
             <input type="text" id="custom-action-input" placeholder="הכנס פעולה מותאמת אישית">
             <button id="add-custom-action-btn" onclick="addCustomAction()">הוסף פעולה</button>
         </div>
-        <button id="confirm-actions-btn" onclick="confirmActions()">אשר בחירה</button>
+        <button id="confirm-actions-btn" onclick="confirmActions()">אישור</button>
     </div>
 
     <!-- כפתור תחילת המשחק -->
