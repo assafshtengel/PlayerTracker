@@ -1,3 +1,10 @@
+// script.js
+
+// קודי גישה לדוגמה
+const ACCESS_CODE = "1976"; 
+const ANALYST_CODE = "2012"; 
+
+// משתנים גלובליים
 let actions = [];
 let selectedActions = [];
 let gameInterval = null;
@@ -9,13 +16,11 @@ let notes = [];
 let gameFinished = false;
 let customActionsArr = [];
 
-const ACCESS_CODE = "1976"; 
-const ANALYST_CODE = "2012"; 
-
 let analystPlayers = []; 
 let analystGameActions = []; 
 let analystStartTime = false;
 
+// פונקציה בחירת תפקיד בתחילת הדרך
 function selectRole(role) {
     document.getElementById("role-selection-container").classList.add("hidden");
     if (role === 'player') {
@@ -501,6 +506,7 @@ const positionActions = {
 
 const mentalActions = ["מנטאלי"];
 
+// פונקציות לאנליסט
 function addAnalystPlayer() {
     if (analystPlayers.length >= 10) {
         alert("לא ניתן להוסיף יותר מ-10 שחקנים");
@@ -710,6 +716,7 @@ function loadAnalystMarking() {
     }
 
     analystPlayers.forEach((player, index) => {
+        if(!player.note) player.note = ""; 
         const playerWrapper = document.createElement("div");
         playerWrapper.style.borderBottom = "1px solid #ddd";
         playerWrapper.style.marginBottom = "20px";
@@ -718,13 +725,14 @@ function loadAnalystMarking() {
         header.classList.add("marking-player-header");
         const shirtNum = player.number ? `<span class="shirt-number">${player.number}</span>` : '';
         header.innerHTML = `${shirtNum}${player.name || 'שחקן'} - ${player.position || 'ללא תפקיד'}`;
+        const actionsDiv = document.createElement("div");
+        actionsDiv.classList.add("marking-player-actions");
+
         header.onclick = () => {
             actionsDiv.classList.toggle("visible");
         }
-        playerWrapper.appendChild(header);
 
-        const actionsDiv = document.createElement("div");
-        actionsDiv.classList.add("marking-player-actions");
+        playerWrapper.appendChild(header);
 
         if (player.finalActions && player.finalActions.length > 0) {
             player.finalActions.forEach(action => {
@@ -755,6 +763,15 @@ function loadAnalystMarking() {
             actionsDiv.appendChild(p);
         }
 
+        // הערה לכל שחקן
+        const noteArea = document.createElement("textarea");
+        noteArea.placeholder = "הערה לשחקן זה (אופציונלי)";
+        noteArea.value = player.note;
+        noteArea.oninput = () => {
+            player.note = noteArea.value;
+        };
+        actionsDiv.appendChild(noteArea);
+
         playerWrapper.appendChild(actionsDiv);
         container.appendChild(playerWrapper);
     });
@@ -767,7 +784,79 @@ function markAnalystAction(playerIndex, action, result) {
 
 function finishAnalystGame() {
     const generalNote = document.getElementById("analyst-general-note").value.trim();
-    alert("הנתונים נשמרו!");
+    document.getElementById("analyst-marking-container").classList.add("hidden");
+    showFinalSummary(generalNote);
+}
+
+function showFinalSummary(generalNote) {
+    const finalContainer = document.getElementById("analyst-final-summary-container");
+    finalContainer.classList.remove("hidden");
+
+    const finalDataDiv = document.getElementById("analyst-final-data");
+    finalDataDiv.innerHTML = "";
+
+    const title = document.createElement("h3");
+    title.textContent = "נתוני השחקנים:";
+    finalDataDiv.appendChild(title);
+
+    analystPlayers.forEach((player, index) => {
+        const card = document.createElement("div");
+        card.style.border="1px solid #ccc";
+        card.style.borderRadius="5px";
+        card.style.padding="10px";
+        card.style.marginBottom="10px";
+        let info = `${player.name||'שחקן'} ${player.number?('#'+player.number):''} - ${player.position||'ללא תפקיד'}<br>`;
+        if (player.team) info += `קבוצה: ${player.team}<br>`;
+        const pInfo = document.createElement("p");
+        pInfo.innerHTML = info;
+        card.appendChild(pInfo);
+
+        if (player.finalActions && player.finalActions.length>0) {
+            const ul = document.createElement("ul");
+            analystGameActions
+              .filter(a=>a.playerIndex===index)
+              .forEach(a=>{
+                const li = document.createElement("li");
+                li.textContent = `${a.action}: ${a.result} (דקה ${a.minute})`;
+                ul.appendChild(li);
+              });
+            card.appendChild(ul);
+        } else {
+            const pNo = document.createElement("p");
+            pNo.textContent = "לא נבחרו פעולות.";
+            card.appendChild(pNo);
+        }
+
+        if (player.note && player.note.trim()) {
+            const noteP = document.createElement("p");
+            noteP.style.fontStyle="italic";
+            noteP.textContent = "הערת מאמן לשחקן: " + player.note;
+            card.appendChild(noteP);
+        }
+
+        finalDataDiv.appendChild(card);
+    });
+
+    if (generalNote) {
+        const gNoteP = document.createElement("p");
+        gNoteP.style.fontWeight="bold";
+        gNoteP.textContent = "הערה כללית: " + generalNote;
+        finalDataDiv.appendChild(gNoteP);
+    }
+}
+
+async function downloadPDF() {
+    const elem = document.getElementById("analyst-final-summary-container");
+    const canvas = await html2canvas(elem);
+    const imgData = canvas.toDataURL('image/png');
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    const imgProps= pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save("summary.pdf");
 }
 
 function saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes) {
@@ -857,167 +946,6 @@ function calculateScore(minutesPlayed) {
 
     return Math.round(score);
 }
-// שינויים עיקריים: נוסיף הערות לכל שחקן. 
-// כאשר פותחים את פעולות השחקן, בתחתית יהיה textarea להערה אישית.
-// בעת סיום, נשמור את ההערות האלה ולבסוף נציג בדף הסופי.
-// כמו כן נוסיף כפתור PDF.
-
-// נניח שהמעבר לדף הסופי קורה ב-finishAnalystGame().
-
-...
-
-function loadAnalystMarking() {
-    const container = document.getElementById("analyst-marking-players");
-    container.innerHTML = "";
-
-    if (analystPlayers.length === 0) {
-        const p = document.createElement("p");
-        p.textContent = "לא נוספו שחקנים.";
-        container.appendChild(p);
-        return;
-    }
-
-    analystPlayers.forEach((player, index) => {
-        if(!player.note) player.note = ""; // הערה לשחקן
-        const playerWrapper = document.createElement("div");
-        playerWrapper.style.borderBottom = "1px solid #ddd";
-        playerWrapper.style.marginBottom = "20px";
-
-        const header = document.createElement("div");
-        header.classList.add("marking-player-header");
-        const shirtNum = player.number ? `<span class="shirt-number">${player.number}</span>` : '';
-        header.innerHTML = `${shirtNum}${player.name || 'שחקן'} - ${player.position || 'ללא תפקיד'}`;
-        const actionsDiv = document.createElement("div");
-        actionsDiv.classList.add("marking-player-actions");
-
-        header.onclick = () => {
-            actionsDiv.classList.toggle("visible");
-        }
-
-        playerWrapper.appendChild(header);
-
-        if (player.finalActions && player.finalActions.length > 0) {
-            player.finalActions.forEach(action => {
-                const row = document.createElement("div");
-                row.classList.add("action-group");
-
-                const badBtn = document.createElement("button");
-                badBtn.textContent = "X";
-                badBtn.style.backgroundColor = "#f44336";
-                badBtn.onclick = () => markAnalystAction(index, action, "לא מוצלח");
-
-                const h2 = document.createElement("h2");
-                h2.textContent = action;
-
-                const goodBtn = document.createElement("button");
-                goodBtn.textContent = "V";
-                goodBtn.style.backgroundColor = "#4CAF50";
-                goodBtn.onclick = () => markAnalystAction(index, action, "מוצלח");
-
-                row.appendChild(badBtn);
-                row.appendChild(h2);
-                row.appendChild(goodBtn);
-                actionsDiv.appendChild(row);
-            });
-        } else {
-            const p = document.createElement("p");
-            p.textContent = "לא נבחרו פעולות.";
-            actionsDiv.appendChild(p);
-        }
-
-        // הערה לכל שחקן
-        const noteArea = document.createElement("textarea");
-        noteArea.placeholder = "הערה לשחקן זה (אופציונלי)";
-        noteArea.value = player.note;
-        noteArea.oninput = () => {
-            player.note = noteArea.value;
-        };
-        actionsDiv.appendChild(noteArea);
-
-        playerWrapper.appendChild(actionsDiv);
-        container.appendChild(playerWrapper);
-    });
-}
-
-function finishAnalystGame() {
-    const generalNote = document.getElementById("analyst-general-note").value.trim();
-    // שמירת הנתונים בזיכרון
-    // הצגת הדף הסופי
-    document.getElementById("analyst-marking-container").classList.add("hidden");
-    showFinalSummary(generalNote);
-}
-
-function showFinalSummary(generalNote) {
-    const finalContainer = document.getElementById("analyst-final-summary-container");
-    finalContainer.classList.remove("hidden");
-
-    const finalDataDiv = document.getElementById("analyst-final-data");
-    finalDataDiv.innerHTML = "";
-
-    const title = document.createElement("h3");
-    title.textContent = "נתוני השחקנים:";
-    finalDataDiv.appendChild(title);
-
-    analystPlayers.forEach((player, index) => {
-        const card = document.createElement("div");
-        card.style.border="1px solid #ccc";
-        card.style.borderRadius="5px";
-        card.style.padding="10px";
-        card.style.marginBottom="10px";
-        let info = `${player.name||'שחקן'} ${player.number?('#'+player.number):''} - ${player.position||'ללא תפקיד'}<br>`;
-        if (player.team) info += `קבוצה: ${player.team}<br>`;
-        const pInfo = document.createElement("p");
-        pInfo.innerHTML = info;
-        card.appendChild(pInfo);
-
-        if (player.finalActions && player.finalActions.length>0) {
-            const ul = document.createElement("ul");
-            analystGameActions
-              .filter(a=>a.playerIndex===index)
-              .forEach(a=>{
-                const li = document.createElement("li");
-                li.textContent = `${a.action}: ${a.result} (דקה ${a.minute})`;
-                ul.appendChild(li);
-              });
-            card.appendChild(ul);
-        } else {
-            const pNo = document.createElement("p");
-            pNo.textContent = "לא נבחרו פעולות.";
-            card.appendChild(pNo);
-        }
-
-        if (player.note && player.note.trim()) {
-            const noteP = document.createElement("p");
-            noteP.style.fontStyle="italic";
-            noteP.textContent = "הערת מאמן לשחקן: " + player.note;
-            card.appendChild(noteP);
-        }
-
-        finalDataDiv.appendChild(card);
-    });
-
-    if (generalNote) {
-        const gNoteP = document.createElement("p");
-        gNoteP.style.fontWeight="bold";
-        gNoteP.textContent = "הערה כללית: " + generalNote;
-        finalDataDiv.appendChild(gNoteP);
-    }
-}
-
-async function downloadPDF() {
-    // נצלם את elem
-    const elem = document.getElementById("analyst-final-summary-container");
-    const canvas = await html2canvas(elem);
-    const imgData = canvas.toDataURL('image/png');
-
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('p', 'pt', 'a4');
-    const imgProps= pdf.getImageProperties(imgData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save("summary.pdf");
-}
 
 function showFeedback(score, minutesPlayed) {
     let feedback = "";
@@ -1071,18 +999,16 @@ function closeFeedbackPopup() {
     document.getElementById("feedback-popup").classList.add("hidden");
 }
 
-function takeScreenshot() {
-    const element = document.getElementById('game-summary-content');
-    if (!element) {
-        console.error("אלמנט 'game-summary-content' לא נמצא.");
-        return;
-    }
-    
+async function downloadPDF() {
+    const elem = document.getElementById("analyst-final-summary-container");
+    const canvas = await html2canvas(elem);
+    const imgData = canvas.toDataURL('image/png');
 
-    html2canvas(element).then(canvas => {
-        const link = document.createElement('a');
-        link.href = canvas.toDataURL();
-        link.download = 'game_summary_screenshot.png';
-        link.click();
-    });
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    const imgProps= pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save("summary.pdf");
 }
