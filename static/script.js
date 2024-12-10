@@ -474,7 +474,17 @@ function createActionCheckbox(action, category) {
     return div;
 }
 
-// אנליסט
+const positionActions = {
+    "שוער": ["עצירת כדור קשה","יציאה לאגרוף","משחק רגל מדויק","שליטה ברחבה","תקשורת עם ההגנה","יציאה לכדורי גובה","מסירה ארוכה מדויקת","סגירת זויות בעיטות","תגובות מהירות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"],
+    "בלם": ["בלימת התקפה יריבה","משחק ראש מוצלח","סגירת תוקף","חטיפת כדור","הנעת כדור אחורה בבטחה","משחק רוחב מדויק","סגירת קווי מסירה","הגנה על הרחבה","הובלת הכדור קדימה","החזרת כדור לשוער","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"],
+    "מגן": ["הגבהה מדויקת לרחבה","תמיכה בהתקפה באגף","כיסוי הגנתי באגף","תקשורת עם הקשר","ריצה לאורך הקו","קרוס מדויק","חטיפת כדור באגף","מעבר מהיר להתקפה","משחק רוחב בטוח","שמירה על חלוץ יריב","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"],
+    "קשר": ["מסירה חכמה קדימה","שמירה על קצב המשחק","חטיפת כדור במרכז","משחק קצר מדויק","שליחת כדור לעומק","שליטה בקישור","החלפת אגף","תמיכה בהגנה","ארגון ההתקפה","ראיית משחק רחבה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"],
+    "חלוץ": ["בעיטה למסגרת","בעיטה לשער","תנועה ללא כדור","קבלת כדור תחת לחץ","סיום מצבים","נוכחות ברחבה","ניצול הזדמנויות","תקשורת עם הקשרים","לחץ על ההגנה היריבה","נגיחה למסגרת","שמירה על הכדור מול הגנה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","משחק עם הגב לשער"],
+    "כנף": ["עקיפת מגן באגף","הגבהה איכותית","ריצה מהירה בקו","חדירה לרחבה מהאגף","משחק עומק","קידום הכדור קדימה","יצירת יתרון מספרי","משחק רוחב לשינוי אגף","הפתעת ההגנה בתנועה","השגת פינות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"]
+};
+
+const mentalActions = ["מנטאלי"];
+
 function addAnalystPlayer() {
     if (analystPlayers.length >= 10) {
         alert("לא ניתן להוסיף יותר מ-10 שחקנים");
@@ -501,14 +511,18 @@ function updateAnalystPlayersList() {
     analystPlayers.forEach((player, i) => {
         const card = document.createElement("div");
         card.classList.add("player-card");
+        
         const title = document.createElement("h4");
-        title.textContent = player.name || "שחקן ללא שם";
+        let titleText = player.name || "שחקן ללא שם";
+        title.textContent = titleText;
         card.appendChild(title);
 
         if (player.number) {
-            const pNumber = document.createElement("p");
-            pNumber.textContent = `מס' חולצה: ${player.number}`;
-            card.appendChild(pNumber);
+            // אייקון חולצה
+            const shirtIcon = document.createElement("div");
+            shirtIcon.classList.add("shirt-icon");
+            shirtIcon.textContent = player.number;
+            card.appendChild(shirtIcon);
         }
 
         if (player.team) {
@@ -542,6 +556,13 @@ function submitAnalystSetup() {
 function loadAnalystActions() {
     const container = document.getElementById("analyst-players-actions");
     container.innerHTML = "";
+
+    if (analystPlayers.length === 0) {
+        const p = document.createElement("p");
+        p.textContent = "לא נוספו שחקנים. הוסף שחקן ולאחר מכן בחר פעולות.";
+        container.appendChild(p);
+        return;
+    }
 
     analystPlayers.forEach((player, index) => {
         const playerDiv = document.createElement("div");
@@ -624,7 +645,6 @@ function createActionCheckboxForAnalyst(action, name) {
 }
 
 function submitAnalystActions() {
-    // נאסוף את הבחירות לכל שחקן, ללא הערות לשחקן (הוסרו לפי בקשה)
     analystPlayers.forEach((player, index) => {
         let chosenActions = [];
         ["professional","mental","custom"].forEach(cat => {
@@ -635,7 +655,6 @@ function submitAnalystActions() {
         player.finalActions = chosenActions;
     });
 
-    // נעבור למסך סימון הפעולות
     document.getElementById("analyst-actions-container").classList.add("hidden");
     loadAnalystMarking();
     document.getElementById("analyst-marking-container").classList.remove("hidden");
@@ -644,6 +663,13 @@ function submitAnalystActions() {
 function loadAnalystMarking() {
     const container = document.getElementById("analyst-marking-players");
     container.innerHTML = "";
+
+    if (analystPlayers.length === 0) {
+        const p = document.createElement("p");
+        p.textContent = "לא נוספו שחקנים.";
+        container.appendChild(p);
+        return;
+    }
 
     analystPlayers.forEach((player, index) => {
         const playerDiv = document.createElement("div");
@@ -705,13 +731,9 @@ function markAnalystAction(playerIndex, action, result) {
 
 function finishAnalystGame() {
     const generalNote = document.getElementById("analyst-general-note").value.trim();
+    // כאן נוכל בעתיד לשמור לבסיס נתונים
 
-    // כאן יש לנו:
-    // analystPlayers[i].finalActions - הפעולות שנבחרו לשחקן i
-    // analystGameActions[] - פעולות שסומנו כמוצלח/לא מוצלח
-    // generalNote - הערה כללית
-
-    alert("הנתונים נשמרו! כאן ניתן בהמשך לשמור לבסיס נתונים או להציג סיכום נוסף.");
+    alert("הנתונים נשמרו!");
 }
 
 function saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes) {
