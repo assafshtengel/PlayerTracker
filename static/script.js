@@ -469,6 +469,13 @@ function loadActionsSelection(position) {
 
     const actionsForPosition = positionActions[position] || [];
 
+    // אם אין פעולות כלל, נציג הודעה
+    if (actionsForPosition.length === 0 && mentalActions.length === 0 && customActionsArr.length === 0) {
+        const actionsContainer = document.getElementById("actions-selection-container");
+        actionsContainer.innerHTML = "<h3>לא נמצאו פעולות לתפקיד זה, אנא בחר תפקיד אחר.</h3>";
+        return;
+    }
+
     actionsForPosition.forEach(action => {
         professionalContainer.appendChild(createActionCheckbox(action, "professional"));
     });
@@ -507,7 +514,17 @@ function createActionCheckbox(action, category) {
     return div;
 }
 
-// פונקציות לאנליסט
+const positionActions = {
+    "שוער": ["עצירת כדור קשה","יציאה לאגרוף","משחק רגל מדויק","שליטה ברחבה","תקשורת עם ההגנה","יציאה לכדורי גובה","מסירה ארוכה מדויקת","סגירת זויות בעיטות","תגובות מהירות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה"],
+    "בלם": ["בלימת התקפה יריבה","משחק ראש מוצלח","סגירת תוקף","חטיפת כדור","הנעת כדור אחורה בבטחה","משחק רוחב מדויק","סגירת קווי מסירה","הגנה על הרחבה","הובלת הכדור קדימה","החזרת כדור לשוער","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"],
+    "מגן": ["הגבהה מדויקת לרחבה","תמיכה בהתקפה באגף","כיסוי הגנתי באגף","תקשורת עם הקשר","ריצה לאורך הקו","קרוס מדויק","חטיפת כדור באגף","מעבר מהיר להתקפה","משחק רוחב בטוח","שמירה על חלוץ יריב","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"],
+    "קשר": ["מסירה חכמה קדימה","שמירה על קצב המשחק","חטיפת כדור במרכז","משחק קצר מדויק","שליחת כדור לעומק","שליטה בקישור","החלפת אגף","תמיכה בהגנה","ארגון ההתקפה","ראיית משחק רחבה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"],
+    "חלוץ": ["בעיטה למסגרת","בעיטה לשער","תנועה ללא כדור","קבלת כדור תחת לחץ","סיום מצבים","נוכחות ברחבה","ניצול הזדמנויות","תקשורת עם הקשרים","לחץ על ההגנה היריבה","נגיחה למסגרת","שמירה על הכדור מול הגנה","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","משחק עם הגב לשער"],
+    "כנף": ["עקיפת מגן באגף","הגבהה איכותית","ריצה מהירה בקו","חדירה לרחבה מהאגף","משחק עומק","קידום הכדור קדימה","יצירת יתרון מספרי","משחק רוחב לשינוי אגף","הפתעת ההגנה בתנועה","השגת פינות","ביצוע 1 על 1","מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"]
+};
+
+const mentalActions = ["מנטאלי"];
+
 function addAnalystPlayer() {
     if (analystPlayers.length >= 10) {
         alert("לא ניתן להוסיף יותר מ-10 שחקנים");
@@ -549,7 +566,6 @@ function updateAnalystPlayersList() {
         card.appendChild(delBtn);
 
         const title = document.createElement("h4");
-        let teamNameDisplayed = player.teamSide === 'A' ? analystTeamAName : analystTeamBName;
         let titleText = player.name || "שחקן ללא שם";
         title.textContent = titleText;
         card.appendChild(title);
@@ -567,6 +583,7 @@ function updateAnalystPlayersList() {
             card.appendChild(colorP);
         }
 
+        let teamNameDisplayed = player.teamSide === 'A' ? analystTeamAName : analystTeamBName;
         const pTeamSide = document.createElement("p");
         pTeamSide.textContent = `משחק ב: ${teamNameDisplayed}`;
         card.appendChild(pTeamSide);
@@ -588,7 +605,6 @@ function updateAnalystPlayersList() {
 }
 
 function submitAnalystSetup() {
-    const code = ANALYST_CODE; // כבר הכנסנו קודם
     document.getElementById("analyst-setup-container").classList.add("hidden");
     loadAnalystActions();
     document.getElementById("analyst-actions-container").classList.remove("hidden");
