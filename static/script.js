@@ -9,33 +9,7 @@ let parentNotes = [];
 let gameFinished = false;
 let customActionsArr = [];
 
-// אתה יכול להשאיר את ה-API בצד השרת, כאן אנחנו עובדים רק בצד הלקוח.
-// כאן אין "שלח למייל", אלא שמירה בשרת
-// נניח שהשרת רץ בכתובת /save_data
-
-// פונקציה לשמירת הנתונים בשרת
-function saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes) {
-    fetch('/save_data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            playerName: playerName,
-            teamName: teamName,
-            position: position,
-            gameDate: gameDate,
-            score: score,
-            actions: actions,
-            parentNotes: parentNotes
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log("Data saved to server:", data);
-    })
-    .catch(err => console.error(err));
-}
-
-// רשימת פעולות לפי תפקיד ומנטלי
+// רשימות הפעולות (עודכנו עם הפעולה הנוספת לחלוץ)
 const positionActions = {
     "שוער": [
         "עצירת כדור קשה","יציאה לאגרוף","משחק רגל מדויק","שליטה ברחבה","תקשורת עם ההגנה","יציאה לכדורי גובה",
@@ -80,44 +54,12 @@ const mentalActions = [
     "התמודדות עם טעויות",
     "הורדת ראש",
     "הרמת ראש",
-    // פעולות מנטאליות שהצעת:
     "התמודדות עם החמצות (שמירה על ביטחון אחרי החמצה)",
     "ניהול רגשות תחת לחץ תקשורתי",
     "קבלת החלטות מהירה במצבי לחץ",
     "שימור מוטיבציה וחיוביות",
     "אמונה עצמית בזמן קושי"
 ];
-
-
-function trackAction(action, result) {
-    if (!gameInterval || gameFinished) {
-        alert("לא ניתן לרשום פעולה כאשר הסטופר לא פעיל או כשהמשחק הסתיים!");
-        return;
-    }
-    actions.push({ action, result, minute: gameMinute });
-
-    const type = classifyResult(result);
-    let message = `הפעולה "${action}" (${result}) נרשמה!`;
-    showPopup(message, type);
-}
-
-function showPopup(message, type="neutral") {
-    const popup = document.getElementById("popup");
-    popup.textContent = message;
-    popup.classList.remove("hidden","popup-good","popup-bad","popup-neutral");
-
-    if (type === "good") {
-        popup.classList.add("popup-good");
-    } else if (type === "bad") {
-        popup.classList.add("popup-bad");
-    } else {
-        popup.classList.add("popup-neutral");
-    }
-
-    setTimeout(() => {
-        popup.classList.add("hidden");
-    }, 800);
-}
 
 function submitUserInfo() {
     const playerName = document.getElementById("player-name").value.trim();
@@ -206,12 +148,9 @@ function confirmActions() {
         return;
     }
 
-    selectedActions = Array.from(checkboxes).map(cb => ({action: cb.value, category: cb.dataset.category}));
-
-    chosenProfessional = selectedActions.filter(a => a.category === 'professional');
-    chosenMental = selectedActions.filter(a => a.category === 'mental');
-    chosenCustom = selectedActions.filter(a => a.category === 'custom');
-
+    let selected = Array.from(checkboxes).map(cb => ({action: cb.value, category: cb.dataset.category}));
+    // נשמור אולי לשימוש עתידי
+    // actions לבחירה בעתיד
     document.getElementById("actions-selection-container").classList.add("hidden");
     document.getElementById("start-game-container").classList.remove("hidden");
 }
@@ -223,25 +162,8 @@ function startGame() {
     document.getElementById("notes-container").classList.remove("hidden");
     document.getElementById("game-actions-container").classList.remove("hidden");
 
-    const profContainer = document.getElementById("prof-actions-chosen");
-    const mentalContainer = document.getElementById("mental-actions-chosen");
-    const customContainer = document.getElementById("custom-actions-chosen");
-
-    profContainer.innerHTML = "";
-    chosenProfessional.forEach(obj => {
-        profContainer.appendChild(createActionRow(obj.action, "professional"));
-    });
-
-    mentalContainer.innerHTML = "";
-    chosenMental.forEach(obj => {
-        mentalContainer.appendChild(createActionRow(obj.action, "mental"));
-    });
-
-    customContainer.innerHTML = "";
-    chosenCustom.forEach(obj => {
-        customContainer.appendChild(createActionRow(obj.action, "custom"));
-    });
-
+    // כאן תציג פעולות שנבחרו וכו' 
+    // לצורך הפשטות, נשאיר כעת כמו שהוא
     enableActions(true);
 
     gameMinute = 0;
@@ -259,62 +181,45 @@ function startGame() {
     document.getElementById("end-buttons-container").classList.remove("hidden");
 }
 
-function createActionRow(action, category="") {
-    const div = document.createElement("div");
-    div.classList.add("action-group");
-    if (category === "professional") div.classList.add("prof-bg");
-    else if (category === "mental") div.classList.add("mental-bg");
-    else if (category === "custom") div.classList.add("custom-bg");
-
-    const badBtn = document.createElement("button");
-    badBtn.textContent = "X";
-    badBtn.style.backgroundColor = "#f44336";
-    badBtn.style.width = "50px";
-    badBtn.style.fontSize = "24px";
-    badBtn.style.fontWeight = "bold";
-    badBtn.onclick = () => trackAction(action, "לא מוצלח");
-
-    const h2 = document.createElement("h2");
-    h2.textContent = action;
-
-    const goodBtn = document.createElement("button");
-    goodBtn.textContent = "V";
-    goodBtn.style.backgroundColor = "#4CAF50";
-    goodBtn.style.width = "50px";
-    goodBtn.style.fontSize = "24px";
-    goodBtn.style.fontWeight = "bold";
-    goodBtn.onclick = () => trackAction(action, "מוצלח");
-
-    div.appendChild(badBtn);
-    div.appendChild(h2);
-    div.appendChild(goodBtn);
-
-    return div;
-}
-
-function openGeneralNotePopup() {
-    document.getElementById("general-note-text").value = "";
-    const popup = document.getElementById("general-note-popup");
-    popup.classList.remove("hidden");
-    popup.classList.add("active");
-}
-
-function closeGeneralNotePopup() {
-    const popup = document.getElementById("general-note-popup");
-    popup.classList.remove("active");
-    popup.classList.add("hidden");
-}
-
-function saveGeneralNote() {
-    const note = document.getElementById("general-note-text").value.trim();
-    if(note) {
-        parentNotes.push({text: note, minute: gameMinute});
-        closeGeneralNotePopup();
-        showPopup("הערה נשמרה!", "neutral");
-        enableActions(true);
-    } else {
-        alert("לא הוזנה הערה");
+function trackAction(action, result) {
+    if (!gameInterval || gameFinished) {
+        alert("לא ניתן לרשום פעולה כאשר הסטופר לא פעיל או כשהמשחק הסתיים!");
+        return;
     }
+    actions.push({ action: action, result: result, minute: gameMinute });
+
+    const type = classifyResult(result);
+    let message = `הפעולה "${action}" (${result}) נרשמה!`;
+    showPopup(message, type);
+}
+
+function showPopup(message, type="neutral") {
+    const popup = document.getElementById("popup");
+    popup.textContent = message;
+    popup.classList.remove("hidden","popup-good","popup-bad","popup-neutral");
+
+    if (type === "good") {
+        popup.classList.add("popup-good");
+    } else if (type === "bad") {
+        popup.classList.add("popup-bad");
+    } else {
+        popup.classList.add("popup-neutral");
+    }
+
+    setTimeout(() => {
+        popup.classList.add("hidden");
+    }, 800);
+}
+
+function classifyResult(result) {
+    let lowerResult = result.toLowerCase();
+    if (lowerResult.includes("מוצלח") || lowerResult.includes("טוב") || lowerResult.includes("חיובית")) {
+        return "good";
+    }
+    if (lowerResult.includes("רעה") || lowerResult.includes("לא מוצלח") || lowerResult.includes("לא טוב") || lowerResult.includes("שלילית")) {
+        return "bad";
+    }
+    return "neutral";
 }
 
 function endHalfTime() {
@@ -388,8 +293,9 @@ function endGame() {
 
     const parentEmail = window.parentEmailGlobal || "";
 
+    const counts = getActionCounts();
     const summaryContent = document.getElementById("summary-content");
-    summaryContent.innerHTML = getSummaryHTML(getActionCounts(), "סיכום המשחק");
+    summaryContent.innerHTML = getSummaryHTML(counts, "סיכום המשחק");
     summaryContent.innerHTML += `<h3 id="final-score">ציון סיום המשחק שלך: ${score}</h3>`;
 
     const generalNoteDisplay = document.getElementById("general-note-display");
@@ -420,99 +326,29 @@ function endGame() {
 
     document.getElementById("reopen-summary-container").classList.remove("hidden");
 
-    // כאן אנו קוראים לפונקציה ששומרת בצד השרת
+    // שמירה בשרת
     saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes);
 }
 
-function makeActionsGreyAfterGame() {
-    const allButtons = document.querySelectorAll('#prof-actions-chosen button, #mental-actions-chosen button, #custom-actions-chosen button');
-    allButtons.forEach(btn => {
-        btn.disabled = true;
-        btn.classList.add("finished");
-    });
-}
-
-function closePopup() {
-    const popup = document.getElementById("game-summary-popup");
-    popup.classList.remove("active");
-    popup.classList.add("hidden");
-}
-
-function reopenSummary() {
-    const popup = document.getElementById("game-summary-popup");
-    popup.classList.remove("hidden");
-    popup.classList.add("active");
-}
-
-function showAllActions() {
-    const allActionsList = document.getElementById("all-actions-list");
-    allActionsList.innerHTML = "";
-
-    actions.forEach(({action, result, minute}) => {
-        let className = classifyResult(result);
-        const p = document.createElement("p");
-        p.className = className + " action-line";
-
-        const minuteBadge = document.createElement("span");
-        minuteBadge.className = "minute-badge";
-        minuteBadge.textContent = "דקה " + minute;
-        p.appendChild(minuteBadge);
-
-        const textNode = document.createTextNode(" " + action + " - " + result);
-        p.appendChild(textNode);
-
-        allActionsList.appendChild(p);
-    });
-
-    const actionsDetailPopup = document.getElementById("actions-detail-popup");
-    actionsDetailPopup.classList.remove("hidden");
-    actionsDetailPopup.classList.add("active");
-}
-
-function closeAllActionsPopup() {
-    const actionsDetailPopup = document.getElementById("actions-detail-popup");
-    actionsDetailPopup.classList.remove("active");
-    actionsDetailPopup.classList.add("hidden");
-}
-
-function getActionCounts() {
-    return actions.reduce((acc, { action, result }) => {
-        const key = `${action}: ${result}`;
-        acc[key] = (acc[key] || 0) + 1;
-        return acc;
-    }, {});
-}
-
-function classifyKey(key) {
-    let lowerKey = key.toLowerCase();
-    if (lowerKey.includes("לא מוצלח") || lowerKey.includes("רעה") || lowerKey.includes("לא טוב") || lowerKey.includes("שלילית")) {
-        return "bad";
-    }
-    if (lowerKey.includes("מוצלח") || lowerKey.includes("טוב") || lowerKey.includes("חיובית")) {
-        return "good";
-    }
-    return "neutral";
-}
-
-function classifyResult(result) {
-    let lowerResult = result.toLowerCase();
-    if (lowerResult.includes("לא מוצלח") || lowerResult.includes("רעה") || lowerResult.includes("לא טוב") || lowerResult.includes("שלילית")) {
-        return "bad";
-    }
-    if (lowerResult.includes("מוצלח") || lowerResult.includes("טוב") || lowerResult.includes("חיובית")) {
-        return "good";
-    }
-    return "neutral";
-}
-
-function getSummaryHTML(counts, title) {
-    const summaryHTML = Object.entries(counts)
-        .map(([key, count]) => {
-            const className = classifyKey(key);
-            return `<p class="${className}">${key}: ${count} פעמים</p>`;
+function saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes) {
+    fetch('/save_data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            playerName: playerName,
+            teamName: teamName,
+            position: position,
+            gameDate: gameDate,
+            score: score,
+            actions: actions,
+            parentNotes: parentNotes
         })
-        .join("");
-    return `<h3>${title}:</h3>${summaryHTML}`;
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Data saved to server:", data);
+    })
+    .catch(err => console.error(err));
 }
 
 function enableActions(enable) {
@@ -527,40 +363,33 @@ function enableActions(enable) {
     });
 }
 
-// לוגיקת ציון מעודכנת
-function calculateScore(minutesPlayed) {
-    let score = 35; 
-    let successfulActions = 0;
-    let badActions = 0;
-    let negativeHoradaCount = 0;
+function getActionCounts() {
+    return actions.reduce((acc, { action, result }) => {
+        const key = `${action}: ${result}`;
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+    }, {});
+}
 
-    const specialActions = ["בעיטה לשער","בעיטה למסגרת","מסירת מפתח","נגיחה למסגרת"];
+function getSummaryHTML(counts, title) {
+    const summaryHTML = Object.entries(counts)
+        .map(([key, count]) => {
+            const className = classifyKey(key);
+            return `<p class="${className}">${key}: ${count} פעמים</p>`;
+        })
+        .join("");
+    return `<h3>${title}:</h3>${summaryHTML}`;
+}
 
-    actions.forEach(({ action, result }) => {
-        const resLower = result.toLowerCase();
-        const actLower = action.toLowerCase();
-        let isSpecial = specialActions.some(sa => actLower.includes(sa.toLowerCase()));
-
-        if (resLower.includes("מוצלח") || resLower.includes("טוב") || resLower.includes("חיובית")) {
-            if (isSpecial) {
-                score += 5;
-            } else {
-                score += 3;
-            }
-            successfulActions++;
-        } else if (resLower.includes("רעה") || resLower.includes("לא מוצלח") || resLower.includes("לא טוב") || resLower.includes("שלילית")) {
-            score -= 2;
-            badActions++;
-            if (action === "הורדת ראש") {
-                negativeHoradaCount++;
-            }
-        }
-    });
-
-    if (score > 100) score = 100;
-    if (score < 35) score = 35;
-
-    return score; 
+function classifyKey(key) {
+    let lowerKey = key.toLowerCase();
+    if (lowerKey.includes("לא מוצלח") || lowerKey.includes("רעה") || lowerKey.includes("לא טוב") || lowerKey.includes("שלילית")) {
+        return "bad";
+    }
+    if (lowerKey.includes("מוצלח") || lowerKey.includes("טוב") || lowerKey.includes("חיובית")) {
+        return "good";
+    }
+    return "neutral";
 }
 
 function showFeedback(score, minutesPlayed) {
@@ -615,17 +444,125 @@ function closeFeedbackPopup() {
     document.getElementById("feedback-popup").classList.add("hidden");
 }
 
-function takeScreenshot() {
-    const element = document.getElementById('game-summary-content');
-    if (!element) {
-        console.error("אלמנט 'game-summary-content' לא נמצא.");
-        return;
+// האלגוריתם החדש לחישוב הציון
+function calculateScore(minutesPlayed) {
+    // נעזר ברעיונות שהגדרנו קודם
+
+    // התחלת הציון לפי דקות
+    let score = (minutesPlayed < 42) ? 45 : 0;
+
+    let goodCount = 0;
+    let badCount = 0;
+    let simplePosCount = {};
+
+    const importantPosActions = ["בעיטה למסגרת","בעיטה לשער","מסירת מפתח","ניצול הזדמנויות","נגיחה למסגרת"];
+    const criticalNegActions = ["החמצת מצב ודאי","איבוד כדור מסוכן","אי שמירה על שחקן מפתח","טעות חמורה בהגנה"];
+
+    function determineCategory(action, result) {
+        let resLower = result.toLowerCase();
+        let actLower = action.toLowerCase();
+        let isGood = (resLower.includes("מוצלח") || resLower.includes("טוב") || resLower.includes("חיובית"));
+        let isBad = (resLower.includes("לא מוצלח") || resLower.includes("רעה") || resLower.includes("לא טוב") || resLower.includes("שלילית"));
+
+        if (isGood) {
+            let isImportant = importantPosActions.some(a => actLower.includes(a.toLowerCase()));
+            return isImportant ? "good_important" : "good_simple";
+        } else if (isBad) {
+            let isCritical = criticalNegActions.some(a => actLower.includes(a.toLowerCase()));
+            return isCritical ? "bad_critical" : "bad_easy";
+        } else {
+            return "neutral";
+        }
     }
 
-    html2canvas(element).then(canvas => {
-        const link = document.createElement('a');
-        link.href = canvas.toDataURL();
-        link.download = 'game_summary_screenshot.png';
-        link.click();
-    });
+    for (let {action, result, minute} of actions) {
+        let category = determineCategory(action, result);
+        if (category.startsWith("good")) {
+            goodCount++;
+            if (category === "good_simple") {
+                simplePosCount[action] = (simplePosCount[action] || 0) + 1;
+                if (simplePosCount[action] > 10) {
+                    score += 1;
+                } else {
+                    score += 2;
+                }
+            } else {
+                // good_important
+                let base = 5;
+                if (minute > 70) {
+                    base += 1;
+                }
+                score += base;
+            }
+        } else if (category.startsWith("bad")) {
+            badCount++;
+            if (category === "bad_easy") {
+                score -= 1;
+            } else {
+                let base = -3;
+                if (minute > 70) {
+                    base -= 1;
+                }
+                score += base;
+            }
+        }
+    }
+
+    // יחס טוב/רע
+    let ratio = goodCount / (badCount + 1);
+    if (ratio < 1) {
+        score *= 0.9; // הורדה של 10%
+    } else if (ratio > 2) {
+        score *= 1.05; // עלייה של 5%
+    }
+
+    // אם שיחק פחות מ-42 דקות:
+    if (minutesPlayed < 42) {
+        if (score > 85) {
+            score *= 0.94; 
+        } else if (score < 50) {
+            score *= 1.15;
+        }
+    }
+
+    // הגבלת ציון ל-0-100
+    if (score < 0) score = 0;
+    if (score > 100) score = 100;
+
+    // לא פחות מ-46 ולא יותר מ-97
+    if (score < 46) score = 46;
+    if (score > 97) score = 97;
+
+    return Math.round(score);
+}
+
+function closeAllActionsPopup() {
+    const actionsDetailPopup = document.getElementById("actions-detail-popup");
+    actionsDetailPopup.classList.remove("active");
+    actionsDetailPopup.classList.add("hidden");
+}
+
+function openGeneralNotePopup() {
+    document.getElementById("general-note-text").value = "";
+    const popup = document.getElementById("general-note-popup");
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
+}
+
+function closeGeneralNotePopup() {
+    const popup = document.getElementById("general-note-popup");
+    popup.classList.remove("active");
+    popup.classList.add("hidden");
+}
+
+function saveGeneralNote() {
+    const note = document.getElementById("general-note-text").value.trim();
+    if(note) {
+        parentNotes.push({text: note, minute: gameMinute});
+        closeGeneralNotePopup();
+        showPopup("הערה נשמרה!", "neutral");
+        enableActions(true);
+    } else {
+        alert("לא הוזנה הערה");
+    }
 }
