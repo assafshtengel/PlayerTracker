@@ -52,6 +52,19 @@ const positionActions = {
         "מסירת מפתח","הגבהה לרחבה","בעיטה לשער","בעיטה למסגרת"
     ]
 };
+// הוסף בתחילת script.js או בכל מקום מתאים:
+function selectRole(role) {
+    // הסתר את role-selection-container
+    document.getElementById("role-selection-container").classList.add("hidden");
+
+    if (role === 'player') {
+        // עבור שחקן: הצג login-container (כמו שהיה הקוד לשחקן)
+        document.getElementById("login-container").classList.remove("hidden");
+    } else if (role === 'coach' || role === 'analyst') {
+        // עבור מאמן או אנליסט: כרגע placeholder
+        document.getElementById("coach-analyst-container").classList.remove("hidden");
+    }
+}
 
 const mentalActions = [
     "שמירה על ריכוז",
