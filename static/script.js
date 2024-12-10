@@ -5,7 +5,7 @@ let gameMinute = 0;
 let chosenProfessional = [];
 let chosenMental = [];
 let chosenCustom = [];
-let parentNotes = [];
+let notes = []; // במקום parentNotes
 let gameFinished = false;
 let customActionsArr = [];
 
@@ -73,7 +73,7 @@ const mentalActions = [
     "אמונה עצמית בזמן קושי"
 ];
 
-function saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes) {
+function saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, notes) {
     fetch('/save_data', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -84,7 +84,7 @@ function saveGameDataToServer(playerName, teamName, position, gameDate, score, a
             gameDate: gameDate,
             score: score,
             actions: actions,
-            parentNotes: parentNotes
+            parentNotes: notes // שדה בבסיס נתונים נקרא parentNotes, אפשר להשאיר כך או לשנות גם ב-db
         })
     })
     .then(res => res.json())
@@ -249,7 +249,7 @@ function startGame() {
 
     gameMinute = 0;
     actions = [];
-    parentNotes = [];
+    notes = [];
     gameFinished = false;
 
     document.getElementById("minute-counter").textContent = gameMinute;
@@ -311,7 +311,7 @@ function closeGeneralNotePopup() {
 function saveGeneralNote() {
     const note = document.getElementById("general-note-text").value.trim();
     if(note) {
-        parentNotes.push({text: note, minute: gameMinute});
+        notes.push({text: note, minute: gameMinute});
         closeGeneralNotePopup();
         showPopup("הערה נשמרה!", "neutral");
         enableActions(true);
@@ -335,8 +335,8 @@ function endHalfTime() {
     const halfGeneralNoteDisplay = document.getElementById("half-general-note-display");
     const halfParentNotesList = document.getElementById("half-parent-notes-list");
     halfParentNotesList.innerHTML = "";
-    if (parentNotes.length > 0) {
-        parentNotes.forEach(n => {
+    if (notes.length > 0) {
+        notes.forEach(n => {
             const li = document.createElement("li");
             li.textContent = `דקה ${n.minute}: ${n.text}`;
             halfParentNotesList.appendChild(li);
@@ -396,8 +396,8 @@ function endGame() {
     const generalNoteDisplay = document.getElementById("general-note-display");
     const parentNotesList = document.getElementById("parent-notes-list");
     parentNotesList.innerHTML = "";
-    if (parentNotes.length > 0) {
-        parentNotes.forEach(n => {
+    if (notes.length > 0) {
+        notes.forEach(n => {
             const li = document.createElement("li");
             li.textContent = `דקה ${n.minute}: ${n.text}`;
             parentNotesList.appendChild(li);
@@ -422,7 +422,7 @@ function endGame() {
     document.getElementById("reopen-summary-container").classList.remove("hidden");
 
     // שמירה בשרת
-    saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes);
+    saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, notes);
 }
 
 function makeActionsGreyAfterGame() {
@@ -528,15 +528,13 @@ function enableActions(enable) {
     });
 }
 
-// פונקציית calculateScore החדשה עם כל הרעיונות:
-
+// פונקציית calculateScore החדשה
 function calculateScore(minutesPlayed) {
     let score = 0; // מתחילים מ-0
     let goodCount = 0;
     let badCount = 0;
-    let simplePosCount = {}; // למעקב אחרי פעולות חיוביות פשוטות
+    let simplePosCount = {};
 
-    // הגדרת פעולות חשובות חיוביות וקריטיות שליליות
     const importantPosActions = ["בעיטה למסגרת","בעיטה לשער","מסירת מפתח","ניצול הזדמנות","נגיחה למסגרת"];
     const criticalNegActions = ["החמצת מצב ודאי","איבוד כדור מסוכן","אי שמירה על שחקן מפתח"];
 
@@ -566,7 +564,6 @@ function calculateScore(minutesPlayed) {
                 // פעולות חיוביות פשוטות
                 simplePosCount[action] = (simplePosCount[action] || 0) + 1;
                 if (simplePosCount[action] > 10) {
-                    // מעבר ל-10 פעמים אותה פעולה פשוטה = +1 נק' במקום +2
                     score += 1;
                 } else {
                     score += 2;
@@ -591,7 +588,8 @@ function calculateScore(minutesPlayed) {
                 }
                 score += base;
             }
-        } // neutral לא משנה ציון
+        }
+        // neutral לא משנה ציון
     }
 
     // חישוב היחס טוב/רע
@@ -606,7 +604,6 @@ function calculateScore(minutesPlayed) {
     if (score < 0) score = 0;
     if (score > 100) score = 100;
 
-    // ציון סופי
     return Math.round(score);
 }
 
