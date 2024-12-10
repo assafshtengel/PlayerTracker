@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>מערכת מעקב שחקנים</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- להנפקת PDF נדרש jsPDF, לדוגמה: -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
@@ -74,7 +76,7 @@
         <button onclick="submitAnalystSetup()">אישור ותחילת משחק</button>
     </div>
 
-    <!-- מסך בחירת פעולות לאנליסט לכל שחקן -->
+    <!-- מסך בחירת פעולות לאנליסט -->
     <div id="analyst-actions-container" class="game-info-container hidden">
         <h2>בחירת פעולות למעקב עבור השחקנים</h2>
         <p>בחר פעולות מקצועיות, מנטאליות, מותאמות אישית (לחץ לבחירה, רקע ירוק = נבחר). לא חובה לבחור הכל</p>
@@ -82,14 +84,22 @@
         <button onclick="submitAnalystActions()">אישור ותחילת סימון</button>
     </div>
 
-    <!-- מסך סימון הפעולות והערה כללית -->
+    <!-- מסך סימון הפעולות והערות פר שחקן -->
     <div id="analyst-marking-container" class="game-info-container hidden">
         <h2>סימון פעולות שבוצעו והוספת הערות</h2>
-        <p>סמן לכל פעולה אם בוצעה (V) או לא (X). לחיצה על שם השחקן תפתח/תסגור את הפעולות שלו.</p>
+        <p>סמן לכל פעולה אם בוצעה (V) או לא (X). לחיצה על שם השחקן תפתח/תסגור את הפעולות והערותיו.</p>
         <div id="analyst-marking-players"></div>
         <h4>הערה כללית:</h4>
         <textarea id="analyst-general-note" placeholder="הערה כללית (אופציונלי)"></textarea>
         <button onclick="finishAnalystGame()">סיום</button>
+    </div>
+
+    <!-- מסך הסיכום הסופי עם אפשרות להורדת PDF -->
+    <div id="analyst-final-summary-container" class="game-info-container hidden">
+        <h2>סיכום המשחק</h2>
+        <p>להלן כל הנתונים שנאספו:</p>
+        <div id="analyst-final-data"></div>
+        <button onclick="downloadPDF()">שמור כ-PDF</button>
     </div>
 
     <!-- מסכים לשחקן בלבד -->
