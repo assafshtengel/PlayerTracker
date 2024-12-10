@@ -11,7 +11,6 @@ let customActionsArr = [];
 
 const ACCESS_CODE = "1976";
 
-// פונקציה לבדיקת קוד הגישה
 function checkAccessCode() {
     const code = document.getElementById("access-code").value.trim();
     if (code === ACCESS_CODE) {
@@ -22,7 +21,7 @@ function checkAccessCode() {
     }
 }
 
-// רשימת פעולות לפי תפקיד ומנטלי
+// רשימת פעולות לפי תפקיד
 const positionActions = {
     "שוער": [
         "עצירת כדור קשה","יציאה לאגרוף","משחק רגל מדויק","שליטה ברחבה","תקשורת עם ההגנה","יציאה לכדורי גובה",
@@ -74,7 +73,6 @@ const mentalActions = [
     "אמונה עצמית בזמן קושי"
 ];
 
-// פונקציה לשמירת הנתונים בשרת
 function saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes) {
     fetch('/save_data', {
         method: 'POST',
@@ -530,40 +528,86 @@ function enableActions(enable) {
     });
 }
 
-// לוגיקת ציון מעודכנת (ממה שהגדרת לפני כן - אם יש צורך לשלב את האלגוריתם החדש, שלב את כולו כאן)
+// פונקציית calculateScore החדשה עם כל הרעיונות:
+
 function calculateScore(minutesPlayed) {
-    let score = 35; 
-    let successfulActions = 0;
-    let badActions = 0;
-    let negativeHoradaCount = 0;
+    let score = 0; // מתחילים מ-0
+    let goodCount = 0;
+    let badCount = 0;
+    let simplePosCount = {}; // למעקב אחרי פעולות חיוביות פשוטות
 
-    const specialActions = ["בעיטה לשער","בעיטה למסגרת","מסירת מפתח","נגיחה למסגרת"];
+    // הגדרת פעולות חשובות חיוביות וקריטיות שליליות
+    const importantPosActions = ["בעיטה למסגרת","בעיטה לשער","מסירת מפתח","ניצול הזדמנות","נגיחה למסגרת"];
+    const criticalNegActions = ["החמצת מצב ודאי","איבוד כדור מסוכן","אי שמירה על שחקן מפתח"];
 
-    actions.forEach(({ action, result }) => {
-        const resLower = result.toLowerCase();
-        const actLower = action.toLowerCase();
-        let isSpecial = specialActions.some(sa => actLower.includes(sa.toLowerCase()));
+    function determineCategory(action, result) {
+        let resLower = result.toLowerCase();
+        let actLower = action.toLowerCase();
+        let isGood = (resLower.includes("מוצלח") || resLower.includes("טוב") || resLower.includes("חיובית"));
+        let isBad = (resLower.includes("רעה") || resLower.includes("לא מוצלח") || resLower.includes("לא טוב") || resLower.includes("שלילית"));
 
-        if (resLower.includes("מוצלח") || resLower.includes("טוב") || resLower.includes("חיובית")) {
-            if (isSpecial) {
-                score += 5;
-            } else {
-                score += 3;
-            }
-            successfulActions++;
-        } else if (resLower.includes("רעה") || resLower.includes("לא מוצלח") || resLower.includes("לא טוב") || resLower.includes("שלילית")) {
-            score -= 2;
-            badActions++;
-            if (action === "הורדת ראש") {
-                negativeHoradaCount++;
-            }
+        if (isGood) {
+            let isImportant = importantPosActions.some(a => actLower.includes(a.toLowerCase()));
+            return isImportant ? "good_important" : "good_simple";
+        } else if (isBad) {
+            let isCritical = criticalNegActions.some(a => actLower.includes(a.toLowerCase()));
+            return isCritical ? "bad_critical" : "bad_easy";
+        } else {
+            return "neutral";
         }
-    });
+    }
 
+    for (let {action, result, minute} of actions) {
+        let category = determineCategory(action, result);
+
+        if (category.startsWith("good")) {
+            goodCount++;
+            if (category === "good_simple") {
+                // פעולות חיוביות פשוטות
+                simplePosCount[action] = (simplePosCount[action] || 0) + 1;
+                if (simplePosCount[action] > 10) {
+                    // מעבר ל-10 פעמים אותה פעולה פשוטה = +1 נק' במקום +2
+                    score += 1;
+                } else {
+                    score += 2;
+                }
+            } else {
+                // good_important
+                let base = 5;
+                if (minute > 70) {
+                    base += 1; // בונוס נוסף בדקות מאוחרות
+                }
+                score += base;
+            }
+        } else if (category.startsWith("bad")) {
+            badCount++;
+            if (category === "bad_easy") {
+                score -= 1;
+            } else {
+                // bad_critical
+                let base = -3;
+                if (minute > 70) {
+                    base -= 1; // החמרה נוספת בדקות מאוחרות
+                }
+                score += base;
+            }
+        } // neutral לא משנה ציון
+    }
+
+    // חישוב היחס טוב/רע
+    let ratio = goodCount / (badCount + 1);
+    if (ratio < 1) {
+        score *= 0.9; // הורדת 10%
+    } else if (ratio > 2) {
+        score *= 1.05; // העלאת 5%
+    }
+
+    // הגבלת ציון בין 0 ל-100
+    if (score < 0) score = 0;
     if (score > 100) score = 100;
-    if (score < 35) score = 35;
 
-    return score; 
+    // ציון סופי
+    return Math.round(score);
 }
 
 function showFeedback(score, minutesPlayed) {
