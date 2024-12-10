@@ -22,16 +22,6 @@ let analystTeamAName = "";
 let analystTeamBName = "";
 let analystGameDate = "";
 
-// נוסיף מפת צבעים: שם הצבע בעברית למפת CSS
-const colorMap = {
-    "אדום":"red","כחול":"blue","ירוק":"green","צהוב":"yellow","שחור":"black","לבן":"white",
-    "כתום":"orange","סגול":"purple","ורוד":"pink","חום":"brown","אפור":"gray","טורקיז":"turquoise"
-};
-
-const paletteColors = ["אדום","כחול","ירוק","צהוב","שחור","לבן","כתום","סגול","ורוד","חום","אפור","טורקיז"];
-
-let chosenColor = null; // נשמור את הצבע שנבחר לשחקן הנוכחי
-
 // פונקציה בחירת תפקיד
 function selectRole(role) {
     document.getElementById("role-selection-container").classList.add("hidden");
@@ -40,8 +30,7 @@ function selectRole(role) {
     } else if (role === 'coach') {
         document.getElementById("coach-analyst-container").classList.remove("hidden");
     } else if (role === 'analyst') {
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById("analyst-game-date").value = today;
+        // קודם נגדיר משחק: קבוצות ותאריך
         document.getElementById("analyst-game-info-container").classList.remove("hidden");
     }
 }
@@ -61,55 +50,7 @@ function submitAnalystGameInfo() {
     analystGameDate = date;
 
     document.getElementById("analyst-game-info-container").classList.add("hidden");
-
-    // הגדרת הצבעים והקבוצות לשחקנים
-    // נמחק מההוראות את עניין הצבע חולצה וקבוצה, נשתמש בבחירה
-    // נמלא את ה-select עם שמות הקבוצות שנבחרו
-    const teamSelect = document.getElementById("analyst-player-team-select");
-    teamSelect.innerHTML = "";
-    let optA = document.createElement("option");
-    optA.value = "A";
-    optA.textContent = analystTeamAName;
-    let optB = document.createElement("option");
-    optB.value = "B";
-    optB.textContent = analystTeamBName;
-    teamSelect.appendChild(optA);
-    teamSelect.appendChild(optB);
-
-    // ליצור פלטת צבעים
-    createColorPalette();
-
-    // מנטרל כפתור הוספת שחקן אם אין שם
-    const nameInput = document.getElementById("analyst-player-name");
-    const addBtn = document.getElementById("add-player-btn");
-    nameInput.oninput = () => {
-        addBtn.disabled = !nameInput.value.trim();
-    };
-
     document.getElementById("analyst-setup-container").classList.remove("hidden");
-}
-
-function createColorPalette() {
-    const paletteDiv = document.getElementById("color-palette");
-    paletteDiv.innerHTML = "";
-    paletteColors.forEach(c=>{
-        const colorDiv = document.createElement("div");
-        colorDiv.style.width="20px";
-        colorDiv.style.height="20px";
-        colorDiv.style.margin="5px";
-        colorDiv.style.display="inline-block";
-        colorDiv.style.cursor="pointer";
-        colorDiv.style.border="1px solid #000";
-        colorDiv.style.backgroundColor=colorMap[c];
-        colorDiv.title = c;
-        colorDiv.onclick = () => {
-            chosenColor = c;
-            // הבהרה ויזואלית לצבע הנבחר
-            [...paletteDiv.children].forEach(ch=>ch.style.outline="none");
-            colorDiv.style.outline="2px solid #000";
-        };
-        paletteDiv.appendChild(colorDiv);
-    });
 }
 
 function checkAccessCode() {
@@ -528,6 +469,7 @@ function loadActionsSelection(position) {
 
     const actionsForPosition = positionActions[position] || [];
 
+    // אם אין פעולות כלל, נציג הודעה
     if (actionsForPosition.length === 0 && mentalActions.length === 0 && customActionsArr.length === 0) {
         const actionsContainer = document.getElementById("actions-selection-container");
         actionsContainer.innerHTML = "<h3>לא נמצאו פעולות לתפקיד זה, אנא בחר תפקיד אחר.</h3>";
@@ -584,30 +526,27 @@ const positionActions = {
 const mentalActions = ["מנטאלי"];
 
 function addAnalystPlayer() {
-    const name = document.getElementById("analyst-player-name").value.trim();
-    if (!name) {
+    if (analystPlayers.length >= 10) {
+        alert("לא ניתן להוסיף יותר מ-10 שחקנים");
         return;
     }
 
-    const teamSide = document.getElementById("analyst-player-team-select").value; 
+    const name = document.getElementById("analyst-player-name").value.trim();
     const number = document.getElementById("analyst-player-number").value.trim();
+    const team = document.getElementById("analyst-player-team").value.trim();
     const position = document.getElementById("analyst-player-position").value;
+    const teamSide = document.getElementById("analyst-player-team-select").value; 
+    const color = document.getElementById("analyst-player-color").value;
 
-    const playerColor = chosenColor || "שחור"; // אם לא נבחר צבע נלך על שחור
-    const team = ""; // הסרנו קלט לקבוצה נוספת
-
-    analystPlayers.push({name, number, team, position, teamSide, color: playerColor, notes:[]});
+    analystPlayers.push({name, number, team, position, teamSide, color, notes:[]});
     updateAnalystPlayersList();
 
     document.getElementById("analyst-player-name").value = "";
     document.getElementById("analyst-player-number").value = "";
+    document.getElementById("analyst-player-team").value = "";
     document.getElementById("analyst-player-position").value = "";
-    chosenColor = null;
-    const paletteDiv = document.getElementById("color-palette");
-    [...paletteDiv.children].forEach(ch=>ch.style.outline="none");
-
-    // מנטרל שוב את הכפתור הוספה
-    document.getElementById("add-player-btn").disabled = true;
+    document.getElementById("analyst-player-team-select").value = "A";
+    document.getElementById("analyst-player-color").value = "";
 }
 
 function updateAnalystPlayersList() {
@@ -629,7 +568,6 @@ function updateAnalystPlayersList() {
         const title = document.createElement("h4");
         let titleText = player.name || "שחקן ללא שם";
         title.textContent = titleText;
-        title.style.color = colorMap[player.color] || "black";
         card.appendChild(title);
 
         if (player.number) {
@@ -649,6 +587,12 @@ function updateAnalystPlayersList() {
         const pTeamSide = document.createElement("p");
         pTeamSide.textContent = `משחק ב: ${teamNameDisplayed}`;
         card.appendChild(pTeamSide);
+
+        if (player.team) {
+            const pTeam = document.createElement("p");
+            pTeam.textContent = `קבוצה (נוסף): ${player.team}`;
+            card.appendChild(pTeam);
+        }
 
         if (player.position) {
             const pPos = document.createElement("p");
@@ -696,7 +640,6 @@ function loadAnalystActions() {
         const title = document.createElement("h3");
         let teamNameDisplayed = player.teamSide === 'A' ? analystTeamAName : analystTeamBName;
         title.textContent = `${player.name || 'שחקן'} (${player.number ? '#'+player.number:''}) - ${player.position || 'ללא תפקיד'} [${teamNameDisplayed}]`;
-        title.style.color = colorMap[player.color] || "black";
         playerDiv.appendChild(title);
 
         const actionsForPosition = positionActions[player.position] || [];
@@ -810,8 +753,6 @@ function loadAnalystMarking() {
         const shirtNum = player.number ? `<span class="shirt-number">${player.number}</span>` : '';
         let teamNameDisplayed = player.teamSide === 'A' ? analystTeamAName : analystTeamBName;
         header.innerHTML = `${shirtNum}${player.name || 'שחקן'} - ${player.position || 'ללא תפקיד'} [${teamNameDisplayed}]`;
-        header.style.color = colorMap[player.color] || "black";
-
         const actionsDiv = document.createElement("div");
         actionsDiv.classList.add("marking-player-actions");
 
@@ -858,39 +799,16 @@ function loadAnalystMarking() {
         addNoteBtn.textContent = "הוסף הערה";
         addNoteBtn.style.marginBottom="10px";
         addNoteBtn.onclick = () => {
-            const noteDiv = document.createElement("div");
-            noteDiv.style.marginBottom="5px";
-
             const ta = document.createElement("textarea");
             ta.placeholder = "הערה לשחקן זה (אופציונלי)";
             ta.style.display="block";
             ta.style.marginBottom="5px";
-
-            const btnSave = document.createElement("button");
-            btnSave.textContent = "שמור הערה";
-            btnSave.style.marginRight="5px";
-            const btnCancel = document.createElement("button");
-            btnCancel.textContent = "בטל";
-
-            btnSave.onclick = () => {
-                const val = ta.value.trim();
-                if (!val) {
-                    alert("אין טקסט בהערה");
-                    return;
-                }
-                // שומר את ההערה ומציג כטקסט
-                player.notes.push({text: val});
-                noteDiv.innerHTML = `<p style="font-style:italic;">- ${val}</p>`;
+            player.notes.push({text:""}); 
+            let noteIndex = player.notes.length-1;
+            ta.oninput = () => {
+                player.notes[noteIndex].text = ta.value;
             };
-
-            btnCancel.onclick = () => {
-                noteDiv.remove();
-            };
-
-            noteDiv.appendChild(ta);
-            noteDiv.appendChild(btnSave);
-            noteDiv.appendChild(btnCancel);
-            notesContainer.appendChild(noteDiv);
+            notesContainer.appendChild(ta);
         };
 
         notesContainer.appendChild(addNoteBtn);
@@ -936,10 +854,10 @@ function showFinalSummary(generalNote) {
 
         let teamNameDisplayed = player.teamSide === 'A' ? analystTeamAName : analystTeamBName;
         let info = `${player.name||'שחקן'} ${player.number?('#'+player.number):''} - ${player.position||'ללא תפקיד'} [${teamNameDisplayed}]<br>`;
+        if (player.team) info += `קבוצה (נוסף): ${player.team}<br>`;
         if (player.color) info += `צבע חולצה: ${player.color}<br>`;
         const pInfo = document.createElement("p");
         pInfo.innerHTML = info;
-        pInfo.style.color = colorMap[player.color] || "black";
         card.appendChild(pInfo);
 
         const filteredActions = analystGameActions.filter(a=>a.playerIndex===index);
