@@ -95,6 +95,13 @@ button:hover {
     box-shadow: 0 6px 10px rgba(0,0,0,0.2);
 }
 
+.blue-btn {
+    background-color: #2196F3;
+    font-size:16px;
+    padding:10px 20px;
+    margin-top:10px;
+}
+
 .start-game-btn {
     background-color: #2196F3;
 }
