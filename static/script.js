@@ -20,6 +20,7 @@ function selectRole(role) {
         document.getElementById("coach-analyst-container").classList.remove("hidden");
     } else if (role === 'analyst') {
         document.getElementById("analyst-setup-container").classList.remove("hidden");
+        window.analystPlayers = [];
     }
 }
 
@@ -470,145 +471,6 @@ function createActionCheckbox(action, category) {
     return div;
 }
 
-// פונקציית calculateScore מהאלגוריתם החדש
-function calculateScore(minutesPlayed) {
-    let score = 0;
-    let goodCount = 0;
-    let badCount = 0;
-    let simplePosCount = {};
-
-    const importantPosActions = ["בעיטה למסגרת","בעיטה לשער","מסירת מפתח","ניצול הזדמנות","נגיחה למסגרת"];
-    const criticalNegActions = ["החמצת מצב ודאי","איבוד כדור מסוכן","אי שמירה על שחקן מפתח"];
-
-    function determineCategory(action, result) {
-        let resLower = result.toLowerCase();
-        let actLower = action.toLowerCase();
-        let isGood = (resLower.includes("מוצלח") || resLower.includes("טוב") || resLower.includes("חיובית"));
-        let isBad = (resLower.includes("רעה") || resLower.includes("לא מוצלח") || resLower.includes("לא טוב") || resLower.includes("שלילית"));
-
-        if (isGood) {
-            let isImportant = importantPosActions.some(a => actLower.includes(a.toLowerCase()));
-            return isImportant ? "good_important" : "good_simple";
-        } else if (isBad) {
-            let isCritical = criticalNegActions.some(a => actLower.includes(a.toLowerCase()));
-            return isCritical ? "bad_critical" : "bad_easy";
-        } else {
-            return "neutral";
-        }
-    }
-
-    actions.forEach(({action, result, minute}) => {
-        let category = determineCategory(action, result);
-        if (category.startsWith("good")) {
-            goodCount++;
-            if (category === "good_simple") {
-                simplePosCount[action] = (simplePosCount[action] || 0) + 1;
-                if (simplePosCount[action] > 10) {
-                    score += 1;
-                } else {
-                    score += 2;
-                }
-            } else {
-                let base = 5;
-                if (minute > 70) {
-                    base += 1;
-                }
-                score += base;
-            }
-        } else if (category.startsWith("bad")) {
-            badCount++;
-            if (category === "bad_easy") {
-                score -= 1;
-            } else {
-                let base = -3;
-                if (minute > 70) {
-                    base -= 1;
-                }
-                score += base;
-            }
-        }
-    });
-
-    let ratio = goodCount / (badCount + 1);
-    if (ratio < 1) {
-        score *= 0.9;
-    } else if (ratio > 2) {
-        score *= 1.05;
-    }
-
-    if (score < 0) score = 0;
-    if (score > 100) score = 100;
-
-    return Math.round(score);
-}
-
-function showFeedback(score, minutesPlayed) {
-    let feedback = "";
-    let successfulActions = actions.filter(a =>
-        a.result.includes("מוצלח") || a.result.includes("טוב") || a.result.includes("חיובית")
-    ).length;
-
-    if (score > 92) {
-        feedback = "מעולה פלוס! משחק יוצא דופן!";
-    } else if (score > 85) {
-        feedback = "מצוין! נתת משחק חזק. המשך לעבוד קשה!";
-    } else if (score > 70) {
-        feedback = "ביצוע טוב מאוד. שים לב לדייק יותר בחלק מהפעולות.";
-    } else if (score > 55) {
-        feedback = "עשית עבודה טובה, אך יש מקום לשיפור.";
-    } else {
-        feedback = "יש הרבה מקום לשיפור. אל תתייאש, למד ושפר!";
-    }
-
-    if (minutesPlayed < 30) {
-        feedback += " שיחקת פחות מ-30 דקות, נסה להאריך את משך המשחק.";
-    }
-
-    if (actions.length >= 4) {
-        feedback += " ביצעת מספר פעולות לא מבוטל - המשך להתמיד!";
-    }
-
-    if (successfulActions > 5) {
-        feedback += " מעל 5 פעולות מוצלחות - יפה מאוד!";
-    }
-
-    if (score < 50 && successfulActions > 3) {
-        feedback += " למרות הציון הנמוך, ראינו מספר פעולות מוצלחות.";
-    }
-
-    if (actions.length > 15) {
-        feedback += " ביצעת הרבה פעולות - מראה על נחישות!";
-    }
-
-    let counts = getActionCounts();
-    if ((counts['מנהיגות: חיובית'] || 0) > 3) {
-        feedback += " כישורי המנהיגות שלך בולטים מאוד!";
-    }
-
-    document.getElementById("feedback-text").textContent = feedback;
-    const feedbackPopup = document.getElementById("feedback-popup");
-    feedbackPopup.classList.remove("hidden");
-}
-
-function closeFeedbackPopup() {
-    document.getElementById("feedback-popup").classList.add("hidden");
-}
-
-function takeScreenshot() {
-    const element = document.getElementById('game-summary-content');
-    if (!element) {
-        console.error("אלמנט 'game-summary-content' לא נמצא.");
-        return;
-    }
-
-    html2canvas(element).then(canvas => {
-        const link = document.createElement('a');
-        link.href = canvas.toDataURL();
-        link.download = 'game_summary_screenshot.png';
-        link.click();
-    });
-}
-
 // הרשימת פעולות לפי תפקיד
 const positionActions = {
     "שוער": [
@@ -646,6 +508,62 @@ const mentalActions = [
 ];
 
 // אנליסט
+window.analystPlayers = [];
+
+function addAnalystPlayer() {
+    if (analystPlayers.length >= 10) {
+        alert("לא ניתן להוסיף יותר מ-10 שחקנים");
+        return;
+    }
+
+    const name = document.getElementById("analyst-player-name").value.trim();
+    const number = document.getElementById("analyst-player-number").value.trim();
+    const team = document.getElementById("analyst-player-team").value.trim();
+    const position = document.getElementById("analyst-player-position").value;
+
+    // הוסף שחקן למערך
+    analystPlayers.push({name, number, team, position});
+    updateAnalystPlayersList();
+
+    // אפס שדות
+    document.getElementById("analyst-player-name").value = "";
+    document.getElementById("analyst-player-number").value = "";
+    document.getElementById("analyst-player-team").value = "";
+    document.getElementById("analyst-player-position").value = "";
+}
+
+function updateAnalystPlayersList() {
+    const list = document.getElementById("analyst-players-list");
+    list.innerHTML = "";
+    analystPlayers.forEach((player, i) => {
+        const card = document.createElement("div");
+        card.classList.add("player-card");
+        const title = document.createElement("h4");
+        title.textContent = player.name || "שחקן ללא שם";
+        card.appendChild(title);
+
+        if (player.number) {
+            const pNumber = document.createElement("p");
+            pNumber.textContent = `מס' חולצה: ${player.number}`;
+            card.appendChild(pNumber);
+        }
+
+        if (player.team) {
+            const pTeam = document.createElement("p");
+            pTeam.textContent = `קבוצה: ${player.team}`;
+            card.appendChild(pTeam);
+        }
+
+        if (player.position) {
+            const pPos = document.createElement("p");
+            pPos.textContent = `תפקיד: ${player.position}`;
+            card.appendChild(pPos);
+        }
+
+        list.appendChild(card);
+    });
+}
+
 function submitAnalystSetup() {
     const code = document.getElementById("analyst-access-code").value.trim();
     if (code !== ANALYST_CODE) {
@@ -653,19 +571,7 @@ function submitAnalystSetup() {
         return;
     }
 
-    window.analystPlayers = [];
-    for (let i=1; i<=4; i++) {
-        const name = document.getElementById(`analyst-player${i}-name`).value.trim();
-        const number = document.getElementById(`analyst-player${i}-number`).value.trim();
-        const team = document.getElementById(`analyst-player${i}-team`).value.trim();
-        const position = document.getElementById(`analyst-player${i}-position`).value.trim();
-        if (name || number || team || position) {
-            analystPlayers.push({name, number, team, position});
-        }
-    }
-
     document.getElementById("analyst-setup-container").classList.add("hidden");
-    // הצג את analyst-actions-container
     loadAnalystActions();
     document.getElementById("analyst-actions-container").classList.remove("hidden");
 }
@@ -674,41 +580,35 @@ function loadAnalystActions() {
     const container = document.getElementById("analyst-players-actions");
     container.innerHTML = "";
 
-    // לכל שחקן נציג פעולות מקצועיות בהתאם לתפקיד, פעולה אחת מנטאלית, ופעולות מותאמות אישית
     analystPlayers.forEach((player, index) => {
         const playerDiv = document.createElement("div");
         playerDiv.style.borderBottom = "1px solid #ddd";
         playerDiv.style.marginBottom = "20px";
         const title = document.createElement("h3");
-        title.textContent = `${player.name || 'שחקן'} (#${player.number || '?'}) - ${player.position || 'תפקיד לא מוגדר'}`;
+        title.textContent = `${player.name || 'שחקן'} (#${player.number || '?'}) - ${player.position || 'ללא תפקיד'}`;
         playerDiv.appendChild(title);
 
-        // פעולות מקצועיות
         const actionsForPosition = positionActions[player.position] || [];
         const profTitle = document.createElement("h4");
         profTitle.textContent = "פעולות מקצועיות:";
         playerDiv.appendChild(profTitle);
-
         const profActionsDiv = document.createElement("div");
         profActionsDiv.classList.add("actions-grid");
         actionsForPosition.forEach(action => {
-            profActionsDiv.appendChild(createCheckbox(action, `analyst-player${index}-professional`));
+            profActionsDiv.appendChild(createActionCheckboxForAnalyst(action, `analyst-player${index}-professional`));
         });
         playerDiv.appendChild(profActionsDiv);
 
-        // פעולה מנטאלית
         const mentalTitle = document.createElement("h4");
         mentalTitle.textContent = "פעולה מנטאלית:";
         playerDiv.appendChild(mentalTitle);
-
         const mentalActionsDiv = document.createElement("div");
         mentalActionsDiv.classList.add("actions-grid");
         mentalActions.forEach(action => {
-            mentalActionsDiv.appendChild(createCheckbox(action, `analyst-player${index}-mental`));
+            mentalActionsDiv.appendChild(createActionCheckboxForAnalyst(action, `analyst-player${index}-mental`));
         });
         playerDiv.appendChild(mentalActionsDiv);
 
-        // פעולות מותאמות אישית
         const customTitle = document.createElement("h4");
         customTitle.textContent = "פעולות מותאמות אישית:";
         playerDiv.appendChild(customTitle);
@@ -717,7 +617,6 @@ function loadAnalystActions() {
         customActionsDiv.classList.add("actions-grid");
         customActionsDiv.id = `analyst-player${index}-custom-actions-div`;
 
-        // input להוספת פעולה מותאמת אישית
         const customGroup = document.createElement("div");
         customGroup.classList.add("input-group");
         const customInput = document.createElement("input");
@@ -733,7 +632,7 @@ function loadAnalystActions() {
                 alert("אנא כתוב שם פעולה לפני ההוספה");
                 return;
             }
-            customActionsDiv.appendChild(createCheckbox(val, `analyst-player${index}-custom`));
+            customActionsDiv.appendChild(createActionCheckboxForAnalyst(val, `analyst-player${index}-custom`));
             customInput.value = "";
         };
 
@@ -748,7 +647,7 @@ function loadAnalystActions() {
     });
 }
 
-function createCheckbox(action, name) {
+function createActionCheckboxForAnalyst(action, name) {
     const div = document.createElement("div");
     div.classList.add("action-item");
     const cb = document.createElement("input");
@@ -763,10 +662,6 @@ function createCheckbox(action, name) {
 }
 
 function submitAnalystActions() {
-    // כאן ניקח את הנתונים שנבחרו עבור כל שחקן
-    // לדוגמה: נאסוף את כל ה-checkbox המסומנים עבור כל שחקן
-    // אין הגבלה, פשוט נאסוף ונשמור אם נרצה.
-
     alert("הבחירות נשמרו! (כאן ניתן בהמשך ליישם לוגיקה משלימה)");
 }
 
