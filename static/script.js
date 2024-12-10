@@ -53,10 +53,19 @@ const positionActions = {
     ]
 };
 // הוסף בתחילת script.js או בכל מקום מתאים:
-function selectRole(role) {
-    // הסתר את role-selection-container
+unction selectRole(role) {
     document.getElementById("role-selection-container").classList.add("hidden");
 
+    if (role === 'player') {
+        document.getElementById("login-container").classList.remove("hidden");
+    } else if (role === 'coach') {
+        // עבור מאמן
+        document.getElementById("coach-analyst-container").classList.remove("hidden");
+    } else if (role === 'analyst') {
+        // כאן צריך להציג את analyst-setup-container
+        document.getElementById("analyst-setup-container").classList.remove("hidden");
+    }
+}
     if (role === 'player') {
         // עבור שחקן: הצג login-container (כמו שהיה הקוד לשחקן)
         document.getElementById("login-container").classList.remove("hidden");
