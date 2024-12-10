@@ -68,14 +68,13 @@
             </div>
         </div>
 
-        <p>הכנס קוד גישה לאנליסט:</p>
-        <div class="input-group" style="max-width:300px;margin:0 auto;">
+        <div class="input-group" style="max-width:300px;margin:20px auto;">
             <input type="password" id="analyst-access-code" placeholder="הכנס קוד" />
         </div>
         <button onclick="submitAnalystSetup()">אישור ותחילת משחק</button>
     </div>
 
-    <!-- מסך בחירת פעולות לאנליסט לכל שחקן (ללא הערות לשחקן) -->
+    <!-- מסך בחירת פעולות לאנליסט לכל שחקן -->
     <div id="analyst-actions-container" class="game-info-container hidden">
         <h2>בחירת פעולות למעקב עבור השחקנים</h2>
         <p>בחר פעולות מקצועיות, מנטאליות, מותאמות אישית (לא חובה לבחור הכל)</p>
@@ -83,10 +82,10 @@
         <button onclick="submitAnalystActions()">אישור ותחילת סימון</button>
     </div>
 
-    <!-- מסך סימון הפעולות והערות כלליות -->
+    <!-- מסך סימון הפעולות והערה כללית -->
     <div id="analyst-marking-container" class="game-info-container hidden">
         <h2>סימון פעולות שבוצעו והוספת הערות</h2>
-        <p>סמן לכל פעולה אם בוצעה (V) או לא (X). הוסף הערה כללית בסוף (אופציונלי).</p>
+        <p>סמן לכל פעולה אם בוצעה (V) או לא (X).</p>
         <div id="analyst-marking-players"></div>
         <h4>הערה כללית:</h4>
         <textarea id="analyst-general-note" placeholder="הערה כללית (אופציונלי)"></textarea>
