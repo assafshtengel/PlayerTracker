@@ -167,7 +167,6 @@ button:hover {
     color: #333;
 }
 
-/* הסתרת הצ'קבוקסים כי לא צריכים יותר. אם ישנם, נהפוך אותם ללא נראים */
 .action-item input[type=checkbox] {
     display:none;
 }
@@ -457,26 +456,18 @@ button:hover {
 
 .player-card .delete-player-btn {
     position:absolute;
-    top:5px;
-    right:5px;
+    bottom:5px;
+    left:5px;
     background:#f44336;
     color:#fff;
-    font-size:14px;
-    width:25px;
-    height:25px;
+    font-size:12px;
+    width:20px;
+    height:20px;
     border-radius:50%;
     text-align:center;
-    line-height:25px;
+    line-height:20px;
     cursor:pointer;
-}
-
-.analyst-actions-container .action-item label {
-    cursor:pointer;
-}
-
-.analyst-actions-container .action-item label.selected {
-    background:#d4f8d4; 
-    border-color:#4CAF50;
+    user-select:none;
 }
 
 .marking-player-header {
