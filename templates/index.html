@@ -81,7 +81,15 @@
         <button onclick="submitAnalystSetup()">אישור</button>
     </div>
 
-    <!-- כאן המשך המסכים הקיימים לשחקן בלבד -->
+    <!-- מסך בחירת פעולות לאנליסט לכל שחקן -->
+    <div id="analyst-actions-container" class="game-info-container hidden">
+        <h2>בחירת פעולות למעקב עבור השחקנים</h2>
+        <p>בחר פעולות מקצועיות בהתאם לתפקיד, פעולה מנטאלית (מנטאלי) אם תרצה, והוסף פעולות מותאמות אישית. אין הגבלה בכמות.</p>
+        <div id="analyst-players-actions"></div>
+        <button onclick="submitAnalystActions()">אשר בחירה</button>
+    </div>
+
+    <!-- מסכים לשחקן בלבד -->
     <div id="user-input-container" class="game-info-container hidden">
         <h2>פרטים להתחלת המשחק</h2>
         <div class="input-group">
@@ -100,7 +108,7 @@
         <button id="submit-user-button" onclick="submitUserInfo()">אישור</button>
     </div>
 
-    <!-- בחירת פעולות -->
+    <!-- בחירת פעולות (לשחקן) -->
     <div id="actions-selection-container" class="game-info-container hidden">
         <h3>בחר בין 6 ל-10 פעולות להתמקד בהן</h3>
         <p>מתוך הפעולות המקצועיות, המנטאליות או הוספת פעולות מותאמות אישית</p>
