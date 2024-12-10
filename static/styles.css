@@ -33,7 +33,7 @@ h1#welcome-message {
 .game-info-container {
     background: #ffffffcc;
     padding: 30px;
-    max-width: 500px;
+    max-width: 600px;
     margin: 30px auto;
     border-radius: 10px;
     border: 1px solid #ddd;
@@ -152,8 +152,8 @@ button:hover {
 }
 
 .actions-grid {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 15px;
     max-width: 500px;
     margin: 0 auto;
@@ -167,10 +167,24 @@ button:hover {
     color: #333;
 }
 
+/* הסתרת הצ'קבוקסים כי לא צריכים יותר. אם ישנם, נהפוך אותם ללא נראים */
 .action-item input[type=checkbox] {
-    transform: scale(1.3);
-    margin-left:0; 
-    accent-color: #4CAF50;
+    display:none;
+}
+
+.action-item label {
+    display:block;
+    background:#fff;
+    border:1px solid #ccc;
+    border-radius:5px;
+    padding:10px;
+    cursor:pointer;
+    transition: background 0.3s;
+}
+
+.action-item label.selected {
+    background: #d4f8d4; /* ירוק בהיר */
+    border-color:#4CAF50;
 }
 
 .prof-bg {
@@ -231,6 +245,7 @@ button:hover {
     padding: 10px 20px;
     border-radius: 5px;
     font-size: 16px;
+    z-index:2000;
 }
 
 .hidden {
@@ -246,7 +261,7 @@ button:hover {
     padding: 20px 30px;
     border-radius: 10px;
     font-size: 20px;
-    z-index: 2000;
+    z-index: 3000;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease-in-out, visibility 0.3s;
@@ -440,8 +455,87 @@ button:hover {
     font-size:16px;
 }
 
+.player-card .delete-player-btn {
+    position:absolute;
+    top:5px;
+    right:5px;
+    background:#f44336;
+    color:#fff;
+    font-size:14px;
+    width:25px;
+    height:25px;
+    border-radius:50%;
+    text-align:center;
+    line-height:25px;
+    cursor:pointer;
+}
+
+.analyst-actions-container .action-item label {
+    cursor:pointer;
+}
+
+.analyst-actions-container .action-item label.selected {
+    background:#d4f8d4; 
+    border-color:#4CAF50;
+}
+
+.marking-player-header {
+    background:#eaf3ff;
+    padding:10px;
+    border-radius:5px;
+    cursor:pointer;
+    font-weight:bold;
+    color:#2196F3;
+    position:relative;
+}
+
+.marking-player-header .shirt-number {
+    background:#2196F3;
+    color:#fff;
+    border-radius:5px;
+    display:inline-block;
+    padding:2px 5px;
+    margin-right:10px;
+    font-size:14px;
+    font-weight:bold;
+}
+
+.marking-player-actions {
+    margin-top:10px;
+    display:none;
+}
+
+.marking-player-actions.visible {
+    display:block;
+}
+
+.marking-player-actions .action-group {
+    justify-content:flex-end;
+}
+
+.marking-player-actions .action-group h2 {
+    flex-grow:0;
+    margin:0 10px;
+    text-align:right;
+    font-size:16px;
+    width:60%;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.marking-player-actions textarea {
+    margin-top:10px;
+    width:100%;
+    height:60px;
+}
+
 @media (max-width: 600px) {
     .analyst-players-wrapper {
         flex-direction:column;
+    }
+
+    .actions-grid {
+        grid-template-columns: 1fr;
     }
 }
