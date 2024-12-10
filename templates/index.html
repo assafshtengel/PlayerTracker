@@ -14,7 +14,7 @@
 
     <h1 id="welcome-message" style="margin-bottom:20px;">ברוך הבא למערכת הניתוח</h1>
 
-    <!-- עמוד פתיחה חדש לבחירת סוג משתמש -->
+    <!-- עמוד פתיחה לבחירת תפקיד -->
     <div id="role-selection-container" class="game-info-container">
         <h2>בחר את התפקיד שלך</h2>
         <p>המערכת נועדה לעזור לשחקנים, למאמנים ולאנליסטים לנתח את ביצועי המשחק בהתבסס על נתונים מדויקים ולא על ניחושים.</p>
@@ -26,10 +26,9 @@
         </div>
     </div>
 
-    <!-- המסכים הקיימים נשארים למטה, אך יהיו בהתחלה מוסתרים -->
     <!-- מסך הכניסה (login-container) לשחקן -->
     <div id="login-container" class="game-info-container hidden">
-        <h2>מערכת מעקב - גישה מורשית</h2>
+        <h2>מערכת מעקב - גישה מורשית (שחקן)</h2>
         <p>הכנס את הקוד שלך:</p>
         <div class="input-group">
             <input type="password" id="access-code" placeholder="הכנס קוד" />
@@ -37,16 +36,53 @@
         <button onclick="checkAccessCode()">אישור</button>
     </div>
 
-    <!-- מסך למאמן/אנליסט (placeholder) -->
+    <!-- מסך למאמן (placeholder) -->
     <div id="coach-analyst-container" class="game-info-container hidden">
-        <h2>מסך למאמנים/אנליסטים - בקרוב</h2>
-        <p>כאן תהיה בחירה של מטרות משחק קבוצתיות, מעקב אחר שחקני הקבוצה, והערות ממוקדות.</p>
-        <p>נכון לעכשיו, זהו מסך דמה.</p>
+        <h2>מאמן - בקרוב</h2>
+        <p>מסך זה עדיין בפיתוח.</p>
     </div>
 
-    <!-- המשך הקוד הקיים: user-input-container, actions-selection-container וכו' -->
+    <!-- מסך הגדרת אנליסט -->
+    <div id="analyst-setup-container" class="game-info-container hidden">
+        <h2>הגדרת מעקב כאנליסט</h2>
+        <p>הזן עד 4 שחקנים לעקוב אחריהם:</p>
+        <div id="analyst-players-container" style="margin-bottom:20px;">
+            <div class="input-group">
+                <input type="text" placeholder="שם שחקן 1" id="analyst-player1-name" />
+                <input type="text" placeholder="מספר חולצה" id="analyst-player1-number" />
+                <input type="text" placeholder="קבוצה" id="analyst-player1-team" />
+                <input type="text" placeholder="תפקיד" id="analyst-player1-position" />
+            </div>
+            <div class="input-group">
+                <input type="text" placeholder="שם שחקן 2" id="analyst-player2-name" />
+                <input type="text" placeholder="מספר חולצה" id="analyst-player2-number" />
+                <input type="text" placeholder="קבוצה" id="analyst-player2-team" />
+                <input type="text" placeholder="תפקיד" id="analyst-player2-position" />
+            </div>
+            <div class="input-group">
+                <input type="text" placeholder="שם שחקן 3" id="analyst-player3-name" />
+                <input type="text" placeholder="מספר חולצה" id="analyst-player3-number" />
+                <input type="text" placeholder="קבוצה" id="analyst-player3-team" />
+                <input type="text" placeholder="תפקיד" id="analyst-player3-position" />
+            </div>
+            <div class="input-group">
+                <input type="text" placeholder="שם שחקן 4" id="analyst-player4-name" />
+                <input type="text" placeholder="מספר חולצה" id="analyst-player4-number" />
+                <input type="text" placeholder="קבוצה" id="analyst-player4-team" />
+                <input type="text" placeholder="תפקיד" id="analyst-player4-position" />
+            </div>
+        </div>
+
+        <p>הכנס קוד גישה לאנליסט:</p>
+        <div class="input-group">
+            <input type="password" id="analyst-access-code" placeholder="הכנס קוד" />
+        </div>
+        <button onclick="submitAnalystSetup()">אישור</button>
+    </div>
+
+    <!-- כאן המשך המסכים הקיימים לשחקן בלבד -->
     <div id="user-input-container" class="game-info-container hidden">
-        <h2>פרטים להתחלת המשחק</h2>
+        <h2>פרטים להתחלת המשחק (שחקן)</h2>
         <div class="input-group">
             <input type="text" id="player-name" placeholder="הכנס שם שחקן" />
             <input type="text" id="team-name" placeholder="הכנס שם הקבוצה היריבה" />
@@ -63,8 +99,7 @@
         <button id="submit-user-button" onclick="submitUserInfo()">אישור</button>
     </div>
 
-    <!-- שאר הקוד (actions-selection-container וכו') נשאר כפי שהיה -->
-    <!-- ... -->
+    <!-- שאר המסכים (actions-selection-container וכו') נשארים כמות שהם -->
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
