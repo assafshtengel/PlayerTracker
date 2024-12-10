@@ -18,7 +18,6 @@
     <div id="role-selection-container" class="game-info-container">
         <h2>בחר את התפקיד שלך</h2>
         <p>המערכת נועדה לעזור לשחקנים, למאמנים ולאנליסטים לנתח את ביצועי המשחק בהתבסס על נתונים מדויקים ולא על ניחושים.</p>
-
         <div class="input-group" style="max-width:300px;margin:0 auto;">
             <button onclick="selectRole('player')">שחקן</button>
             <button onclick="selectRole('coach')">מאמן</button>
@@ -43,34 +42,29 @@
         <p>מסך זה עדיין בפיתוח.</p>
     </div>
 
-    <!-- מסך הגדרת אנליסט -->
-    <div id="analyst-setup-container" class="game-info-container hidden">
+    <!-- מסך הגדרת אנליסט עם אפשרות להוספת עד 10 שחקנים -->
+    <div id="analyst-setup-container" class="game-info-container hidden analyst-setup-container">
         <h2>הגדרת מעקב כאנליסט</h2>
-        <p>הזן עד 4 שחקנים לעקוב אחריהם:</p>
-        <div id="analyst-players-container" style="margin-bottom:20px;">
-            <div class="input-group">
-                <input type="text" placeholder="שם שחקן 1" id="analyst-player1-name" />
-                <input type="text" placeholder="מספר חולצה" id="analyst-player1-number" />
-                <input type="text" placeholder="קבוצה" id="analyst-player1-team" />
-                <input type="text" placeholder="תפקיד" id="analyst-player1-position" />
+        <p>הוסף עד 10 שחקנים למעקב. לא חייב למלא את כל השדות. התפקיד הוא מרשימה, לא חובה. לאחר הוספת כל שחקן הוא יופיע בצד.</p>
+        
+        <div class="analyst-players-wrapper">
+            <div class="analyst-player-form">
+                <input type="text" placeholder="שם שחקן" id="analyst-player-name" />
+                <input type="text" placeholder="מספר חולצה (לא חובה)" id="analyst-player-number" />
+                <input type="text" placeholder="קבוצה (לא חובה)" id="analyst-player-team" />
+                <select id="analyst-player-position">
+                    <option value="" selected>תפקיד (אופציונלי)</option>
+                    <option value="שוער">שוער</option>
+                    <option value="מגן">מגן</option>
+                    <option value="קשר">קשר</option>
+                    <option value="כנף">כנף</option>
+                    <option value="חלוץ">חלוץ</option>
+                </select>
+                <button onclick="addAnalystPlayer()">הוסף שחקן</button>
             </div>
-            <div class="input-group">
-                <input type="text" placeholder="שם שחקן 2" id="analyst-player2-name" />
-                <input type="text" placeholder="מספר חולצה" id="analyst-player2-number" />
-                <input type="text" placeholder="קבוצה" id="analyst-player2-team" />
-                <input type="text" placeholder="תפקיד" id="analyst-player2-position" />
-            </div>
-            <div class="input-group">
-                <input type="text" placeholder="שם שחקן 3" id="analyst-player3-name" />
-                <input type="text" placeholder="מספר חולצה" id="analyst-player3-number" />
-                <input type="text" placeholder="קבוצה" id="analyst-player3-team" />
-                <input type="text" placeholder="תפקיד" id="analyst-player3-position" />
-            </div>
-            <div class="input-group">
-                <input type="text" placeholder="שם שחקן 4" id="analyst-player4-name" />
-                <input type="text" placeholder="מספר חולצה" id="analyst-player4-number" />
-                <input type="text" placeholder="קבוצה" id="analyst-player4-team" />
-                <input type="text" placeholder="תפקיד" id="analyst-player4-position" />
+            <div class="analyst-players-list-container">
+                <h3>שחקנים שנוספו:</h3>
+                <div id="analyst-players-list"></div>
             </div>
         </div>
 
