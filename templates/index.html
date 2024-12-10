@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>מערכת מעקב שחקנים</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <!-- להנפקת PDF נדרש jsPDF, לדוגמה: -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
@@ -44,14 +43,45 @@
         <p>מסך זה עדיין בפיתוח.</p>
     </div>
 
-    <!-- מסך הגדרת אנליסט -->
+    <!-- מסך אנליסט - הגדרת פרטי המשחק (קבוצות ותאריך) -->
+    <div id="analyst-game-info-container" class="game-info-container hidden">
+        <h2>הגדרת פרטי המשחק</h2>
+        <p>הזן את שם הקבוצה המארחת, האורחת, ותאריך המשחק:</p>
+        <div class="input-group">
+            <input type="text" id="analyst-teamA" placeholder="שם קבוצה א' (מארחת)" />
+            <input type="text" id="analyst-teamB" placeholder="שם קבוצה ב' (אורחת)" />
+            <input type="date" id="analyst-game-date" />
+        </div>
+        <button onclick="submitAnalystGameInfo()">המשך</button>
+    </div>
+
+    <!-- מסך הגדרת אנליסט - הוספת שחקנים -->
     <div id="analyst-setup-container" class="game-info-container hidden analyst-setup-container">
         <h2>הגדרת מעקב כאנליסט</h2>
-        <p>הוסף עד 10 שחקנים למעקב. לא חובה למלא הכל. לאחר הוספת כל שחקן הוא יופיע בצד.</p>
+        <p>הוסף עד 10 שחקנים למעקב. ציין את הקבוצה (א' או ב'), הצבע, ומספר החולצה לא חובה. לאחר הוספת כל שחקן הוא יופיע בצד.</p>
         
         <div class="analyst-players-wrapper">
             <div class="analyst-player-form">
                 <input type="text" placeholder="שם שחקן" id="analyst-player-name" />
+                <select id="analyst-player-team-select">
+                    <option value="A">קבוצה א'</option>
+                    <option value="B">קבוצה ב'</option>
+                </select>
+                <select id="analyst-player-color">
+                    <option value="" disabled selected>בחר צבע חולצה</option>
+                    <option value="אדום">אדום</option>
+                    <option value="כחול">כחול</option>
+                    <option value="ירוק">ירוק</option>
+                    <option value="צהוב">צהוב</option>
+                    <option value="שחור">שחור</option>
+                    <option value="לבן">לבן</option>
+                    <option value="כתום">כתום</option>
+                    <option value="סגול">סגול</option>
+                    <option value="ורוד">ורוד</option>
+                    <option value="חום">חום</option>
+                    <option value="אפור">אפור</option>
+                    <option value="טורקיז">טורקיז</option>
+                </select>
                 <input type="text" placeholder="מספר חולצה (לא חובה)" id="analyst-player-number" />
                 <input type="text" placeholder="קבוצה (לא חובה)" id="analyst-player-team" />
                 <select id="analyst-player-position">
@@ -70,9 +100,6 @@
             </div>
         </div>
 
-        <div class="input-group" style="max-width:300px;margin:20px auto;">
-            <input type="password" id="analyst-access-code" placeholder="הכנס קוד" />
-        </div>
         <button onclick="submitAnalystSetup()">אישור ותחילת משחק</button>
     </div>
 
@@ -87,7 +114,8 @@
     <!-- מסך סימון הפעולות והערות פר שחקן -->
     <div id="analyst-marking-container" class="game-info-container hidden">
         <h2>סימון פעולות שבוצעו והוספת הערות</h2>
-        <p>סמן לכל פעולה אם בוצעה (V) או לא (X). לחיצה על שם השחקן תפתח/תסגור את הפעולות והערותיו.</p>
+        <p>סמן לכל פעולה אם בוצעה (V) או לא (X). לחיצה על שם השחקן תפתח/תסגור את הפעולות שלו.<br>
+        הוסף מספר בלתי מוגבל של הערות עבור כל שחקן בלחיצה על "הוסף הערה".</p>
         <div id="analyst-marking-players"></div>
         <h4>הערה כללית:</h4>
         <textarea id="analyst-general-note" placeholder="הערה כללית (אופציונלי)"></textarea>
@@ -138,7 +166,7 @@
         <button id="confirm-actions-btn" onclick="confirmActions()">אישור</button>
     </div>
 
-    <!-- כפתור תחילת המשחק -->
+    <!-- כפתור תחילת המשחק (לשחקן) -->
     <div id="start-game-container" class="hidden">
         <button id="start-game" class="start-game-btn" onclick="startGame()">תחילת המשחק</button>
     </div>
