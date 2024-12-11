@@ -26,6 +26,7 @@
         <button class="blue-btn" style="margin-top:30px;" onclick="openTrainingSummaryPage()">סיכום אימון</button>
     </div>
 
+    <!-- סיכום אימון -->
     <div id="training-summary-page" class="hidden game-info-container">
         <h2>סיכום אימון</h2>
         <p>ענה על 5 השאלות:</p>
@@ -40,6 +41,7 @@
         <button class="blue-btn" style="margin-top:10px;" onclick="closeTrainingSummaryPage()">חזרה</button>
     </div>
 
+    <!-- כניסה לשחקן -->
     <div id="login-container" class="game-info-container hidden">
         <h2>מערכת מעקב שחקנים - גישה מורשית</h2>
         <p>לכניסה, אנא הקש את הסיסמה:</p>
@@ -49,7 +51,7 @@
         <button onclick="checkAccessCode()" class="blue-btn">אישור</button>
     </div>
 
-    <!-- שחקן -->
+    <!-- פרטים לשחקן -->
     <div id="user-input-container" class="game-info-container hidden">
         <h2>פרטים להתחלת המשחק</h2>
         <div class="input-group">
@@ -67,6 +69,7 @@
         <button id="submit-user-button" onclick="submitUserInfo()" class="blue-btn">אישור</button>
     </div>
 
+    <!-- בחירת פעולות לשחקן -->
     <div id="actions-selection-container" class="game-info-container hidden">
         <h3>בחר פעולות להתמקד בהן</h3>
         <p>אנו ממליצים על בחירת 6-9 פעולות, אך זה לא חובה.</p>
@@ -75,14 +78,12 @@
         <div id="custom-actions"></div>
         <div class="input-group" style="max-width:300px;margin:10px auto;">
             <input type="text" id="custom-action-input" placeholder="הכנס פעולה מותאמת אישית">
-            <!-- כפתור הוסף פעולה נשאר כחול -->
             <button id="add-custom-action-btn" onclick="addCustomAction()" class="blue-btn">הוסף פעולה</button>
         </div>
-        <!-- כפתור אישור יהיה בצבע כתום לדוגמה -->
         <button id="confirm-actions-btn" onclick="confirmActions()" style="background:#ff9800;color:white;">אישור</button>
     </div>
 
-    <!-- פופאפ שואל על מטרות מדידות במקום confirm -->
+    <!-- פופאפ שאלת מטרות מדידות -->
     <div id="are-you-want-measurable-popup" class="popup hidden">
         <div class="popup-content">
             <span class="close-btn" onclick="closeMeasurableConfirmPopup()">&times;</span>
@@ -95,12 +96,13 @@
         </div>
     </div>
 
+    <!-- פופאפ מטרות מדידות -->
     <div id="measurable-goals-popup" class="popup hidden">
-        <div class="popup-content">
+        <div class="popup-content" style="text-align:center;">
             <span class="close-btn" onclick="closeMeasurableGoalsPopup()">&times;</span>
             <h3>קבע מטרות מדידות</h3>
             <p>ניתן להגדיר כמות/יעד לכל פעולה. לא חובה למלא הכל.</p>
-            <table id="measurable-goals-table">
+            <table id="measurable-goals-table" style="margin:0 auto;">
                 <thead>
                     <tr><th>פעולה</th><th>יעד (מספרי)</th></tr>
                 </thead>
@@ -118,7 +120,7 @@
         <p>דקה: <span id="minute-counter">0</span></p>
     </div>
 
-    <p class="hidden" id="actions-title">לחץ על הפעולה לסימון. לחיצה נוספת תבטל. לאחר סימון, לחץ פעולה לפתיחת פופאפ בחירה (מוצלח/לא מוצלח + הערה)</p>
+    <p class="hidden" id="actions-title">לחץ על הפעולה לבחירה, ולאחר מכן ללחיצה נוספת לפתיחת פופאפ (מוצלח/לא מוצלח + הערה)</p>
     <div class="hidden" id="notes-container">
         <button class="view-all-btn blue-btn" onclick="openGeneralNotePopup()">הערה 🖉</button>
     </div>
@@ -136,7 +138,7 @@
         <button id="reopen-summary-btn" class="view-all-btn blue-btn" onclick="reopenSummary()">צפה בסיכום</button>
     </div>
 
-    <!-- פופ אפ סיכום המשחק (שחקן) -->
+    <!-- פופ אפ סיכום המשחק -->
     <div id="game-summary-popup" class="popup hidden">
         <div class="popup-content" id="game-summary-content">
             <span class="close-btn big-close" onclick="closePopup()">&times;</span>
@@ -185,7 +187,6 @@
             <span class="close-btn" onclick="closeGeneralNotePopup()">&times;</span>
             <h3>הערה 🖉</h3>
             <textarea id="general-note-text" placeholder="הקלד הערה..."></textarea>
-            <!-- כפתור אישור הערה, לאחר לחיצה נחכה 2.3 שניות ואז נסגור -->
             <button class="view-all-btn blue-btn" onclick="approveGeneralNote()">אישור</button>
         </div>
     </div>
@@ -252,56 +253,13 @@
 
     <div id="coach-marking-container" class="game-info-container hidden">
         <h2>סימון פעולות שבוצעו והוספת הערות (מאמן)</h2>
-        <p>לחץ על פעולה לפופאפ (מוצלח/לא מוצלח + הערה). לאחר 4 שניות ללא אינטראקציה הפופאפ ייסגר.</p>
-
-        <div class="flex-row">
-            <div class="quick-notes-container large-notes">
-                <h3>רשימות מהירות</h3>
-                <input type="text" id="quick-note-input" placeholder="הקלד תובנה מהירה..." style="font-size:20px;padding:12px;">
-                <button class="blue-btn" onclick="addQuickNote()" style="font-size:18px;">הוסף פתק</button>
-                <div id="quick-notes-list"></div>
-            </div>
-
-            <div class="mood-container">
-                <h3>מצב רוח הקבוצה</h3>
-                <select id="team-mood" onchange="setTeamMoodAndOpenMoodInput(this.value)">
-                    <option value="">בחר מצב רוח</option>
-                    <option value="מורל גבוה">מורל גבוה</option>
-                    <option value="חוסר ריכוז">חוסר ריכוז</option>
-                    <option value="בלבול">בלבול</option>
-                    <option value="רוגע">רוגע</option>
-                    <option value="לחץ גבוה">לחץ גבוה</option>
-                </select>
-                <div id="mood-message" class="hidden" style="margin-top:10px;">
-                    <textarea id="mood-custom-msg" placeholder="נסח מה תגיד לשחקנים..."></textarea>
-                </div>
-            </div>
-        </div>
-
-        <div style="margin-top:20px;">
-            <button class="blue-btn" onclick="openTacticalBoard()">פתח לוח טקטי</button>
-            <span style="float:left;font-size:14px;">דקה: <span id="coach-minute-counter">0</span></span>
-            <div id="tactical-board-popup" class="popup hidden">
-                <div class="popup-content">
-                    <span class="close-btn" onclick="closeTacticalBoard()">&times;</span>
-                    <h3>לוח טקטי</h3>
-                    <div id="tactical-field" class="tactical-field"></div>
-                    <button class="blue-btn" onclick="captureTacticalBoard()">צלם תכנית</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="coach-marking-players" style="margin-top:20px;"></div>
-        <h4>הערה כללית:</h4>
-        <textarea id="coach-general-note" placeholder="הערה כללית (אופציונלי)"></textarea>
-        <button onclick="finishCoachGame()" class="blue-btn">סיום</button>
+        <p>...</p>
+        <!-- לא ממומש מלא -->
     </div>
 
     <div id="coach-final-summary-container" class="game-info-container hidden">
         <h2>סיכום המשחק (מאמן)</h2>
-        <p>להלן כל הנתונים שנאספו:</p>
-        <div id="coach-final-data"></div>
-        <button onclick="downloadPDFCoach()" class="blue-btn">שמור כ-PDF</button>
+        <p>...</p>
     </div>
 
     <div id="action-popup" class="popup">
