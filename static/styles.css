@@ -62,7 +62,8 @@ body {
 }
 
 .input-group input, 
-.input-group select {
+.input-group select,
+.input-group textarea {
     padding: 10px;
     font-size: 18px;
     border-radius: 8px;
@@ -80,7 +81,6 @@ button {
     color: white;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    margin-top: 20px;
 }
 
 button:hover {
@@ -90,115 +90,183 @@ button:hover {
 
 .blue-btn {
     background-color: #2196F3;
-    margin-top: 0;
-}
-
-.actions-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-.action-item {
-    display: flex;
-    align-items: center;
-    gap: 10px; 
-    font-size: 18px;
-    color: #333;
-    cursor:pointer;
-}
-
-.action-group {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    font-size: 16px;
-    min-height: 60px;
-    justify-content: space-between;
-}
-
-.action-group h2 {
-    font-size: 16px;
-    margin: 0;
-    text-align: center;
-    flex-grow: 1;
-    padding: 0 10px;
-    color:#333;
-    font-weight:bold;
-}
-
-.start-game-btn {
-    background-color: #2196F3;
-}
-
-.half-time-btn {
-    background-color: orange;
-    color:white;
-}
-
-.end-game-btn {
-    background-color: #f44336;
-    color:white;
-}
-
-.view-all-btn {
-    background-color: #2196F3;
-    font-size: 18px;
-    padding: 10px 20px;
-    border-radius: 8px;
-    margin-top: 20px;
-    display: inline-block;
-    color:white;
-}
-
-.same-size-btn {
-    width:140px;
-    margin:10px;
-    text-align:center;
-}
-
-.close-summary-btn {
-    background-color: #f44336;
-    color: white;
-    font-size: 18px;
-    padding: 10px 20px;
-    border-radius: 5px;
-    margin-top: 20px;
-    display: inline-block;
-    cursor: pointer;
-    border: none;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.close-summary-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 8px rgba(0,0,0,0.2);
-}
-
-.finished {
-    background-color: #9E9E9E !important;
-    cursor: not-allowed !important;
-}
-
-#game-timer {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background-color: #333;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 16px;
 }
 
 .hidden {
     display: none !important;
+}
+
+.quick-notes-container {
+    background:#f9f9f9;
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:10px;
+    max-width:300px;
+    margin-top:20px;
+}
+
+#quick-notes-list p {
+    background:#fff;
+    border:1px solid #ccc;
+    border-radius:5px;
+    padding:5px;
+    margin-bottom:5px;
+    font-size:16px;
+}
+
+.mood-meter {
+    margin-top:20px;
+}
+.mood-meter select {
+    width:100%;
+    padding:10px;
+    font-size:16px;
+}
+
+.tactical-board-container {
+    margin-top:20px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:10px;
+    background:#fafafa;
+}
+
+.tactical-field {
+    position:relative;
+    width:300px;
+    height:400px;
+    background:url('field.png') center center no-repeat;
+    background-size:cover;
+    margin:auto;
+}
+
+.player-icon {
+    position:absolute;
+    cursor:grab;
+    font-size:24px;
+}
+.player-icon:active {
+    cursor:grabbing;
+}
+
+/* פעולה ככרטיס */
+.action-card {
+    background: #fdfdfd;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    text-align:center;
+}
+.action-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+.action-card h2 {
+    font-size: 20px;
+    margin: 0;
+    color: #333;
+    font-weight: bold;
+}
+
+/* פופאפ פעולה */
+#action-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    background: #fff;
+    border: 3px solid #333;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity:0;
+    visibility:hidden;
+    transition: all 0.3s ease;
+}
+#action-popup.active {
+    opacity:1;
+    visibility:visible;
+}
+#action-popup-header {
+    position: relative;
+    padding: 10px;
+    background: #f5f5f5;
+    font-size: 18px;
+    font-weight: bold;
+    text-align:center;
+}
+#action-popup-close {
+    position: absolute;
+    top:10px;left:10px;
+    font-size:24px;
+    color:red;
+    cursor:pointer;
+    font-weight:bold;
+}
+#action-popup-content {
+    display: flex;
+    flex-direction: row;
+    flex:1;
+}
+.action-side {
+    flex:1;
+    display:flex;
+    flex-direction: column;
+    justify-content:center;
+    align-items:center;
+    cursor:pointer;
+    font-size:20px;
+    font-weight:bold;
+    color:white;
+}
+.action-side.green {
+    background: #4CAF50;
+}
+.action-side.red {
+    background: #f44336;
+}
+#action-popup-footer {
+    padding:10px;
+    background:#fafafa;
+    border-top:1px solid #ddd;
+}
+#action-popup-footer textarea {
+    width:100%;
+    border-radius:5px;
+    border:1px solid #ccc;
+    padding:10px;
+    font-size:16px;
+    box-sizing:border-box;
+}
+
+.color-palette-group {
+    display:flex;
+    flex-direction:column;
+    align-items: flex-start;
+    gap:5px;
+}
+
+.color-palette {
+    display:flex;
+    flex-wrap:nowrap;
+    gap:5px;
+    overflow-x:auto;
+}
+
+.color-palette div {
+    width:30px;
+    height:30px;
+    border:1px solid #000;
+    cursor:pointer;
 }
 
 #popup {
@@ -232,9 +300,6 @@ button:hover {
 
 .popup {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     width: 90%;
     max-width: 600px;
     background-color: white;
@@ -379,39 +444,24 @@ textarea {
     box-shadow:0 2px 4px rgba(0,0,0,0.1);
 }
 
-.color-palette-group {
-    display:flex;
-    flex-direction:column;
-    align-items: flex-start;
-    gap:5px;
+.hoolia-section h3 {
+    font-size:22px;
+    margin-bottom:10px;
 }
-
-.color-palette {
-    display:flex;
-    flex-wrap:wrap;
-    gap:5px;
-    max-width:150px;
+.hoolia-section {
+    margin-bottom:20px;
 }
-
-.color-palette div {
-    width:20px;
-    height:20px;
-    border:1px solid #000;
-    cursor:pointer;
+.hoolia-section input {
+    width:100%;
+    padding:10px;
+    font-size:18px;
+    margin-top:10px;
 }
-
-.shirt-icon {
-    background: #2196F3;
-    color: white;
-    display:inline-block;
-    padding: 2px 5px;
-    border-radius:5px;
-    margin:5px 0;
-    font-weight:bold;
+.game-info-container p {
+    font-size:20px;
 }
-
 label.selected {
-    background: #ccebf6; /* רקע מעט כהה יותר */
+    background: #ccebf6;
     border-radius: 5px;
     padding: 5px;
     font-weight: bold;
