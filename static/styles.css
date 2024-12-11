@@ -77,7 +77,6 @@ button {
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    background-color: #4CAF50;
     color: white;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -138,10 +137,12 @@ button:hover {
 
 .half-time-btn {
     background-color: orange;
+    color:white;
 }
 
 .end-game-btn {
     background-color: #f44336;
+    color:white;
 }
 
 .view-all-btn {
@@ -151,6 +152,7 @@ button:hover {
     border-radius: 8px;
     margin-top: 20px;
     display: inline-block;
+    color:white;
 }
 
 .same-size-btn {
@@ -416,4 +418,3 @@ textarea {
     margin:5px 0;
     font-weight:bold;
 }
-
