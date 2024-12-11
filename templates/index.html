@@ -19,9 +19,9 @@
         <h2>בחר את התפקיד שלך</h2>
         <p>המערכת נועדה לעזור לשחקנים, למאמנים ולאנליסטים לנתח את ביצועי המשחק בהתבסס על נתונים מדויקים ולא על ניחושים.</p>
         <div class="input-group" style="max-width:300px;margin:0 auto;">
-            <button onclick="selectRole('player')">שחקן</button>
-            <button onclick="selectRole('coach')">מאמן</button>
-            <button onclick="selectRole('analyst')">אנליסט</button>
+            <button onclick="selectRole('player')" class="blue-btn">שחקן</button>
+            <button onclick="selectRole('coach')" class="blue-btn">מאמן</button>
+            <button onclick="selectRole('analyst')" class="blue-btn">אנליסט</button>
         </div>
     </div>
 
@@ -31,15 +31,84 @@
         <div class="input-group">
             <input type="password" id="access-code" placeholder="הכנס קוד " />
         </div>
-        <button onclick="checkAccessCode()">אישור</button>
+        <button onclick="checkAccessCode()" class="blue-btn">אישור</button>
     </div>
 
     <div id="coach-analyst-container" class="game-info-container hidden">
-        <h2>מאמן - בקרוב</h2>
-        <p>מסך זה עדיין בפיתוח.</p>
+        <h2>מאמן/אנליסט - בקרוב</h2>
+        <p>מסך זה בפיתוח.</p>
     </div>
 
-    <!-- הגדרת פרטי המשחק לאנליסט, כולל בחירת צבעים לקבוצות -->
+    <!-- מאמן -->
+    <div id="coach-game-info-container" class="game-info-container hidden">
+        <h2>הגדרת פרטי המשחק (מאמן)</h2>
+        <p>הזן את שם הקבוצה א' (מארחת), ב' (אורחת), תאריך המשחק, ובחר צבעי חולצה:</p>
+        <div class="input-group">
+            <input type="text" id="coach-teamA" placeholder="שם קבוצה א' (מארחת)" />
+            <div class="color-palette-group">
+                <h4>צבע לקבוצה א':</h4>
+                <div id="coach-teamA-color-palette" class="color-palette"></div>
+            </div>
+            <input type="text" id="coach-teamB" placeholder="שם קבוצה ב' (אורחת)" />
+            <div class="color-palette-group">
+                <h4>צבע לקבוצה ב':</h4>
+                <div id="coach-teamB-color-palette" class="color-palette"></div>
+            </div>
+            <input type="date" id="coach-game-date" />
+        </div>
+        <button onclick="submitCoachGameInfo()" class="blue-btn">המשך</button>
+    </div>
+
+    <div id="coach-setup-container" class="game-info-container hidden">
+        <h2>הגדרת מעקב כמאמן</h2>
+        <p>הוסף שחקנים בהתאם לקבוצות:</p>
+        <div class="analyst-players-wrapper" style="display:flex;gap:20px;">
+            <div class="analyst-player-form" style="flex-grow:1;display:flex;flex-direction:column;gap:10px;">
+                <input type="text" placeholder="שם שחקן" id="coach-player-name" />
+                <select id="coach-player-team-select"></select>
+                <input type="text" placeholder="מספר חולצה (לא חובה)" id="coach-player-number" />
+                <select id="coach-player-position">
+                    <option value="" selected>תפקיד (אופציונלי)</option>
+                    <option value="שוער">שוער</option>
+                    <option value="מגן">מגן</option>
+                    <option value="קשר">קשר</option>
+                    <option value="כנף">כנף</option>
+                    <option value="חלוץ">חלוץ</option>
+                </select>
+                <button class="blue-btn" id="coach-add-player-btn" disabled>הוסף שחקן</button>
+            </div>
+            <div class="analyst-players-list-container" style="flex-shrink:0;">
+                <h3>שחקנים שנוספו:</h3>
+                <div id="coach-players-list"></div>
+            </div>
+        </div>
+        <button onclick="submitCoachSetup()" class="blue-btn">אישור ותחילת בחירת פעולות</button>
+    </div>
+
+    <div id="coach-actions-container" class="game-info-container hidden">
+        <h2>בחירת פעולות טקטיות קבוצתיות</h2>
+        <p>בחר פעולות טקטיות מקצועיות, מנטאליות, מותאמות אישית (אין הגבלה)</p>
+        <div id="coach-players-actions"></div>
+        <button onclick="submitCoachActions()" class="blue-btn">אישור ותחילת סימון</button>
+    </div>
+
+    <div id="coach-marking-container" class="game-info-container hidden">
+        <h2>סימון פעולות שבוצעו והוספת הערות (מאמן)</h2>
+        <p>סמן פעולה (V מוצלח, X לא מוצלח). לחיצה על שם השחקן פותחת/סוגרת את הפעולות. הוסף הערה מעל הפעולות.</p>
+        <div id="coach-marking-players"></div>
+        <h4>הערה כללית:</h4>
+        <textarea id="coach-general-note" placeholder="הערה כללית (אופציונלי)"></textarea>
+        <button onclick="finishCoachGame()" class="blue-btn">סיום</button>
+    </div>
+
+    <div id="coach-final-summary-container" class="game-info-container hidden">
+        <h2>סיכום המשחק (מאמן)</h2>
+        <p>להלן כל הנתונים שנאספו:</p>
+        <div id="coach-final-data"></div>
+        <button onclick="downloadPDFCoach()" class="blue-btn">שמור כ-PDF</button>
+    </div>
+
+    <!-- אנליסט -->
     <div id="analyst-game-info-container" class="game-info-container hidden">
         <h2>הגדרת פרטי המשחק</h2>
         <p>הזן את שם הקבוצה א' (מארחת), ב' (אורחת), תאריך המשחק, ובחר צבעי חולצה לכל קבוצה:</p>
@@ -56,13 +125,12 @@
             </div>
             <input type="date" id="analyst-game-date" />
         </div>
-        <button onclick="submitAnalystGameInfo()">המשך</button>
+        <button onclick="submitAnalystGameInfo()" class="blue-btn">המשך</button>
     </div>
 
-    <!-- הגדרת מעקב כאנליסט - הוספת שחקנים -->
     <div id="analyst-setup-container" class="game-info-container hidden">
         <h2>הגדרת מעקב כאנליסט</h2>
-        <p>הוסף שחקנים בהתאם לקבוצות שנבחרו:</p>
+        <p>הוסף שחקנים בהתאם לקבוצות:</p>
         <div class="analyst-players-wrapper" style="display:flex;gap:20px;">
             <div class="analyst-player-form" style="flex-grow:1;display:flex;flex-direction:column;gap:10px;">
                 <input type="text" placeholder="שם שחקן" id="analyst-player-name" />
@@ -76,39 +144,40 @@
                     <option value="כנף">כנף</option>
                     <option value="חלוץ">חלוץ</option>
                 </select>
-                <button class="blue-btn" id="add-player-btn" disabled onclick="addAnalystPlayer()">הוסף שחקן</button>
+                <button class="blue-btn" id="add-player-btn" disabled>הוסף שחקן</button>
             </div>
             <div class="analyst-players-list-container" style="flex-shrink:0;">
                 <h3>שחקנים שנוספו:</h3>
                 <div id="analyst-players-list"></div>
             </div>
         </div>
-        <button onclick="submitAnalystSetup()">אישור ותחילת בחירת פעולות</button>
+        <button onclick="submitAnalystSetup()" class="blue-btn">אישור ותחילת בחירת פעולות</button>
     </div>
 
     <div id="analyst-actions-container" class="game-info-container hidden">
         <h2>בחירת פעולות למעקב עבור השחקנים</h2>
         <p>בחר פעולות מקצועיות, מנטאליות, מותאמות אישית (לא חובה)</p>
         <div id="analyst-players-actions"></div>
-        <button onclick="submitAnalystActions()">אישור ותחילת סימון</button>
+        <button onclick="submitAnalystActions()" class="blue-btn">אישור ותחילת סימון</button>
     </div>
 
     <div id="analyst-marking-container" class="game-info-container hidden">
         <h2>סימון פעולות שבוצעו והוספת הערות</h2>
-        <p>סמן פעולה (V מוצלח, X לא מוצלח). לחיצה על שם השחקן פותחת/סוגרת את הרשימה.<br>הוסף מספר בלתי מוגבל של הערות לכל שחקן.</p>
+        <p>סמן פעולה (V מוצלח, X לא מוצלח). לחיצה על שם השחקן פותחת/סוגרת את הפעולות.</p>
         <div id="analyst-marking-players"></div>
         <h4>הערה כללית:</h4>
         <textarea id="analyst-general-note" placeholder="הערה כללית (אופציונלי)"></textarea>
-        <button onclick="finishAnalystGame()">סיום</button>
+        <button onclick="finishAnalystGame()" class="blue-btn">סיום</button>
     </div>
 
     <div id="analyst-final-summary-container" class="game-info-container hidden">
         <h2>סיכום המשחק</h2>
         <p>להלן כל הנתונים שנאספו:</p>
         <div id="analyst-final-data"></div>
-        <button onclick="downloadPDF()">שמור כ-PDF</button>
+        <button onclick="downloadPDF()" class="blue-btn">שמור כ-PDF</button>
     </div>
 
+    <!-- לשחקן יחיד -->
     <div id="user-input-container" class="game-info-container hidden">
         <h2>פרטים להתחלת המשחק</h2>
         <div class="input-group">
@@ -124,7 +193,7 @@
                 <option value="כנף">כנף</option>
             </select>
         </div>
-        <button id="submit-user-button" onclick="submitUserInfo()">אישור</button>
+        <button id="submit-user-button" onclick="submitUserInfo()" class="blue-btn">אישור</button>
     </div>
 
     <div id="actions-selection-container" class="game-info-container hidden">
@@ -138,22 +207,22 @@
         <div id="custom-actions"></div>
         <div class="input-group" style="max-width:300px;margin:10px auto;">
             <input type="text" id="custom-action-input" placeholder="הכנס פעולה מותאמת אישית">
-            <button id="add-custom-action-btn" onclick="addCustomAction()">הוסף פעולה</button>
+            <button id="add-custom-action-btn" onclick="addCustomAction()" class="blue-btn">הוסף פעולה</button>
         </div>
-        <button id="confirm-actions-btn" onclick="confirmActions()">אישור</button>
+        <button id="confirm-actions-btn" onclick="confirmActions()" class="blue-btn">אישור</button>
     </div>
 
     <div id="start-game-container" class="hidden">
-        <button id="start-game" class="start-game-btn" onclick="startGame()">תחילת המשחק</button>
+        <button id="start-game" class="start-game-btn blue-btn">תחילת המשחק</button>
     </div>
 
     <div id="game-timer" class="hidden">
         <p>דקה: <span id="minute-counter">0</span></p>
     </div>
 
-    <p class="hidden" id="actions-title">סמן פעולה מוצלחת (V) או לא מוצלחת (X). באפשרותך גם להוסיף הערה כללית:</p>
+    <p class="hidden" id="actions-title">סמן פעולה מוצלחת (V) או לא מוצלחת (X). באפשרותך להוסיף הערה:</p>
     <div class="hidden" id="notes-container">
-        <button class="view-all-btn" onclick="openGeneralNotePopup()">הערה 🖉</button>
+        <button class="view-all-btn blue-btn" onclick="openGeneralNotePopup()">הערה 🖉</button>
     </div>
 
     <div id="game-actions-container" class="hidden">
@@ -166,8 +235,8 @@
     </div>
 
     <div id="end-buttons-container" class="hidden">
-        <button id="end-half" class="half-time-btn" onclick="endHalfTime()">סיום מחצית</button>
-        <button id="end-game" class="end-game-btn" onclick="endGame()">סיים משחק</button>
+        <button id="end-half" class="half-time-btn">סיום מחצית</button>
+        <button id="end-game" class="end-game-btn">סיים משחק</button>
         <button id="view-all-actions-anytime" class="view-all-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
     </div>
 
@@ -181,7 +250,7 @@
             <span class="close-btn big-close" onclick="closePopup()">&times;</span>
             <div id="summary-content"></div>
             <div id="general-note-display" class="hidden">
-                <h4>הערות :</h4>
+                <h4>הערות:</h4>
                 <ul id="parent-notes-list"></ul>
             </div>
             <button id="view-all-actions" class="view-all-btn same-size-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
@@ -215,7 +284,7 @@
             <span class="close-btn" onclick="closeAllActionsPopup()">&times;</span>
             <h3>כל הפעולות שבוצעו במהלך המשחק:</h3>
             <div id="all-actions-list"></div>
-            <button onclick="closeAllActionsPopup()">סגור</button>
+            <button onclick="closeAllActionsPopup()" class="blue-btn">סגור</button>
         </div>
     </div>
 
@@ -224,7 +293,7 @@
             <span class="close-btn" onclick="closeGeneralNotePopup()">&times;</span>
             <h3>הערה 🖉</h3>
             <textarea id="general-note-text" placeholder="הקלד הערה..."></textarea>
-            <button class="view-all-btn" onclick="saveGeneralNote()">שמור הערה</button>
+            <button class="view-all-btn blue-btn" onclick="saveGeneralNote()">שמור הערה</button>
         </div>
     </div>
 
