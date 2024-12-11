@@ -107,6 +107,7 @@ button:hover {
     gap: 10px; 
     font-size: 18px;
     color: #333;
+    cursor:pointer;
 }
 
 .action-group {
@@ -178,16 +179,6 @@ button:hover {
 .close-summary-btn:hover {
     transform: scale(1.05);
     box-shadow: 0 6px 8px rgba(0,0,0,0.2);
-}
-
-.actions-grid label {
-    cursor: pointer;
-}
-
-label.selected {
-    background: #e0f7fa;
-    border-radius: 5px;
-    padding: 5px;
 }
 
 .finished {
@@ -417,4 +408,11 @@ textarea {
     border-radius:5px;
     margin:5px 0;
     font-weight:bold;
+}
+
+label.selected {
+    background: #ccebf6; /* רקע מעט כהה יותר */
+    border-radius: 5px;
+    padding: 5px;
+    font-weight: bold;
 }
