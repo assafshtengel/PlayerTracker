@@ -17,7 +17,7 @@
 
     <div id="role-selection-container" class="game-info-container">
         <h2>בחר את התפקיד שלך</h2>
-        <p>המערכת נועדה לעזור לשחקנים, למאמנים ולאנליסטים לנתח את ביצועי המשחק בהתבסס על נתונים מדויקים ולא על ניחושים.</p>
+        <p>המערכת נועדה לעזור לשחקנים, למאמנים ולאנליסטים לנתח את ביצועי המשחק על בסיס נתונים מדויקים ולא על ניחושים.</p>
         <div class="input-group" style="max-width:300px;margin:0 auto;">
             <button onclick="selectRole('player')" class="blue-btn">שחקן</button>
             <button onclick="selectRole('coach')" class="blue-btn">מאמן</button>
@@ -32,11 +32,6 @@
             <input type="password" id="access-code" placeholder="הכנס קוד " />
         </div>
         <button onclick="checkAccessCode()" class="blue-btn">אישור</button>
-    </div>
-
-    <div id="coach-analyst-container" class="game-info-container hidden">
-        <h2>מאמן/אנליסט - בקרוב</h2>
-        <p>מסך זה בפיתוח.</p>
     </div>
 
     <!-- מאמן -->
@@ -64,7 +59,7 @@
         <p>הוסף שחקנים בהתאם לקבוצות:</p>
         <div class="analyst-players-wrapper" style="display:flex;gap:20px;">
             <div class="analyst-player-form" style="flex-grow:1;display:flex;flex-direction:column;gap:10px;">
-                <input type="text" placeholder="שם שחקן" id="coach-player-name" />
+                <input type="text" placeholder="שם שחקן" id="coach-player-name" oninput="document.getElementById('coach-add-player-btn').disabled = !this.value.trim()" />
                 <select id="coach-player-team-select"></select>
                 <input type="text" placeholder="מספר חולצה (לא חובה)" id="coach-player-number" />
                 <select id="coach-player-position">
@@ -75,7 +70,7 @@
                     <option value="כנף">כנף</option>
                     <option value="חלוץ">חלוץ</option>
                 </select>
-                <button class="blue-btn" id="coach-add-player-btn" disabled>הוסף שחקן</button>
+                <button class="blue-btn" id="coach-add-player-btn" onclick="addCoachPlayer()" disabled>הוסף שחקן</button>
             </div>
             <div class="analyst-players-list-container" style="flex-shrink:0;">
                 <h3>שחקנים שנוספו:</h3>
@@ -133,7 +128,7 @@
         <p>הוסף שחקנים בהתאם לקבוצות:</p>
         <div class="analyst-players-wrapper" style="display:flex;gap:20px;">
             <div class="analyst-player-form" style="flex-grow:1;display:flex;flex-direction:column;gap:10px;">
-                <input type="text" placeholder="שם שחקן" id="analyst-player-name" />
+                <input type="text" placeholder="שם שחקן" id="analyst-player-name" oninput="document.getElementById('add-player-btn').disabled = !this.value.trim()" />
                 <select id="analyst-player-team-select"></select>
                 <input type="text" placeholder="מספר חולצה (לא חובה)" id="analyst-player-number" />
                 <select id="analyst-player-position">
@@ -144,7 +139,7 @@
                     <option value="כנף">כנף</option>
                     <option value="חלוץ">חלוץ</option>
                 </select>
-                <button class="blue-btn" id="add-player-btn" disabled>הוסף שחקן</button>
+                <button class="blue-btn" id="add-player-btn" onclick="addAnalystPlayer()" disabled>הוסף שחקן</button>
             </div>
             <div class="analyst-players-list-container" style="flex-shrink:0;">
                 <h3>שחקנים שנוספו:</h3>
@@ -199,11 +194,8 @@
     <div id="actions-selection-container" class="game-info-container hidden">
         <h3>בחר בין 6 ל-10 פעולות להתמקד בהן</h3>
         <p>מתוך הפעולות המקצועיות, המנטאליות או הוספת פעולות מותאמות אישית</p>
-        <h4>פעולות מקצועיות:</h4>
         <div id="professional-actions"></div>
-        <h4>פעולות מנטאליות:</h4>
         <div id="mental-actions"></div>
-        <h4>פעולות מותאמות אישית:</h4>
         <div id="custom-actions"></div>
         <div class="input-group" style="max-width:300px;margin:10px auto;">
             <input type="text" id="custom-action-input" placeholder="הכנס פעולה מותאמת אישית">
@@ -213,7 +205,7 @@
     </div>
 
     <div id="start-game-container" class="hidden">
-        <button id="start-game" class="start-game-btn blue-btn">תחילת המשחק</button>
+        <button id="start-game" class="start-game-btn blue-btn" onclick="startGame()">תחילת המשחק</button>
     </div>
 
     <div id="game-timer" class="hidden">
@@ -226,12 +218,9 @@
     </div>
 
     <div id="game-actions-container" class="hidden">
-        <h3>פעולות מקצועיות</h3>
-        <div class="actions-grid" id="prof-actions-chosen"></div>
-        <h3>פעולות מנטאליות</h3>
-        <div class="actions-grid" id="mental-actions-chosen"></div>
-        <h3>פעולות מותאמות אישית</h3>
-        <div class="actions-grid" id="custom-actions-chosen"></div>
+        <div id="prof-actions-chosen"></div>
+        <div id="mental-actions-chosen"></div>
+        <div id="custom-actions-chosen"></div>
     </div>
 
     <div id="end-buttons-container" class="hidden">
