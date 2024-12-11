@@ -17,11 +17,19 @@ body {
     font-weight: bold;
     max-width: 500px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    text-align: center;
 }
 
 .logo-text {
     font-weight: bold;
     font-size: 28px;
+}
+
+h1#welcome-message {
+    color: #4A90E2;
+    margin: 20px;
+    font-size: 26px;
+    text-align: center;
 }
 
 .game-info-container {
@@ -70,6 +78,7 @@ body {
     border: 1px solid #ccc;
     text-align:right;
     background: #f9f9f9;
+    box-sizing: border-box;
 }
 
 button {
@@ -81,6 +90,7 @@ button {
     color: white;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-top: 10px;
 }
 
 button:hover {
@@ -107,13 +117,13 @@ button:hover {
     text-align:right;
     transition: background 0.2s;
 }
+
 .action-toggle.selected-action {
     background:#ccc;
     font-weight:bold;
 }
 
-.color-palette-group, .hoolia-section {margin:20px 0;}
-
+/* Popup */
 .popup {
     position: fixed;
     width: 90%;
@@ -126,6 +136,9 @@ button:hover {
     padding: 20px;
     display: none;
     text-align:right;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .popup.active {
@@ -156,6 +169,7 @@ button:hover {
 #measurable-goals-table {
     width:100%;
     border-collapse:collapse;
+    margin-top:20px;
 }
 
 #measurable-goals-table th, #measurable-goals-table td {
@@ -170,7 +184,7 @@ button:hover {
     font-weight:bold;
 }
 
-/* action-popup */
+/* Action popup */
 #action-popup {
     position: fixed;
     top:50%;left:50%;
@@ -200,6 +214,7 @@ button:hover {
     font-size:22px;
     font-weight:bold;
     text-align:center;
+    border-bottom:1px solid #ddd;
 }
 
 #action-popup-close {
@@ -226,8 +241,10 @@ button:hover {
 #action-popup-footer textarea {
     width:100%;border-radius:5px;border:1px solid #ccc;
     padding:10px;font-size:16px;box-sizing:border-box;
+    background:#fff;
 }
 
+/* Popup message */
 #popup {
     position:fixed;top:50%;left:50%;
     transform:translate(-50%,-50%);
@@ -256,4 +273,92 @@ button:hover {
 }
 .action-card h2 {
     font-size:20px;margin:0;color:#333;font-weight:bold;
+}
+
+/* coach / analyst placeholders */
+.color-palette-group {margin:20px 0;}
+.hoolia-section {margin:20px 0;}
+
+/* Quick notes and mood containers side by side */
+.flex-row {
+    display:flex;
+    flex-direction:row;
+    gap:20px;
+    justify-content:space-between;
+}
+.quick-notes-container, .mood-container {
+    background:#fff;
+    border:1px solid #ddd;
+    border-radius:8px;
+    box-shadow:0 2px 4px rgba(0,0,0,0.1);
+    padding:15px;
+    flex:1;
+}
+.quick-notes-container h3, .mood-container h3 {margin-top:0;color:#333;font-size:20px;}
+#quick-notes-list {margin-top:20px;}
+
+/* Notes look like sticky notes if needed */
+#quick-notes-list div {
+    background:yellow;
+    border:1px solid #ccc;
+    border-radius:5px;
+    padding:10px;
+    margin-bottom:10px;
+    font-size:16px;
+    color:#333;
+}
+
+/* mood message hidden by default */
+#mood-message.hidden {display:none;}
+
+.view-all-btn {
+    background-color: #2196F3;
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    display: inline-block;
+}
+
+.same-size-btn {
+    width:140px;
+    margin:10px;
+    text-align:center;
+}
+
+/* table center in measurable goals popup */
+#measurable-goals-table input {
+    width:100%;
+    box-sizing:border-box;
+}
+
+/* Adjust textarea size in training summary page */
+#training-summary-page .input-group textarea {
+    height:100px;
+    resize:vertical;
+}
+
+.bad {
+    color: red !important;
+    font-weight: bold;
+}
+
+.good {
+    color: green !important;
+    font-weight: bold;
+}
+
+.neutral {
+    color: #9E9E9E;
+    font-weight: bold;
+}
+
+.minute-badge {
+    background-color: #333;
+    color: #fff;
+    font-size:14px;
+    padding:2px 5px;
+    border-radius:4px;
+    display:inline-block;
+    margin-left:5px;
 }
