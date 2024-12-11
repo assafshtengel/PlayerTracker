@@ -75,9 +75,24 @@
         <div id="custom-actions"></div>
         <div class="input-group" style="max-width:300px;margin:10px auto;">
             <input type="text" id="custom-action-input" placeholder="הכנס פעולה מותאמת אישית">
+            <!-- כפתור הוסף פעולה נשאר כחול -->
             <button id="add-custom-action-btn" onclick="addCustomAction()" class="blue-btn">הוסף פעולה</button>
         </div>
-        <button id="confirm-actions-btn" onclick="confirmActions()" class="blue-btn">אישור</button>
+        <!-- כפתור אישור יהיה בצבע כתום לדוגמה -->
+        <button id="confirm-actions-btn" onclick="confirmActions()" style="background:#ff9800;color:white;">אישור</button>
+    </div>
+
+    <!-- פופאפ שואל על מטרות מדידות במקום confirm -->
+    <div id="are-you-want-measurable-popup" class="popup hidden">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeMeasurableConfirmPopup()">&times;</span>
+            <h3>האם תרצה לקבוע מטרות מדידות?</h3>
+            <p>אנו ממליצים</p>
+            <div style="display:flex;justify-content:space-between;">
+                <button class="blue-btn" style="background:red;" onclick="handleMeasurableChoice(false)">לא</button>
+                <button class="blue-btn" style="background:green;" onclick="handleMeasurableChoice(true)">כן</button>
+            </div>
+        </div>
     </div>
 
     <div id="measurable-goals-popup" class="popup hidden">
@@ -103,7 +118,7 @@
         <p>דקה: <span id="minute-counter">0</span></p>
     </div>
 
-    <p class="hidden" id="actions-title">סמן פעולה, לחץ על הפעולה לפתיחת פופאפ בחירה (מוצלח/לא מוצלח + הערה).</p>
+    <p class="hidden" id="actions-title">לחץ על הפעולה לסימון. לחיצה נוספת תבטל. לאחר סימון, לחץ פעולה לפתיחת פופאפ בחירה (מוצלח/לא מוצלח + הערה)</p>
     <div class="hidden" id="notes-container">
         <button class="view-all-btn blue-btn" onclick="openGeneralNotePopup()">הערה 🖉</button>
     </div>
@@ -170,7 +185,8 @@
             <span class="close-btn" onclick="closeGeneralNotePopup()">&times;</span>
             <h3>הערה 🖉</h3>
             <textarea id="general-note-text" placeholder="הקלד הערה..."></textarea>
-            <button class="view-all-btn blue-btn" onclick="saveGeneralNote()">שמור הערה</button>
+            <!-- כפתור אישור הערה, לאחר לחיצה נחכה 2.3 שניות ואז נסגור -->
+            <button class="view-all-btn blue-btn" onclick="approveGeneralNote()">אישור</button>
         </div>
     </div>
 
