@@ -3,9 +3,6 @@ let actions = [];
 let selectedActions = [];
 let gameInterval = null;
 let gameMinute = 0;
-let chosenProfessional = [];
-let chosenMental = [];
-let chosenCustom = [];
 let notes = [];
 let gameFinished = false;
 let customActionsArr = [];
@@ -17,25 +14,117 @@ let baseMinuteStart = 0;
 let measurableGoalsData = []; 
 let wantMeasurable = false;
 
-const mentalActions = ["מנטאלי"]; 
+const mentalActions=["מנטאלי"];
+const positionActions={
+    "חלוץ": [
+        {name:"בעיטה לשער"},
+        {name:"תנועה ללא כדור"},
+        {name:"קבלת כדור תחת לחץ"},
+        {name:"פעולה בנגיעה אחת"},
+        {name:"נוכחות ברחבה"},
+        {name:"לחץ גבוה על ההגנה"},
+        {name:"נגיחה למסגרת"},
+        {name:"1 על 1 התקפי"},
+        {name:"מסירת מפתח"},
+        {name:"הגבהה לרחבה"},
+        {name:"סיום מצבים"},
+        {name:"ניצול הזדמנויות"},
+        {name:"משחק עם הגב לשער"},
+        {name:"מנטאלי"}
+    ],
+    "שוער":[
+        {name:"יציאה נכונה לכדור גובה"},
+        {name:"עצירה ב-1 על 1"},
+        {name:"שמירה על ליכוד"},
+        {name:"עמידה נכונה"},
+        {name:"מסירה קצרה"}
+    ],
+    "מגן":[
+        {name:"מניעת מעבר שחקן יריב באגף"},
+        {name:"הגבהות איכותיות לרחבה"},
+        {name:"חיפוי פנימה לכיוון הבלם"},
+        {name:"סגירת אופציית מסירה בצד"},
+        {name:"השתתפות בהנעת הכדור מההגנה קדימה"},
+        {name:"תמיכה בהתקפה דרך האגף"},
+        {name:"חזרה מהירה לעמדה הגנתית"},
+        {name:"גלישה נקייה לעצירת חדירה לרחבה"},
+        {name:"לחץ גבוה על הקיצוני היריב"},
+        {name:"מעבר מהיר מהגנה להתקפה"},
+        {name:"יצירת רוחב על הקו ההתקפי"},
+        {name:"הגנה על שחקן מפתח של היריב באזור האגף"},
+        {name:"שיתוף פעולה עם הקשר האגפי"},
+        {name:"הרחקות מדויקות לאורך הקו"},
+        {name:"זיהוי חללים פנויים לחדירה קדימה והרחבת המשחק"}
+    ],
+    "בלם":[
+        {name:"חטיפת כדורים"},
+        {name:"הרחקות"},
+        {name:"תיקולים מוצלחים"},
+        {name:"לחץ על חלוצים"},
+        {name:"זכייה במאבקי אוויר"},
+        {name:"שמירה על קו הגנה מסודר"},
+        {name:"חיפוי על מגן"},
+        {name:"פתיחת משחק במסירות מדויקות"},
+        {name:"חלוקת עומסים בין בלמים"},
+        {name:"תמיכה בקשר האחורי"},
+        {name:"בלימת בעיטות למסגרת"},
+        {name:"מעקב אחר תנועות חלוצים מהירים"},
+        {name:"פינוי שטחים"},
+        {name:"ניהול משחק ראש"},
+        {name:"יצירת עליונות מספרית בהתקפה"}
+    ],
+    "קשר":[
+        {name:"חילוץ כדור בקישור"},
+        {name:"מסירה מדויקת קדימה"},
+        {name:"הנעת כדור תחת לחץ"},
+        {name:"שינוי כיוון המשחק במסירות ארוכות"},
+        {name:"תמיכה בהגנה בירידה לאחור"},
+        {name:"ניהול קצב המשחק"},
+        {name:"הרמת הראש לזיהוי אופציית מסירה"},
+        {name:"כניסה לרחבה להצטרפות להתקפה"},
+        {name:"שמירה הדוקה על קשר יריב יצירתי"},
+        {name:"יצירת יתרון מספרי במרכז"},
+        {name:"חיפוי על מגן/חלוץ גבוה"},
+        {name:"ניצול שטחים פנויים במסירות עומק"},
+        {name:"תיקולים מוצלחים בקישור"},
+        {name:"מסירות רוחב לשינוי מוקד התקפה"},
+        {name:"בעיטה מדויקת מחוץ לרחבה"}
+    ]
+};
 
-// במקום checkbox נשתמש בכרטיסיות בחירה:
-function createActionSelectable(action,category){
-    const div=document.createElement("div");
-    div.classList.add("action-toggle");
-    div.textContent=action;
-    div.dataset.selected="false";
-    div.dataset.category=category;
-    div.onclick=()=>{
-        if(div.dataset.selected==="false"){
-            div.dataset.selected="true";
-            div.classList.add("selected-action");
-        } else {
-            div.dataset.selected="false";
-            div.classList.remove("selected-action");
-        }
-    };
-    return div;
+function selectRole(role){
+    document.getElementById("main-page").classList.add("hidden");
+    if(role==="player"){
+        document.getElementById("login-container").classList.remove("hidden");
+    }else if(role==="coach"){
+        document.getElementById("coach-game-info-container").classList.remove("hidden");
+    } else if(role==="analyst"){
+        alert("אנליסט - בפיתוח...");
+        document.getElementById("main-page").classList.remove("hidden");
+    }
+}
+
+function checkAccessCode(){
+    const code=document.getElementById("access-code").value;
+    if(code===ACCESS_CODE){
+        document.getElementById("login-container").classList.add("hidden");
+        document.getElementById("user-input-container").classList.remove("hidden");
+    }else{
+        alert("קוד שגוי");
+    }
+}
+
+function submitUserInfo(){
+    const playerName=document.getElementById("player-name").value.trim();
+    const teamName=document.getElementById("team-name").value.trim();
+    const playerPosition=document.getElementById("player-position").value;
+    if(!playerName||!teamName||!playerPosition){
+        alert("אנא מלא את כל השדות");
+        return;
+    }
+    document.getElementById("user-input-container").classList.add("hidden");
+    document.getElementById("actions-selection-container").classList.remove("hidden");
+    loadActionsSelection(playerPosition);
 }
 
 function loadActionsSelection(position) {
@@ -60,6 +149,24 @@ function loadActionsSelection(position) {
     });
 }
 
+function createActionSelectable(action,category){
+    const div=document.createElement("div");
+    div.classList.add("action-toggle");
+    div.textContent=action;
+    div.dataset.selected="false";
+    div.dataset.category=category;
+    div.onclick=()=>{
+        if(div.dataset.selected==="false"){
+            div.dataset.selected="true";
+            div.classList.add("selected-action");
+        }else{
+            div.dataset.selected="false";
+            div.classList.remove("selected-action");
+        }
+    };
+    return div;
+}
+
 function addCustomAction(){
     const input=document.getElementById("custom-action-input");
     const val=input.value.trim();
@@ -71,13 +178,11 @@ function addCustomAction(){
 }
 
 function confirmActions(){
-    // נקרא לכל .action-toggle.selected-action
     const selectedElems=document.querySelectorAll('.action-toggle.selected-action');
     selectedActions=[];
     selectedElems.forEach(e=>{
         selectedActions.push({action:e.textContent,category:e.dataset.category});
     });
-
     document.getElementById("actions-selection-container").classList.add("hidden");
     document.getElementById("are-you-want-measurable-popup").classList.remove("hidden");
     document.getElementById("are-you-want-measurable-popup").classList.add("active");
@@ -87,21 +192,19 @@ function closeMeasurableConfirmPopup(){
     const popup=document.getElementById("are-you-want-measurable-popup");
     popup.classList.remove("active");
     popup.classList.add("hidden");
-    // אם לא בחרנו, פשוט ממשיכים
-    document.getElementById("start-game-container").classList.remove("hidden");
-}
-
-function handleMeasurableChoice(choice){
-    closeMeasurableConfirmPopup();
-    wantMeasurable=choice;
-    if(wantMeasurable){
-        openMeasurableGoalsPopup();
-    } else {
+    if(!wantMeasurable){
         document.getElementById("start-game-container").classList.remove("hidden");
     }
 }
 
-function openMeasurableGoalsPopup() {
+function handleMeasurableChoice(choice){
+    wantMeasurable=choice;
+    closeMeasurableConfirmPopup();
+    if(wantMeasurable)openMeasurableGoalsPopup();
+    else document.getElementById("start-game-container").classList.remove("hidden");
+}
+
+function openMeasurableGoalsPopup(){
     const popup=document.getElementById("measurable-goals-popup");
     const tbody=popup.querySelector("#measurable-goals-table tbody");
     tbody.innerHTML="";
@@ -111,9 +214,7 @@ function openMeasurableGoalsPopup() {
         tdAction.textContent=act.action;
         const tdInput=document.createElement("td");
         const inp=document.createElement("input");
-        inp.type="number";
-        inp.min="0";
-        inp.placeholder="יעד...";
+        inp.type="number";inp.min="0";inp.placeholder="יעד...";
         inp.style.fontSize="20px";
         inp.style.padding="10px";
         inp.style.textAlign="center";
@@ -126,35 +227,23 @@ function openMeasurableGoalsPopup() {
     popup.classList.add("active");
 }
 
-function closeMeasurableGoalsPopup() {
+function closeMeasurableGoalsPopup(){
     const popup=document.getElementById("measurable-goals-popup");
     popup.classList.remove("active");
     popup.classList.add("hidden");
     document.getElementById("start-game-container").classList.remove("hidden");
 }
 
-function saveMeasurableGoals() {
+function saveMeasurableGoals(){
     const popup=document.getElementById("measurable-goals-popup");
     const rows=popup.querySelectorAll("tbody tr");
     measurableGoalsData=[];
     rows.forEach(r=>{
         const actionName=r.cells[0].textContent;
         const val=r.cells[1].querySelector("input").value.trim();
-        if(val) {
-            measurableGoalsData.push({action:actionName,goal:parseInt(val)});
-        }
+        if(val) measurableGoalsData.push({action:actionName,goal:parseInt(val)});
     });
     closeMeasurableGoalsPopup();
-}
-
-function submitUserInfo(){
-    const playerName=document.getElementById("player-name").value.trim();
-    const teamName=document.getElementById("team-name").value.trim();
-    const playerPosition=document.getElementById("player-position").value;
-    if(!playerName||!teamName||!playerPosition){alert("אנא מלא את כל השדות");return;}
-    document.getElementById("user-input-container").classList.add("hidden");
-    document.getElementById("actions-selection-container").classList.remove("hidden");
-    loadActionsSelection(playerPosition);
 }
 
 function startGame(){
@@ -165,9 +254,7 @@ function startGame(){
 
     const actionsContainer=document.getElementById("game-actions-container");
     actionsContainer.classList.remove("hidden");
-    actionsContainer.innerHTML=""; 
-
-    // כעת לשחקן אין חוליה, אז לא נציג חוליה-label
+    actionsContainer.innerHTML="";
     selectedActions.forEach(act=>{
         const div=document.createElement("div");
         div.classList.add("action-card");
@@ -182,10 +269,7 @@ function startGame(){
 
     gameMinute=0;actions=[];notes=[];gameFinished=false;
     document.getElementById("minute-counter").textContent=gameMinute;
-    gameInterval=setInterval(()=>{
-        gameMinute++;
-        document.getElementById("minute-counter").textContent=gameMinute;
-    },60000);
+    gameInterval=setInterval(()=>{gameMinute++;document.getElementById("minute-counter").textContent=gameMinute;},60000);
     document.getElementById("end-buttons-container").classList.remove("hidden");
 }
 
@@ -233,23 +317,15 @@ function resumeHalf(){
     const halfPopup=document.getElementById("half-time-summary-popup");
     halfPopup.classList.remove("active");
     halfPopup.classList.add("hidden");
-    gameInterval=setInterval(()=>{
-        gameMinute++;
-        document.getElementById("minute-counter").textContent=gameMinute;
-    },60000);
+    gameInterval=setInterval(()=>{gameMinute++;document.getElementById("minute-counter").textContent=gameMinute;},60000);
     enableActions(true);
 }
 
 function startSecondHalf(){
-    halfCount=2;
-    baseMinuteStart=45;
+    halfCount=2;baseMinuteStart=45;
     document.getElementById("start-second-half").classList.add("hidden");
-    gameMinute=45;
-    document.getElementById("minute-counter").textContent=gameMinute;
-    gameInterval=setInterval(()=>{
-        gameMinute++;
-        document.getElementById("minute-counter").textContent=gameMinute;
-    },60000);
+    gameMinute=45;document.getElementById("minute-counter").textContent=gameMinute;
+    gameInterval=setInterval(()=>{gameMinute++;document.getElementById("minute-counter").textContent=gameMinute;},60000);
     enableActions(true);
 }
 
@@ -260,7 +336,7 @@ function endGame(){
     const minutesPlayed=parseInt(prompt("כמה דקות שיחקת?","90"))||90;
     const score=calculateScore(minutesPlayed);
 
-    const playerName="Player"; // Dummy data
+    const playerName="Player"; 
     const teamName="Team";
     const position="חלוץ";
     const today=new Date().toLocaleDateString("he-IL");
@@ -281,20 +357,13 @@ function endGame(){
             parentNotesList.appendChild(li);
         });
         generalNoteDisplay.classList.remove("hidden");
-    } else {
-        generalNoteDisplay.classList.add("hidden");
-    }
+    } else generalNoteDisplay.classList.add("hidden");
 
     const popup=document.getElementById("game-summary-popup");
     popup.classList.remove("hidden");
     popup.classList.add("active");
 
-    setTimeout(()=>{
-        showFeedback(score,minutesPlayed);
-    },500);
-
-    // לא נחזור לעמוד הפעולות - נשאר בסיכום
-    // נשמור בשרת
+    setTimeout(()=>{showFeedback(score,minutesPlayed);},500);
     saveGameDataToServer(playerName,teamName,position,gameDate,score,actions,notes);
 }
 
@@ -342,7 +411,6 @@ function approveGeneralNote(){
     if(note){
         notes.push({text:note,minute:gameMinute});
     }
-    // נחכה 2.3 שניות ואז נסגור
     setTimeout(()=>{
         closeGeneralNotePopup();
         showPopup("הערה נשמרה!","neutral");
@@ -376,18 +444,14 @@ function closeActionPopup(){
 }
 
 function userInteractedWithPopup(){
-    if(actionPopupTimeout) clearTimeout(actionPopupTimeout);
-    actionPopupTimeout=setTimeout(()=>{
-        closeActionPopup();
-    },4000);
+    if(actionPopupTimeout)clearTimeout(actionPopupTimeout);
+    actionPopupTimeout=setTimeout(()=>{closeActionPopup();},4000);
 }
 
 function chooseActionResult(actionName,result){
     const note=document.getElementById("action-popup-note").value.trim();
     trackAction(actionName,result);
-    if(note){
-        notes.push({text:note,minute:gameMinute});
-    }
+    if(note) notes.push({text:note,minute:gameMinute});
     closeActionPopup();
 }
 
@@ -493,10 +557,10 @@ function closeTrainingSummaryPage(){
 }
 
 function generateTrainingSummaryPDF(){
-    alert("נוצר PDF");
+    alert("נוצר PDF לסיכום אימון");
 }
 
-// פונקציות מאמן/אנליסט (ניתן להשאיר ריקות כאן):
+// פונקציות מאמן/אנליסט רק כסקלטון
 function submitCoachGameInfo(){}
 function addCoachGoal(hoolia){}
 function submitCoachSetup(){}
@@ -511,4 +575,3 @@ function setTeamMoodAndOpenMoodInput(m){
     const moodMsg=document.getElementById("mood-message");
     if(m){moodMsg.classList.remove("hidden");}else{moodMsg.classList.add("hidden");}
 }
-
