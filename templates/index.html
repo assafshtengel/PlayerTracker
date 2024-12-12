@@ -2,18 +2,18 @@
 <html lang="he">
 <head>
     <meta charset="UTF-8">
-    <title>בחירת תפקיד</title>
-    <link rel="stylesheet" href="static/styles.css">
+    <title>אסף שטנגל - מאמן מנטלי</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div id="logo">
         <span class="logo-text">אסף שטנגל - מאמן מנטלי</span>
     </div>
     <h1 style="margin-bottom:20px;">בחר את התפקיד שלך</h1>
-    <div class="game-info-container role-selection-container" style="max-width:300px;margin:0 auto;">
-        <button class="blue-btn role-btn" onclick="window.location.href='player.html'">שחקן</button>
-        <button class="blue-btn role-btn" onclick="window.location.href='coach.html'">מאמן</button>
-        <button class="blue-btn role-btn" onclick="window.location.href='analyst.html'">אנליסט</button>
+    <div class="game-info-container" style="max-width:300px;margin:0 auto;background:#fefefe;padding:20px;border:1px solid #ddd;border-radius:10px;">
+        <button class="blue-btn" style="margin:10px 0;" onclick="window.location.href='/player'">שחקן</button>
+        <button class="blue-btn" style="margin:10px 0;" onclick="window.location.href='/coach'">מאמן</button>
+        <button class="blue-btn" style="margin:10px 0;" onclick="window.location.href='/analyst'">אנליסט</button>
     </div>
 </body>
 </html>
