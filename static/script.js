@@ -147,7 +147,6 @@ function loadActionsSelection(position) {
     const mentalContainer=document.getElementById("mental-actions");
     const customContainer=document.getElementById("custom-actions");
     professionalContainer.innerHTML="<h4>פעולות מקצועיות:</h4>";
-    mentalContainer.innerHTML="<h4>פעולות מנטאליות:</h4>";
     customContainer.innerHTML="<h4>פעולות מותאמות אישית:</h4>";
 
     const acts=positionActions[position]||[];
