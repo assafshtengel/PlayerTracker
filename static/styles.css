@@ -1,4 +1,4 @@
-body {
+body { 
     font-family: Arial, sans-serif;
     text-align: center;
     margin: 0;
@@ -106,7 +106,6 @@ button:hover {
     display: none !important;
 }
 
-/* action-toggle */
 .action-toggle {
     padding:10px;
     margin:5px 0;
@@ -184,7 +183,6 @@ button:hover {
     font-weight:bold;
 }
 
-/* Action popup */
 #action-popup {
     position: fixed;
     top:50%;left:50%;
@@ -244,7 +242,6 @@ button:hover {
     background:#fff;
 }
 
-/* Popup message */
 #popup {
     position:fixed;top:50%;left:50%;
     transform:translate(-50%,-50%);
@@ -258,7 +255,6 @@ button:hover {
     opacity:1;visibility:visible;
 }
 
-/* action-card */
 .action-card {
     background:#fdfdfd;
     border:1px solid #ddd;
@@ -275,11 +271,9 @@ button:hover {
     font-size:20px;margin:0;color:#333;font-weight:bold;
 }
 
-/* coach / analyst placeholders */
 .color-palette-group {margin:20px 0;}
 .hoolia-section {margin:20px 0;}
 
-/* Quick notes and mood containers side by side */
 .flex-row {
     display:flex;
     flex-direction:row;
@@ -297,7 +291,6 @@ button:hover {
 .quick-notes-container h3, .mood-container h3 {margin-top:0;color:#333;font-size:20px;}
 #quick-notes-list {margin-top:20px;}
 
-/* Notes look like sticky notes if needed */
 #quick-notes-list div {
     background:yellow;
     border:1px solid #ccc;
@@ -308,7 +301,6 @@ button:hover {
     color:#333;
 }
 
-/* mood message hidden by default */
 #mood-message.hidden {display:none;}
 
 .view-all-btn {
@@ -326,13 +318,11 @@ button:hover {
     text-align:center;
 }
 
-/* table center in measurable goals popup */
 #measurable-goals-table input {
     width:100%;
     box-sizing:border-box;
 }
 
-/* Adjust textarea size in training summary page */
 #training-summary-page .input-group textarea {
     height:100px;
     resize:vertical;
