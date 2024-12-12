@@ -122,7 +122,6 @@ button:hover {
     font-weight:bold;
 }
 
-/* Popup */
 .popup {
     position: fixed;
     width: 90%;
@@ -353,7 +352,7 @@ button:hover {
     margin-left:5px;
 }
 
-/* הגדלת תיבת הטקסט של ההערות */
+/* הגדלת תיבת הטקסט להערות */
 #general-note-text {
     width:100%;
     height:100px;
