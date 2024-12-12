@@ -1,11 +1,10 @@
 // script_analyst.js
-
 let analystData = {
     teamAName: "",
     teamBName: "",
     gameDate: null,
     players: [],
-    actionsMap: {}, // שחקן -> פעולות
+    actions: [],
     notes: [],
     gameFinished: false
 };
@@ -14,7 +13,6 @@ function submitAnalystGameInfo(){
     analystData.teamAName = document.getElementById("analyst-teamA").value.trim();
     analystData.teamBName = document.getElementById("analyst-teamB").value.trim();
     analystData.gameDate = document.getElementById("analyst-game-date").value;
-
     document.getElementById("analyst-game-info-container").classList.add("hidden");
     document.getElementById("analyst-players-setup-container").classList.remove("hidden");
 }
@@ -43,24 +41,27 @@ function displayAnalystPlayers(){
 function submitPlayersSetup(){
     document.getElementById("analyst-players-setup-container").classList.add("hidden");
     document.getElementById("analyst-actions-selection-container").classList.remove("hidden");
-    // כאן נבחר פעולות לכל שחקן...
+    // כאן בוחרים פעולות לשחקנים
+}
+
+function confirmAnalystActions(){
+    document.getElementById("analyst-actions-selection-container").classList.add("hidden");
+    document.getElementById("analyst-tracking-container").classList.remove("hidden");
 }
 
 function getExtendedSummaryHTML(actionDataMap, title) {
     let html = `<h3>${title}:</h3>`;
-    // לוגיקה דומה לזו שבמאמן
     return html;
 }
-
-// ועוד פונקציות לחישוב, endAnalystGame, takeScreenshot, etc.
 
 function endAnalystGame(){
     analystData.gameFinished=true;
     const summaryContent=document.getElementById("summary-content");
-    const extendedData = {}; // לבנות מסיכום הפעולות
+    const extendedData = {};
     summaryContent.innerHTML = getExtendedSummaryHTML(extendedData,"סיכום המשחק");
-    document.getElementById("game-summary-popup").classList.remove("hidden");
-    document.getElementById("game-summary-popup").classList.add("active");
+    const popup=document.getElementById("game-summary-popup");
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
 }
 
 function closePopup(){
@@ -70,7 +71,3 @@ function closePopup(){
         popup.classList.add("hidden");
     }
 }
-
-// וכו'... פונקציות נוספות בהתאם לצורך, בדומה למאמן.
-
-
