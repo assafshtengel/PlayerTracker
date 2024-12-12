@@ -26,7 +26,6 @@
         <button class="blue-btn" style="margin-top:30px;" onclick="openTrainingSummaryPage()">סיכום אימון</button>
     </div>
 
-    <!-- סיכום אימון -->
     <div id="training-summary-page" class="hidden game-info-container">
         <h2>סיכום אימון</h2>
         <p>ענה על 5 השאלות:</p>
@@ -41,7 +40,6 @@
         <button class="blue-btn" style="margin-top:10px;" onclick="closeTrainingSummaryPage()">חזרה</button>
     </div>
 
-    <!-- כניסה לשחקן -->
     <div id="login-container" class="game-info-container hidden">
         <h2>מערכת מעקב שחקנים - גישה מורשית</h2>
         <p>לכניסה, אנא הקש את הסיסמה:</p>
@@ -51,7 +49,6 @@
         <button onclick="checkAccessCode()" class="blue-btn">אישור</button>
     </div>
 
-    <!-- פרטים לשחקן -->
     <div id="user-input-container" class="game-info-container hidden">
         <h2>פרטים להתחלת המשחק</h2>
         <div class="input-group">
@@ -69,7 +66,6 @@
         <button id="submit-user-button" onclick="submitUserInfo()" class="blue-btn">אישור</button>
     </div>
 
-    <!-- בחירת פעולות לשחקן -->
     <div id="actions-selection-container" class="game-info-container hidden">
         <h3>בחר פעולות להתמקד בהן</h3>
         <p>אנו ממליצים על בחירת 6-9 פעולות, אך זה לא חובה.</p>
@@ -83,7 +79,6 @@
         <button id="confirm-actions-btn" onclick="confirmActions()" style="background:#ff9800;color:white;">אישור</button>
     </div>
 
-    <!-- פופאפ שאלת מטרות מדידות -->
     <div id="are-you-want-measurable-popup" class="popup hidden">
         <div class="popup-content">
             <span class="close-btn" onclick="closeMeasurableConfirmPopup()">&times;</span>
@@ -96,7 +91,6 @@
         </div>
     </div>
 
-    <!-- פופאפ מטרות מדידות -->
     <div id="measurable-goals-popup" class="popup hidden">
         <div class="popup-content" style="text-align:center;">
             <span class="close-btn" onclick="closeMeasurableGoalsPopup()">&times;</span>
@@ -104,7 +98,7 @@
             <p>ניתן להגדיר כמות/יעד לכל פעולה. לא חובה למלא הכל.</p>
             <table id="measurable-goals-table" style="margin:0 auto;">
                 <thead>
-                    <tr><th>פעולה</th><th>יעד (מספרי)</th></tr>
+                    <tr><th>פעולה</th><th>יעד (מספרי/מלל)</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -114,6 +108,14 @@
 
     <div id="start-game-container" class="hidden">
         <button id="start-game" class="start-game-btn blue-btn" onclick="startGame()">תחילת המשחק</button>
+    </div>
+
+    <!-- תצוגת היעדים שהוגדרו + צילום מסך -->
+    <div id="goals-summary-container" class="game-info-container hidden">
+        <h2>המטרות והיעדים שהוגדרו</h2>
+        <div id="selected-goals-summary"></div>
+        <button class="blue-btn" onclick="takeScreenshot()">צלם מסך</button>
+        <button class="blue-btn" onclick="showStartGameContainer()">חזרה</button>
     </div>
 
     <div id="game-timer" class="hidden">
@@ -138,7 +140,6 @@
         <button id="reopen-summary-btn" class="view-all-btn blue-btn" onclick="reopenSummary()">צפה בסיכום</button>
     </div>
 
-    <!-- פופ אפ סיכום המשחק -->
     <div id="game-summary-popup" class="popup hidden">
         <div class="popup-content" id="game-summary-content">
             <span class="close-btn big-close" onclick="closePopup()">&times;</span>
@@ -191,7 +192,6 @@
         </div>
     </div>
 
-    <!-- מאמן -->
     <div id="coach-game-info-container" class="game-info-container hidden">
         <h2>הגדרת פרטי המשחק (מאמן)</h2>
         <p>הזן את שם הקבוצה א', ב', ותאריך המשחק. בחר צבע לכל קבוצה.</p>
@@ -212,7 +212,6 @@
     <div id="coach-setup-container" class="game-info-container hidden">
         <h2>הגדרת מעקב כמאמן - מטרות לחוליות</h2>
         <p>בחר מטרות, הוסף אם תרצה:</p>
-
         <div class="hoolia-section">
             <h3>שוער</h3>
             <div id="coach-goal-keeper"></div>
@@ -254,7 +253,6 @@
     <div id="coach-marking-container" class="game-info-container hidden">
         <h2>סימון פעולות שבוצעו והוספת הערות (מאמן)</h2>
         <p>...</p>
-        <!-- לא ממומש מלא -->
     </div>
 
     <div id="coach-final-summary-container" class="game-info-container hidden">
