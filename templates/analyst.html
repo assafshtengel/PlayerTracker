@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>אנליסט - הגדרת משחק</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="logo">
+        <span class="logo-text">אסף שטנגל - אנליסט</span>
+    </div>
+
+    <!-- עמוד הזנת פרטי משחק לאנליסט -->
+    <div id="analyst-game-info-container" class="game-info-container">
+        <h2>הגדרת פרטי המשחק (אנליסט)</h2>
+        <p>הזן שם קבוצה א', ב', תאריך משחק:</p>
+        <div class="input-group">
+            <input type="text" id="analyst-teamA" placeholder="שם קבוצה א' (מארחת)">
+            <input type="text" id="analyst-teamB" placeholder="שם קבוצה ב' (אורחת)">
+            <input type="date" id="analyst-game-date" />
+        </div>
+        <button id="submit-analyst-game-info-btn" class="blue-btn" onclick="submitAnalystGameInfo()">המשך</button>
+    </div>
+
+    <!-- עמוד הוספת שחקנים -->
+    <div id="analyst-players-setup-container" class="game-info-container hidden">
+        <h2>הוספת שחקנים (עד 10)</h2>
+        <p>הזן שם שחקן, מספר, עמדה, בחירת קבוצה:</p>
+        <div class="input-group">
+            <input type="text" id="player-name" placeholder="שם שחקן">
+            <input type="number" id="player-number" placeholder="מספר חולצה">
+            <select id="player-position">
+                <option value="שוער">שוער</option>
+                <option value="הגנה">הגנה</option>
+                <option value="קישור">קישור</option>
+                <option value="התקפה">התקפה</option>
+            </select>
+            <select id="player-team">
+                <option value="A">קבוצה א'</option>
+                <option value="B">קבוצה ב'</option>
+            </select>
+        </div>
+        <button class="blue-btn" onclick="addAnalystPlayer()">הוסף שחקן</button>
+        <div id="analyst-players-list"></div>
+        <button class="blue-btn" style="background:#ff9800;color:white;" onclick="submitPlayersSetup()">אישור</button>
+    </div>
+
+    <!-- בחירת פעולות לכל שחקן -->
+    <div id="analyst-actions-selection-container" class="game-info-container hidden">
+        <h2>בחירת פעולות לשחקנים</h2>
+        <p>בחר פעולות לכל שחקן (מקצועי/מנטלי/מותאם), הוסף יעדים מדידים אם תרצה.</p>
+        <div id="analyst-players-actions-setup"></div>
+        <button class="blue-btn" style="background:#ff9800;color:white;" onclick="confirmAnalystActions()">אישור פעולות</button>
+    </div>
+
+    <!-- מצב משחק: מעקב אחר פעולות שחקנים -->
+    <div id="analyst-tracking-container" class="game-info-container hidden">
+        <h2>מעקב פעולות שחקנים</h2>
+        <p>סמן מוצלח/לא מוצלח, הוסף הערות, נתח נתונים.</p>
+        <div id="analyst-players-actions"></div>
+        <button class="view-all-btn blue-btn" onclick="openGeneralNotePopup()">הערה 🖉</button>
+        <button id="end-game-analyst" class="end-game-btn blue-btn" onclick="endAnalystGame()">סיים משחק</button>
+        <button id="view-all-actions-analyst" class="view-all-btn blue-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
+    </div>
+
+    <!-- פופאפים דומים לקוד המאמן: הערות, סיכום, וכו' -->
+    <div id="general-note-popup" class="popup hidden">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closeGeneralNotePopup()">&times;</span>
+            <h3>הערה 🖉</h3>
+            <textarea id="general-note-text" placeholder="הקלד הערה..." style="width:100%;height:100px;"></textarea>
+            <button class="view-all-btn" style="background:#ff9800;color:white;" onclick="approveGeneralNote()">אישור</button>
+        </div>
+    </div>
+
+    <div id="game-summary-popup" class="popup hidden">
+        <div class="popup-content" id="game-summary-content">
+            <span class="close-btn big-close" onclick="closePopup()">&times;</span>
+            <div id="summary-content"></div>
+            <div id="general-note-display" class="hidden">
+                <h4>הערות:</h4>
+                <ul id="parent-notes-list"></ul>
+            </div>
+            <button id="view-all-actions" class="view-all-btn same-size-btn blue-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
+            <button onclick="takeScreenshot()" class="view-all-btn same-size-btn blue-btn">צלם מסך</button>
+            <button class="close-summary-btn red-btn" onclick="closePopup()">סגור</button>
+        </div>
+    </div>
+
+    <div id="actions-detail-popup" class="popup hidden">
+        <div class="popup-content actions-popup-content">
+            <span class="close-btn" onclick="closeAllActionsPopup()">&times;</span>
+            <h3>כל הפעולות שבוצעו:</h3>
+            <div id="all-actions-list"></div>
+            <button onclick="closeAllActionsPopup()" class="blue-btn">סגור</button>
+        </div>
+    </div>
+
+    <div id="popup" class="hidden"></div>
+
+    <script src="script_analyst.js"></script>
+</body>
+</html>
