@@ -14,6 +14,22 @@ let baseMinuteStart = 0;
 let measurableGoalsData = []; 
 let wantMeasurable = false;
 
+// מערך טיפים לדוגמה (מתוך 500 טיפים אפשריים)
+const tips = [
+    "להרים את הראש ולחפש מסירה חכמה.",
+    "לשפר את משחק הלחץ בשליש האחרון.",
+    "לשים דגש על מהירות תגובה כשמקבלים כדור.",
+    "לתרגל מסירות מדויקות תחת לחץ.",
+    "לשפר את הנוכחות באזור הרחבה.",
+    "לשמור על ריכוז כאשר הלחץ עולה.",
+    "לתרגל שליטה בכדור בתנאי מזג אוויר שונים.",
+    "להתמודד עם לחץ מנטלי בעזרת נשימות עמוקות.",
+    "לנתח מצבים במשחק ולדעת לצפות תנועה של היריב.",
+    "להשקיע בתקשורת עם חברי הקבוצה.",
+    // ... המשך עד 500 טיפים ...
+];
+
+// פעולות:
 const mentalActions=["מנטאלי"];
 const positionActions={
     "חלוץ": [
@@ -214,7 +230,8 @@ function openMeasurableGoalsPopup(){
         tdAction.textContent=act.action;
         const tdInput=document.createElement("td");
         const inp=document.createElement("input");
-        inp.type="number";inp.min="0";inp.placeholder="יעד...";
+        inp.type="text"; // שינוי למתן אפשרות למלל ולא רק מספר
+        inp.placeholder="יעד (מספר או מלל)...";
         inp.style.fontSize="20px";
         inp.style.padding="10px";
         inp.style.textAlign="center";
@@ -231,7 +248,7 @@ function closeMeasurableGoalsPopup(){
     const popup=document.getElementById("measurable-goals-popup");
     popup.classList.remove("active");
     popup.classList.add("hidden");
-    document.getElementById("start-game-container").classList.remove("hidden");
+    //document.getElementById("start-game-container").classList.remove("hidden");
 }
 
 function saveMeasurableGoals(){
@@ -241,12 +258,65 @@ function saveMeasurableGoals(){
     rows.forEach(r=>{
         const actionName=r.cells[0].textContent;
         const val=r.cells[1].querySelector("input").value.trim();
-        if(val) measurableGoalsData.push({action:actionName,goal:parseInt(val)});
+        if(val) measurableGoalsData.push({action:actionName,goal:val});
     });
     closeMeasurableGoalsPopup();
+    
+    // אם הוגדרו מטרות, נציג אותן בסיכום מיוחד לפני תחילת המשחק:
+    if(measurableGoalsData.length > 0) {
+        document.getElementById("start-game-container").classList.add("hidden");
+        document.getElementById("goals-summary-container").classList.remove("hidden");
+        displayMeasurableGoals();
+    } else {
+        // אם אין מטרות הוגדרו, חוזרים להתחלת המשחק
+        document.getElementById("start-game-container").classList.remove("hidden");
+    }
+}
+
+function displayMeasurableGoals() {
+    const container = document.getElementById("selected-goals-summary");
+    container.innerHTML = "";
+    if(measurableGoalsData.length > 0) {
+        const table = document.createElement("table");
+        table.style.width = "100%";
+        table.style.borderCollapse = "collapse";
+
+        const thead = document.createElement("thead");
+        thead.innerHTML = "<tr><th>פעולה</th><th>יעד</th></tr>";
+        table.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+        measurableGoalsData.forEach(g => {
+            const tr = document.createElement("tr");
+
+            const tdAction = document.createElement("td");
+            tdAction.textContent = g.action;
+            tdAction.style.border = "1px solid #ccc";
+            tdAction.style.padding = "8px";
+
+            const tdGoal = document.createElement("td");
+            tdGoal.textContent = g.goal;
+            tdGoal.style.border = "1px solid #ccc";
+            tdGoal.style.padding = "8px";
+
+            tr.appendChild(tdAction);
+            tr.appendChild(tdGoal);
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        container.appendChild(table);
+    } else {
+        container.textContent = "לא הוגדרו מטרות מדידות";
+    }
+}
+
+function showStartGameContainer() {
+    document.getElementById("goals-summary-container").classList.add("hidden");
+    document.getElementById("start-game-container").classList.remove("hidden");
 }
 
 function startGame(){
+    document.getElementById("goals-summary-container").classList.add("hidden");
     document.getElementById("start-game-container").classList.add("hidden");
     document.getElementById("game-timer").classList.remove("hidden");
     document.getElementById("actions-title").classList.remove("hidden");
@@ -289,9 +359,31 @@ function enableActions(enable){
 function endHalfTime(){
     if(gameInterval){clearInterval(gameInterval);gameInterval=null;}
     enableActions(false);
-    const counts=getActionCounts();
+
+    const extendedData = getExtendedActionCounts(selectedActions, actions);
     const halfSummaryContent=document.getElementById("half-summary-content");
-    halfSummaryContent.innerHTML=getSummaryHTML(counts,"סיכום המחצית");
+    halfSummaryContent.innerHTML = getExtendedSummaryHTML(extendedData,"סיכום המחצית");
+
+    // הוספת קפסולה של יחס הצלחה וטיפ
+    const {ratio, successCount, failCount} = calculateSuccessRatio();
+    const tip = getTip(ratio);
+    const capsule = document.createElement('div');
+    capsule.style.padding = "10px";
+    capsule.style.border = "2px solid #333";
+    capsule.style.borderRadius = "8px";
+    capsule.style.marginTop = "20px";
+    capsule.style.backgroundColor = "#f9f9f9";
+    capsule.style.textAlign = "right";
+
+    const ratioPercent = Math.round(ratio * 100);
+    capsule.innerHTML = `
+        <h4>יחס הצלחה:</h4>
+        <p>פעולות מוצלחות: ${successCount}, פעולות לא מוצלחות: ${failCount}</p>
+        <p>אחוז הצלחה: ${ratioPercent}%</p>
+        <h4>טיפ לשיפור:</h4>
+        <p>${tip}</p>
+    `;
+    halfSummaryContent.appendChild(capsule);
 
     const halfGeneralNoteDisplay=document.getElementById("half-general-note-display");
     const halfParentNotesList=document.getElementById("half-parent-notes-list");
@@ -342,10 +434,30 @@ function endGame(){
     const today=new Date().toLocaleDateString("he-IL");
     const gameDate=today;
 
-    const counts=getActionCounts();
+    const extendedData = getExtendedActionCounts(selectedActions, actions);
     const summaryContent=document.getElementById("summary-content");
-    summaryContent.innerHTML=getSummaryHTML(counts,"סיכום המשחק");
+    summaryContent.innerHTML = getExtendedSummaryHTML(extendedData,"סיכום המשחק");
     summaryContent.innerHTML+=`<h3 id="final-score">ציון סיום המשחק שלך: ${score}</h3>`;
+
+    // הוספת יחס הצלחה וטיפ גם בסוף המשחק
+    const {ratio, successCount, failCount} = calculateSuccessRatio();
+    const tip = getTip(ratio);
+    const capsule = document.createElement('div');
+    capsule.style.padding = "10px";
+    capsule.style.border = "2px solid #333";
+    capsule.style.borderRadius = "8px";
+    capsule.style.marginTop = "20px";
+    capsule.style.backgroundColor = "#f9f9f9";
+    capsule.style.textAlign = "right";
+    const ratioPercent = Math.round(ratio * 100);
+    capsule.innerHTML = `
+        <h4>יחס הצלחה:</h4>
+        <p>פעולות מוצלחות: ${successCount}, פעולות לא מוצלחות: ${failCount}</p>
+        <p>אחוז הצלחה: ${ratioPercent}%</p>
+        <h4>טיפ לשיפור:</h4>
+        <p>${tip}</p>
+    `;
+    summaryContent.appendChild(capsule);
 
     const generalNoteDisplay=document.getElementById("general-note-display");
     const parentNotesList=document.getElementById("parent-notes-list");
@@ -475,32 +587,91 @@ function classifyResult(result){
     return "neutral";
 }
 
-function getActionCounts(){
-    return actions.reduce((acc,{action,result})=>{
-        const key=`${action}: ${result}`;
-        acc[key]=(acc[key]||0)+1;
-        return acc;
-    },{});
+// פונקציה לחישוב יחס הצלחה
+function calculateSuccessRatio() {
+    let successCount = 0;
+    let failCount = 0;
+    actions.forEach(a => {
+        let lower = a.result.toLowerCase();
+        if(lower.includes("מוצלח")||lower.includes("טוב")||lower.includes("חיובית")) {
+            successCount++;
+        } else if(lower.includes("לא מוצלח")||lower.includes("רעה")||lower.includes("לא טוב")||lower.includes("שלילית")) {
+            failCount++;
+        }
+    });
+    const total = successCount + failCount;
+    let ratio = total > 0 ? (successCount / total) : 0;
+    return {ratio, successCount, failCount};
 }
 
-function getSummaryHTML(counts,title){
-    const summaryHTML=Object.entries(counts)
-    .map(([key,count])=>{
-        const className=classifyKey(key);
-        return `<p class="${className}">${key}: ${count} פעמים</p>`;
-    }).join("");
-    return `<h3>${title}:</h3>${summaryHTML}`;
+function getTip(ratio){
+    const index = Math.floor(Math.random() * tips.length);
+    return tips[index];
 }
 
-function classifyKey(key){
-    let lowerKey=key.toLowerCase();
-    if(lowerKey.includes("לא מוצלח")||lowerKey.includes("רעה")||lowerKey.includes("לא טוב")||lowerKey.includes("שלילית"))return "bad";
-    if(lowerKey.includes("מוצלח")||lowerKey.includes("טוב")||lowerKey.includes("חיובית"))return "good";
-    return "neutral";
+function getExtendedActionCounts(selectedActions, actions) {
+    const resultMap = {};
+    // אתחול כל הפעולות כלא בוצעו
+    selectedActions.forEach(sa => {
+        resultMap[sa.action] = {
+            successful: 0,
+            unsuccessful: 0,
+            notPerformed: true
+        };
+    });
+
+    // ספירה לפי הפעולות שבוצעו בפועל
+    actions.forEach(a=>{
+        const actionName = a.action;
+        const actionResult = a.result.toLowerCase();
+        if(!resultMap[actionName]){
+            // אם פעולה הופיעה בביצוע ולא נבחרה מראש, נוסיף אותה
+            resultMap[actionName]={
+                successful:0,
+                unsuccessful:0,
+                notPerformed:true
+            };
+        }
+        resultMap[actionName].notPerformed=false;
+        if(actionResult.includes("מוצלח")||actionResult.includes("טוב")||actionResult.includes("חיובית")){
+            resultMap[actionName].successful++;
+        } else if(actionResult.includes("לא מוצלח")||actionResult.includes("רעה")||actionResult.includes("לא טוב")||actionResult.includes("שלילית")){
+            resultMap[actionName].unsuccessful++;
+        } else {
+            // פעולה לא מסווגת מפורשות - נגדיר כלא מוצלח או ניטרלי
+            resultMap[actionName].unsuccessful++;
+        }
+    });
+
+    return resultMap;
+}
+
+function getExtendedSummaryHTML(actionDataMap, title) {
+    let html = `<h3>${title}:</h3>`;
+    for (const actionName in actionDataMap) {
+        const data = actionDataMap[actionName];
+        if (data.notPerformed) {
+            // פעולה לא בוצעה בכלל
+            html += `<p class="neutral">${actionName}: לא בוצע</p>`;
+        } else {
+            let className = "neutral";
+            // קבע צבע בהתאם לתוצאות
+            // אם רק מוצלח >0 ולא מוצלח=0 -> good
+            // אם רק לא מוצלח >0 ולא מוצלח > מוצלח -> bad
+            // אחרת neutral
+            if(data.successful > 0 && data.unsuccessful===0) className="good";
+            else if(data.unsuccessful >0 && data.successful===0) className="bad";
+            // במידה ויש גם וגם, נשאיר ניטרלי
+            let successText = data.successful>0 ? ` מוצלח: ${data.successful} פעמים` : "";
+            let failText = data.unsuccessful>0 ? ` לא מוצלח: ${data.unsuccessful} פעמים` : "";
+            html += `<p class="${className}">${actionName}:${successText}${failText}</p>`;
+        }
+    }
+    return html;
 }
 
 function calculateScore(minutesPlayed){
-    let score=50;
+    let score=50; // לדוגמה, עדיין קבוע
     return score;
 }
 
@@ -536,31 +707,17 @@ function saveGameDataToServer(playerName,teamName,position,gameDate,score,action
 }
 
 function takeScreenshot(){
-    const element=document.getElementById('game-summary-content');
+    const element=document.getElementById('goals-summary-container'); // שינוי לצילום יעדים
     if(!element)return;
     html2canvas(element).then(canvas=>{
         const link=document.createElement('a');
         link.href=canvas.toDataURL();
-        link.download='game_summary_screenshot.png';
+        link.download='goals_summary_screenshot.png';
         link.click();
     });
 }
 
-function openTrainingSummaryPage(){
-    document.getElementById("main-page").classList.add("hidden");
-    document.getElementById("training-summary-page").classList.remove("hidden");
-}
-
-function closeTrainingSummaryPage(){
-    document.getElementById("training-summary-page").classList.add("hidden");
-    document.getElementById("main-page").classList.remove("hidden");
-}
-
-function generateTrainingSummaryPDF(){
-    alert("נוצר PDF לסיכום אימון");
-}
-
-// פונקציות מאמן/אנליסט רק כסקלטון
+// פונקציות מאמן/אנליסט - סקלטון
 function submitCoachGameInfo(){}
 function addCoachGoal(hoolia){}
 function submitCoachSetup(){}
@@ -574,4 +731,11 @@ function setTeamMoodAndOpenMoodInput(m){
     teamMood=m;
     const moodMsg=document.getElementById("mood-message");
     if(m){moodMsg.classList.remove("hidden");}else{moodMsg.classList.add("hidden");}
+}
+
+// פונקציה לסגירת פופאפים כללית
+function closePopup(){
+    const popup=document.getElementById("game-summary-popup");
+    popup.classList.remove("active");
+    popup.classList.add("hidden");
 }
