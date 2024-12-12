@@ -2,18 +2,28 @@
 <html lang="he">
 <head>
     <meta charset="UTF-8">
-    <title>אסף שטנגל - מאמן מנטלי</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>דוגמת פופאפ פעולה</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="logo">
-        <span class="logo-text">אסף שטנגל - מאמן מנטלי</span>
+
+<div class="overlay"></div>
+
+<h1>דף לדוגמה</h1>
+<p>לחץ על הכפתור כדי לפתוח את הפופאפ</p>
+<button onclick="openActionPopup()">פתח פופאפ</button>
+
+<div id="action-popup" class="popup">
+    <span class="close-btn" onclick="closeActionPopup()">&times;</span>
+    <h3>שיתוף פעולה עם הקשר האגפי</h3>
+    <div class="popup-buttons">
+        <button class="success-btn" onclick="markAction('מוצלח')">מוצלח</button>
+        <button class="fail-btn" onclick="markAction('לא מוצלח')">לא מוצלח</button>
     </div>
-    <h1 style="margin-bottom:20px;">בחר את התפקיד שלך</h1>
-    <div class="game-info-container" style="max-width:300px;margin:0 auto;background:#fefefe;padding:20px;border:1px solid #ddd;border-radius:10px;">
-        <button class="blue-btn role-btn" style="margin:10px 0;" onclick="window.location.href='/player'">שחקן</button>
-        <button class="blue-btn role-btn" style="margin:10px 0;" onclick="window.location.href='/coach'">מאמן</button>
-        <button class="blue-btn role-btn" style="margin:10px 0;" onclick="window.location.href='/analyst'">אנליסט</button>
-    </div>
+    <textarea placeholder="הוסף הערה (אופציונלי)"></textarea>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
