@@ -15,7 +15,6 @@
 
     <h1 id="welcome-message" style="margin-bottom:20px;">ברוך הבא למערכת הניתוח</h1>
 
-    <!-- כניסה לשחקן (עם קוד גישה) -->
     <div id="login-container" class="game-info-container">
         <h2>מערכת מעקב שחקנים - גישה מורשית</h2>
         <p>לכניסה, אנא הקש את הסיסמה:</p>
@@ -25,7 +24,6 @@
         <button onclick="checkAccessCode()" class="blue-btn">אישור</button>
     </div>
 
-    <!-- פרטים לשחקן -->
     <div id="user-input-container" class="game-info-container hidden">
         <h2>פרטים להתחלת המשחק</h2>
         <div class="input-group">
@@ -43,7 +41,6 @@
         <button id="submit-user-button" onclick="submitUserInfo()" class="blue-btn">אישור</button>
     </div>
 
-    <!-- בחירת פעולות לשחקן -->
     <div id="actions-selection-container" class="game-info-container hidden">
         <h3>בחר פעולות להתמקד בהן</h3>
         <p>אנו ממליצים על בחירת 6-9 פעולות, אך זה לא חובה.</p>
@@ -57,7 +54,6 @@
         <button id="confirm-actions-btn" onclick="confirmActions()" style="background:#ff9800;color:white;">אישור</button>
     </div>
 
-    <!-- פופאפ שאלת מטרות מדידות -->
     <div id="are-you-want-measurable-popup" class="popup hidden">
         <div class="popup-content">
             <span class="close-btn" onclick="closeMeasurableConfirmPopup()">&times;</span>
@@ -70,7 +66,6 @@
         </div>
     </div>
 
-    <!-- פופאפ מטרות מדידות -->
     <div id="measurable-goals-popup" class="popup hidden">
         <div class="popup-content" style="text-align:center;">
             <span class="close-btn" onclick="closeMeasurableGoalsPopup()">&times;</span>
@@ -112,7 +107,19 @@
         <button id="reopen-summary-btn" class="view-all-btn blue-btn" onclick="reopenSummary()">צפה בסיכום</button>
     </div>
 
-    <!-- פופ אפ סיכום המשחק -->
+    <div id="half-time-summary-popup" class="popup hidden">
+        <div class="popup-content">
+            <div id="half-summary-content"></div>
+            <div id="half-general-note-display" class="hidden">
+                <h4>הערות :</h4>
+                <ul id="half-parent-notes-list"></ul>
+            </div>
+            <button class="view-all-btn blue-btn" onclick="openMeasurableProgressPopup()">צפה ביעדים</button>
+            <button id="resume-half" class="resume-half-btn blue-btn" onclick="resumeHalf()">חידוש מחצית</button>
+            <button id="view-all-actions-half" class="view-all-btn blue-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
+        </div>
+    </div>
+
     <div id="game-summary-popup" class="popup hidden">
         <div class="popup-content" id="game-summary-content">
             <span class="close-btn big-close" onclick="closePopup()">&times;</span>
@@ -121,6 +128,7 @@
                 <h4>הערות:</h4>
                 <ul id="parent-notes-list"></ul>
             </div>
+            <button class="view-all-btn blue-btn" onclick="openMeasurableProgressPopup()">צפה ביעדים</button>
             <button id="view-all-actions" class="view-all-btn same-size-btn blue-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
             <button onclick="takeScreenshot()" class="view-all-btn same-size-btn blue-btn">צלם מסך</button>
             <button class="close-summary-btn blue-btn" onclick="closePopup()">סגור</button>
@@ -132,18 +140,6 @@
             <span class="close-btn" onclick="closeFeedbackPopup()">&times;</span>
             <h3>פידבק אישי לשחקן</h3>
             <p id="feedback-text"></p>
-        </div>
-    </div>
-
-    <div id="half-time-summary-popup" class="popup hidden">
-        <div class="popup-content">
-            <div id="half-summary-content"></div>
-            <div id="half-general-note-display" class="hidden">
-                <h4>הערות :</h4>
-                <ul id="half-parent-notes-list"></ul>
-            </div>
-            <button id="resume-half" class="resume-half-btn blue-btn" onclick="resumeHalf()">חידוש מחצית</button>
-            <button id="view-all-actions-half" class="view-all-btn blue-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
         </div>
     </div>
 
@@ -174,6 +170,20 @@
         </div>
         <div id="action-popup-footer">
             <textarea id="action-popup-note" placeholder="הוסף הערה (אופציונלי)" oninput="userInteractedWithPopup()"></textarea>
+        </div>
+    </div>
+
+    <div id="measurable-progress-popup" class="popup hidden">
+        <div class="popup-content" style="text-align:center;">
+            <span class="close-btn" onclick="closeMeasurableProgressPopup()">&times;</span>
+            <h3>התקדמות ביעדים</h3>
+            <table id="measurable-progress-table" style="margin:0 auto;">
+                <thead>
+                    <tr><th>פעולה</th><th>יעד</th><th>בוצע</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button class="view-all-btn blue-btn" onclick="closeMeasurableProgressPopup()">סגור</button>
         </div>
     </div>
 
