@@ -12,7 +12,7 @@
     <div id="logo">
         <span class="logo-text">אסף שטנגל - מאמן מנטלי לשחקנים</span>
     </div>
-
+    <button class="back-home-btn" onclick="window.location.href='/'">חזרה לדף הראשי</button>
     <h1 id="welcome-message" style="margin-bottom:20px;">ברוך הבא למערכת הניתוח</h1>
 
     <div id="user-input-container" class="game-info-container">
@@ -118,6 +118,7 @@
                 <h4>הערות:</h4>
                 <ul id="parent-notes-list"></ul>
             </div>
+            <div id="player-goals-summary"></div> <!-- יציג מטרות + ביצועים -->
             <button id="view-all-actions" class="view-all-btn same-size-btn blue-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
             <button onclick="takeScreenshot()" class="view-all-btn same-size-btn blue-btn">צלם מסך</button>
             <button class="close-summary-btn blue-btn" onclick="closePopup()">סגור</button>
@@ -151,14 +152,14 @@
     </div>
 
     <div id="action-popup" class="popup">
-        <div id="action-popup-header"></div>
-        <span id="action-popup-close" onclick="closeActionPopup()">&times;</span>
-        <div id="action-popup-content" class="wide-popup">
-            <div class="action-side red-side" onclick="chooseActionResult(document.getElementById('action-popup-header').textContent,'לא מוצלח')">לא מוצלח</div>
-            <div class="action-side green-side" onclick="chooseActionResult(document.getElementById('action-popup-header').textContent,'מוצלח')">מוצלח</div>
+        <div id="action-popup-header" style="font-size:24px;font-weight:bold;"></div>
+        <span id="action-popup-close" onclick="closeActionPopup()" style="font-size:30px;color:red;cursor:pointer;position:absolute;left:10px;top:10px;">&times;</span>
+        <div id="action-popup-content" class="wide-popup" style="height:120px;display:flex;justify-content:space-evenly;align-items:center;">
+            <div class="action-side red-side" style="font-size:30px;width:45%;margin:5px;" onclick="chooseActionResult(document.getElementById('action-popup-header').textContent,'לא מוצלח')">לא מוצלח</div>
+            <div class="action-side green-side" style="font-size:30px;width:45%;margin:5px;" onclick="chooseActionResult(document.getElementById('action-popup-header').textContent,'מוצלח')">מוצלח</div>
         </div>
-        <div id="action-popup-footer">
-            <textarea id="action-popup-note" placeholder="הוסף הערה (אופציונלי)" oninput="userInteractedWithPopup()"></textarea>
+        <div id="action-popup-footer" style="padding:20px;">
+            <textarea id="action-popup-note" placeholder="הוסף הערה (אופציונלי)" oninput="userInteractedWithPopup()" style="width:100%;height:150px;font-size:20px;"></textarea>
         </div>
     </div>
 
