@@ -241,7 +241,7 @@ button:hover {
     resize:vertical;
 }
 
-/* שינוי 5: כפתורי מוצלח/לא מוצלח אדום/ירוק גדולים */
+/* כפתורי מוצלח/לא מוצלח אדום/ירוק גדולים */
 .side-fail {
     background-color: #f44336; /* אדום */
     color: #fff;
