@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>שחקן - מערכת מעקב</title>
-    <script src="static/html2canvas.min.js"></script>
-    <script src="static/jspdf.umd.min.js"></script>
-    <link rel="stylesheet" href="static/styles.css">
+    <script src="{{ url_for('static', filename='html2canvas.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='jspdf.umd.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div id="logo">
@@ -15,16 +15,7 @@
 
     <h1 id="welcome-message" style="margin-bottom:20px;">ברוך הבא למערכת הניתוח</h1>
 
-    <div id="login-container" class="game-info-container">
-        <h2>מערכת מעקב שחקנים - גישה מורשית</h2>
-        <p>לכניסה, אנא הקש את הסיסמה:</p>
-        <div class="input-group">
-            <input type="password" id="access-code" placeholder="הכנס קוד " />
-        </div>
-        <button onclick="checkAccessCode()" class="blue-btn">אישור</button>
-    </div>
-
-    <div id="user-input-container" class="game-info-container hidden">
+    <div id="user-input-container" class="game-info-container">
         <h2>פרטים להתחלת המשחק</h2>
         <div class="input-group">
             <input type="text" id="player-name" placeholder="הכנס שם שחקן" />
@@ -114,7 +105,6 @@
                 <h4>הערות :</h4>
                 <ul id="half-parent-notes-list"></ul>
             </div>
-            <button class="view-all-btn blue-btn" onclick="openMeasurableProgressPopup()">צפה ביעדים</button>
             <button id="resume-half" class="resume-half-btn blue-btn" onclick="resumeHalf()">חידוש מחצית</button>
             <button id="view-all-actions-half" class="view-all-btn blue-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
         </div>
@@ -128,7 +118,6 @@
                 <h4>הערות:</h4>
                 <ul id="parent-notes-list"></ul>
             </div>
-            <button class="view-all-btn blue-btn" onclick="openMeasurableProgressPopup()">צפה ביעדים</button>
             <button id="view-all-actions" class="view-all-btn same-size-btn blue-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
             <button onclick="takeScreenshot()" class="view-all-btn same-size-btn blue-btn">צלם מסך</button>
             <button class="close-summary-btn blue-btn" onclick="closePopup()">סגור</button>
@@ -189,6 +178,6 @@
 
     <div id="popup" class="hidden"></div>
 
-    <script src="static/script.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
