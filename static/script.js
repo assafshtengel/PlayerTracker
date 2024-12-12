@@ -446,7 +446,9 @@ function classifyKey(key){
 }
 
 function calculateScore(minutesPlayed){
-    let score=50;
+    const {ratio} = calculateSuccessRatio();
+    // score בין 50 ל-100 לפי ratio
+    let score = Math.round(50 + (ratio * 50));
     return score;
 }
 
