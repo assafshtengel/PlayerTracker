@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, jsonify
-import os
-import logging
 import sqlite3
+import logging
 
 app = Flask(__name__)
 
@@ -25,9 +24,26 @@ def init_db():
 
 init_db()
 
+@app.route('/')
+def home():
+    # יציג את index.html עם בחירת תפקיד
+    return render_template('index.html')
+
+@app.route('/player')
+def player_page():
+    return render_template('player.html')
+
+@app.route('/coach')
+def coach_page():
+    return render_template('coach.html')
+
+@app.route('/analyst')
+def analyst_page():
+    return render_template('analyst.html')
+
 @app.route('/save_data', methods=['POST'])
 def save_data():
-    data = request.get_json()
+    data = request.get_json() or {}
     playerName = data.get('playerName', '')
     teamName = data.get('teamName', '')
     position = data.get('position', '')
@@ -47,11 +63,6 @@ def save_data():
 
     return jsonify({"status": "success"})
 
-@app.route('/')
-def home():
-    return render_template('index.html')
-
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    logger = logging.getLogger(__name__)
     app.run(debug=True)
