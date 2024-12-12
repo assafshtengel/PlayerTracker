@@ -2,18 +2,17 @@
 <html lang="he">
 <head>
     <meta charset="UTF-8">
-    <title>מאמן - הגדרת משחק</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>מאמן</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div id="logo">
         <span class="logo-text">אסף שטנגל - מאמן מנטלי</span>
     </div>
 
-    <!-- עמוד הגדרת פרטי משחק (קבוצות, תאריך, צבעים) -->
     <div id="coach-game-info-container" class="game-info-container">
         <h2>הגדרת פרטי המשחק (מאמן)</h2>
-        <p>הזן שם קבוצה א', קבוצה ב', תאריך וצבע לקבוצות:</p>
+        <p>הזן שם קבוצה א', ב', תאריך וצבע לקבוצות:</p>
         <div class="input-group">
             <input type="text" id="coach-teamA" placeholder="שם קבוצה א' (מארחת)">
             <h4>צבע לקבוצה א':</h4>
@@ -28,10 +27,9 @@
         <button id="submit-coach-game-info-btn" class="blue-btn" onclick="submitCoachGameInfo()">המשך</button>
     </div>
 
-    <!-- עמוד הגדרת מטרות לחוליות -->
     <div id="coach-setup-container" class="game-info-container hidden">
         <h2>הגדרת מטרות לחוליות (מאמן)</h2>
-        <p>בחר מטרות מקצועיות/מנטליות לכל חוליה, והוסף מותאמות אישית:</p>
+        <p>בחר מטרות מקצועיות/מנטליות והוסף מותאמות אישית:</p>
 
         <div class="hoolia-section">
             <h3>שוער</h3>
@@ -64,10 +62,9 @@
         <button class="blue-btn" style="background:#ff9800;color:white;" onclick="submitCoachSetup()">אישור</button>
     </div>
 
-    <!-- עמוד מעקב אחרי ביצוע מטרות במהלך המשחק -->
     <div id="coach-actions-container" class="game-info-container hidden">
         <h2>מעקב אחרי ביצוע מטרות</h2>
-        <p>סמן מוצלח/לא מוצלח לכל מטרה, הוסף הערות, Quick Notes ומצב רוח.</p>
+        <p>סמן מוצלח/לא מוצלח, הוסף הערות, Quick Notes ומצב רוח.</p>
         <div id="coach-players-actions"></div>
 
         <button class="view-all-btn blue-btn" onclick="openGeneralNotePopup()">הערה 🖉</button>
@@ -77,7 +74,6 @@
         <button id="view-all-actions-anytime" class="view-all-btn blue-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
     </div>
 
-    <!-- פופאפים משותפים -->
     <div id="general-note-popup" class="popup hidden">
         <div class="popup-content">
             <span class="close-btn" onclick="closeGeneralNotePopup()">&times;</span>
@@ -103,13 +99,12 @@
     <div id="tactical-board-popup" class="popup hidden">
         <div class="popup-content">
             <span class="close-btn" onclick="closeTacticalBoard()">&times;</span>
-            <h3>לוח טקטי (דוגמה)</h3>
-            <p>כאן ניתן להוסיף בעתיד לוח ציור/טקטיקה</p>
+            <h3>לוח טקטי</h3>
+            <p>כאן ניתן להוסיף לוח ציור בעתיד.</p>
             <button class="view-all-btn" style="background:#ff9800;color:white;" onclick="closeTacticalBoard()">סגור</button>
         </div>
     </div>
 
-    <!-- סיכום משחק -->
     <div id="game-summary-popup" class="popup hidden">
         <div class="popup-content" id="game-summary-content">
             <span class="close-btn big-close" onclick="closePopup()">&times;</span>
@@ -135,6 +130,8 @@
 
     <div id="popup" class="hidden"></div>
 
-    <script src="script_coach.js"></script>
+    <script src="{{ url_for('static', filename='script_coach.js') }}"></script>
+    <script src="{{ url_for('static', filename='html2canvas.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='jspdf.umd.min.js') }}"></script>
 </body>
 </html>
