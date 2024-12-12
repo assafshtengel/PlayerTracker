@@ -26,7 +26,6 @@ init_db()
 
 @app.route('/')
 def home():
-    # יציג את index.html עם בחירת תפקיד
     return render_template('index.html')
 
 @app.route('/player')
