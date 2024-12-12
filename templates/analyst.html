@@ -2,18 +2,18 @@
 <html lang="he">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>אנליסט</title>
-    <script src="{{ url_for('static', filename='html2canvas.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='jspdf.umd.min.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div id="logo">
         <span class="logo-text">אסף שטנגל - אנליסט</span>
     </div>
+    <button class="back-home-btn" onclick="window.location.href='/'">חזרה לדף הראשי</button>
 
-    <!-- מסך הגדרת פרטי המשחק (אנליסט) -->
+       <script src="{{ url_for('static', filename='script_analyst.js') }}"></script>
+
+       <!-- מסך הגדרת פרטי המשחק (אנליסט) -->
     <div id="analyst-game-info-container" class="game-info-container">
         <h2>הגדרת פרטי המשחק (אנליסט)</h2>
         <p>הזן שם קבוצה א', ב', ותאריך המשחק:</p>
