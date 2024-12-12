@@ -26,6 +26,7 @@
         <button class="blue-btn" style="margin-top:30px;" onclick="openTrainingSummaryPage()">סיכום אימון</button>
     </div>
 
+    <!-- סיכום אימון -->
     <div id="training-summary-page" class="hidden game-info-container">
         <h2>סיכום אימון</h2>
         <p>ענה על 5 השאלות:</p>
@@ -40,6 +41,7 @@
         <button class="blue-btn" style="margin-top:10px;" onclick="closeTrainingSummaryPage()">חזרה</button>
     </div>
 
+    <!-- כניסה לשחקן -->
     <div id="login-container" class="game-info-container hidden">
         <h2>מערכת מעקב שחקנים - גישה מורשית</h2>
         <p>לכניסה, אנא הקש את הסיסמה:</p>
@@ -49,6 +51,7 @@
         <button onclick="checkAccessCode()" class="blue-btn">אישור</button>
     </div>
 
+    <!-- פרטים לשחקן -->
     <div id="user-input-container" class="game-info-container hidden">
         <h2>פרטים להתחלת המשחק</h2>
         <div class="input-group">
@@ -66,6 +69,7 @@
         <button id="submit-user-button" onclick="submitUserInfo()" class="blue-btn">אישור</button>
     </div>
 
+    <!-- בחירת פעולות לשחקן -->
     <div id="actions-selection-container" class="game-info-container hidden">
         <h3>בחר פעולות להתמקד בהן</h3>
         <p>אנו ממליצים על בחירת 6-9 פעולות, אך זה לא חובה.</p>
@@ -79,6 +83,7 @@
         <button id="confirm-actions-btn" onclick="confirmActions()" style="background:#ff9800;color:white;">אישור</button>
     </div>
 
+    <!-- פופאפ שאלת מטרות מדידות -->
     <div id="are-you-want-measurable-popup" class="popup hidden">
         <div class="popup-content">
             <span class="close-btn" onclick="closeMeasurableConfirmPopup()">&times;</span>
@@ -91,6 +96,7 @@
         </div>
     </div>
 
+    <!-- פופאפ מטרות מדידות -->
     <div id="measurable-goals-popup" class="popup hidden">
         <div class="popup-content" style="text-align:center;">
             <span class="close-btn" onclick="closeMeasurableGoalsPopup()">&times;</span>
@@ -134,6 +140,7 @@
         <button id="start-second-half" class="blue-btn hidden" onclick="startSecondHalf()">התחל מחצית שנייה</button>
         <button id="end-game" class="end-game-btn blue-btn" onclick="endGame()">סיים משחק</button>
         <button id="view-all-actions-anytime" class="view-all-btn blue-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
+        <button id="post-game-notes-btn" class="view-all-btn blue-btn hidden" onclick="openPostGameNotesPopup()">רשום הערות ניתוח</button>
     </div>
 
     <div id="reopen-summary-container" class="hidden">
@@ -192,6 +199,17 @@
         </div>
     </div>
 
+    <!-- פופאפ הערות ניתוח לאחר סיום המשחק -->
+    <div id="post-game-notes-popup" class="popup hidden">
+        <div class="popup-content">
+            <span class="close-btn" onclick="closePostGameNotesPopup()">&times;</span>
+            <h3>הערות לסיכום המשחק</h3>
+            <textarea id="post-game-notes-text" placeholder="הקלד הערות ניתוח נוספות..."></textarea>
+            <button class="view-all-btn blue-btn" onclick="approvePostGameNotes()">אישור</button>
+        </div>
+    </div>
+
+    <!-- מאמן -->
     <div id="coach-game-info-container" class="game-info-container hidden">
         <h2>הגדרת פרטי המשחק (מאמן)</h2>
         <p>הזן את שם הקבוצה א', ב', ותאריך המשחק. בחר צבע לכל קבוצה.</p>
@@ -206,12 +224,13 @@
 
             <input type="date" id="coach-game-date" />
         </div>
-        <button onclick="submitCoachGameInfo()" class="blue-btn">המשך</button>
+        <button id="submit-coach-game-info-btn" class="blue-btn" onclick="submitCoachGameInfo()">המשך</button>
     </div>
 
     <div id="coach-setup-container" class="game-info-container hidden">
         <h2>הגדרת מעקב כמאמן - מטרות לחוליות</h2>
         <p>בחר מטרות, הוסף אם תרצה:</p>
+
         <div class="hoolia-section">
             <h3>שוער</h3>
             <div id="coach-goal-keeper"></div>
