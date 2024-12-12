@@ -14,7 +14,6 @@ let baseMinuteStart = 0;
 let measurableGoalsData = []; 
 let wantMeasurable = false;
 
-// טיפים לדוגמה
 const tips = [
     "להרים את הראש ולחפש מסירה חכמה.",
     "לשפר את משחק הלחץ בשליש האחרון.",
@@ -28,7 +27,6 @@ const tips = [
     "להשקיע בתקשורת עם חברי הקבוצה."
 ];
 
-// פעולות
 const mentalActions=["מנטאלי"];
 const positionActions={
     "חלוץ": [
@@ -428,7 +426,7 @@ function startSecondHalf(){
     gameInterval=setInterval(()=>{gameMinute++;document.getElementById("minute-counter").textContent=gameMinute;},60000);
     enableActions(true);
 
-    // במחצית השנייה מסתירים את כפתור "סיים מחצית"
+    // הסתרת כפתור "סיים מחצית"
     document.getElementById("end-half").classList.add("hidden");
 }
 
@@ -488,12 +486,12 @@ function endGame(){
     setTimeout(()=>{showFeedback(score,minutesPlayed);},500);
     saveGameDataToServer(playerName,teamName,position,gameDate,score,actions,notes);
 
-    // בסיום המשחק הסתר כפתורים לא רלוונטיים
+    // הסתרת כפתורים: סיים מחצית, התחל מחצית שנייה, סיים משחק
     document.getElementById("end-half").classList.add("hidden");
     document.getElementById("start-second-half").classList.add("hidden");
     document.getElementById("end-game").classList.add("hidden");
 
-    // הצגת כפתור הערות ניתוח לאחר סיום המשחק
+    // הצגת כפתור "רשום הערות ניתוח"
     document.getElementById("post-game-notes-btn").classList.remove("hidden");
 }
 
@@ -597,23 +595,28 @@ function trackAction(action,result){
 }
 
 function classifyResult(result){
-    let lowerResult=result.toLowerCase();
+    let lowerResult=result.toLowerCase().trim();
+    // קודם לבדוק שלילי
     if(lowerResult.includes("לא מוצלח")||lowerResult.includes("לא מוצלחת")||lowerResult.includes("רעה")||lowerResult.includes("לא טוב")||lowerResult.includes("שלילית"))
         return "bad";
+    // לאחר מכן חיובי
     if(lowerResult.includes("מוצלח")||lowerResult.includes("טוב")||lowerResult.includes("חיובית"))
         return "good";
     return "neutral";
 }
 
-// יחס הצלחה
 function calculateSuccessRatio() {
     let successCount = 0;
     let failCount = 0;
     actions.forEach(a => {
-        let lower = a.result.toLowerCase();
-        if(lower.includes("מוצלח")||lower.includes("טוב")||lower.includes("חיובית")) {
+        let lower = a.result.toLowerCase().trim();
+        // קודם שלילי
+        if(lower.includes("לא מוצלח")||lower.includes("לא מוצלחת")||lower.includes("רעה")||lower.includes("לא טוב")||lower.includes("שלילית")){
+            failCount++;
+        } else if(lower.includes("מוצלח")||lower.includes("טוב")||lower.includes("חיובית")){
             successCount++;
-        } else if(lower.includes("לא מוצלח")||lower.includes("לא מוצלחת")||lower.includes("רעה")||lower.includes("לא טוב")||lower.includes("שלילית")){
+        } else {
+            // לא מזוהה נחשב כלא מוצלח
             failCount++;
         }
     });
@@ -639,7 +642,7 @@ function getExtendedActionCounts(selectedActions, actions) {
 
     actions.forEach(a=>{
         const actionName = a.action;
-        const actionResult = a.result.toLowerCase();
+        const actionResult = a.result.toLowerCase().trim();
         if(!resultMap[actionName]){
             resultMap[actionName]={
                 successful:0,
@@ -648,11 +651,14 @@ function getExtendedActionCounts(selectedActions, actions) {
             };
         }
         resultMap[actionName].notPerformed=false;
-        if(actionResult.includes("מוצלח")||actionResult.includes("טוב")||actionResult.includes("חיובית")){
-            resultMap[actionName].successful++;
-        } else if(actionResult.includes("לא מוצלח")||actionResult.includes("לא מוצלחת")||actionResult.includes("רעה")||actionResult.includes("לא טוב")||actionResult.includes("שלילית")){
+
+        // קודם שלילי
+        if(actionResult.includes("לא מוצלח")||actionResult.includes("לא מוצלחת")||actionResult.includes("רעה")||actionResult.includes("לא טוב")||actionResult.includes("שלילית")){
             resultMap[actionName].unsuccessful++;
+        } else if(actionResult.includes("מוצלח")||actionResult.includes("טוב")||actionResult.includes("חיובית")){
+            resultMap[actionName].successful++;
         } else {
+            // לא מזוהה נחשב כלא מוצלח
             resultMap[actionName].unsuccessful++;
         }
     });
@@ -762,8 +768,6 @@ function approvePostGameNotes(){
 }
 
 // --- חלק המאמן - בחירת צבעים ותאריך ברירת מחדל ---
-
-// מערך צבעים
 const availableColors = [
     "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF",
     "#000000", "#FFFFFF", "#808080", "#FFA500", "#800080", "#008080"
@@ -773,16 +777,12 @@ let teamAColor = null;
 let teamBColor = null;
 
 function initializeCoachPage(){
-    // קביעת תאריך ברירת מחדל להיום
     document.getElementById("coach-game-date").valueAsDate = new Date();
-
     createColorPalette("coach-teamA-color-palette","A");
     createColorPalette("coach-teamB-color-palette","B");
-
     checkCoachFormValidity();
 }
 
-// יצירת פלטת צבעים
 function createColorPalette(paletteContainerId, team) {
     const container = document.getElementById(paletteContainerId);
     container.innerHTML = "";
@@ -861,7 +861,6 @@ function submitCoachGameInfo(){
     console.log("Game Date:", gameDate);
 
     alert("מידע נשמר! (מאמן)");
-    // כאן אפשר להמשיך לשלב הבא כמאמן...
 }
 
 function submitCoachSetup(){}
