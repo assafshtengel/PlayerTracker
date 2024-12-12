@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import sqlite3
 import logging
+from datetime import date
 
 app = Flask(__name__)
 
@@ -34,7 +35,7 @@ def player_page():
 
 @app.route('/coach')
 def coach_page():
-    return render_template('coach.html')
+    return render_template('coach.html', today=str(date.today()))
 
 @app.route('/analyst')
 def analyst_page():
