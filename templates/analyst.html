@@ -2,18 +2,17 @@
 <html lang="he">
 <head>
     <meta charset="UTF-8">
-    <title>אנליסט - הגדרת משחק</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>אנליסט</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div id="logo">
         <span class="logo-text">אסף שטנגל - אנליסט</span>
     </div>
 
-    <!-- עמוד הזנת פרטי משחק לאנליסט -->
     <div id="analyst-game-info-container" class="game-info-container">
         <h2>הגדרת פרטי המשחק (אנליסט)</h2>
-        <p>הזן שם קבוצה א', ב', תאריך משחק:</p>
+        <p>הזן שם קבוצה א', ב', ותאריך:</p>
         <div class="input-group">
             <input type="text" id="analyst-teamA" placeholder="שם קבוצה א' (מארחת)">
             <input type="text" id="analyst-teamB" placeholder="שם קבוצה ב' (אורחת)">
@@ -22,10 +21,8 @@
         <button id="submit-analyst-game-info-btn" class="blue-btn" onclick="submitAnalystGameInfo()">המשך</button>
     </div>
 
-    <!-- עמוד הוספת שחקנים -->
     <div id="analyst-players-setup-container" class="game-info-container hidden">
         <h2>הוספת שחקנים (עד 10)</h2>
-        <p>הזן שם שחקן, מספר, עמדה, בחירת קבוצה:</p>
         <div class="input-group">
             <input type="text" id="player-name" placeholder="שם שחקן">
             <input type="number" id="player-number" placeholder="מספר חולצה">
@@ -45,25 +42,23 @@
         <button class="blue-btn" style="background:#ff9800;color:white;" onclick="submitPlayersSetup()">אישור</button>
     </div>
 
-    <!-- בחירת פעולות לכל שחקן -->
     <div id="analyst-actions-selection-container" class="game-info-container hidden">
         <h2>בחירת פעולות לשחקנים</h2>
-        <p>בחר פעולות לכל שחקן (מקצועי/מנטלי/מותאם), הוסף יעדים מדידים אם תרצה.</p>
+        <p>בחר פעולות לכל שחקן</p>
         <div id="analyst-players-actions-setup"></div>
         <button class="blue-btn" style="background:#ff9800;color:white;" onclick="confirmAnalystActions()">אישור פעולות</button>
     </div>
 
-    <!-- מצב משחק: מעקב אחר פעולות שחקנים -->
     <div id="analyst-tracking-container" class="game-info-container hidden">
         <h2>מעקב פעולות שחקנים</h2>
-        <p>סמן מוצלח/לא מוצלח, הוסף הערות, נתח נתונים.</p>
+        <p>מוצלח/לא מוצלח + הערות</p>
         <div id="analyst-players-actions"></div>
+
         <button class="view-all-btn blue-btn" onclick="openGeneralNotePopup()">הערה 🖉</button>
         <button id="end-game-analyst" class="end-game-btn blue-btn" onclick="endAnalystGame()">סיים משחק</button>
         <button id="view-all-actions-analyst" class="view-all-btn blue-btn" onclick="showAllActions()">צפה בכל הפעולות</button>
     </div>
 
-    <!-- פופאפים דומים לקוד המאמן: הערות, סיכום, וכו' -->
     <div id="general-note-popup" class="popup hidden">
         <div class="popup-content">
             <span class="close-btn" onclick="closeGeneralNotePopup()">&times;</span>
@@ -98,6 +93,8 @@
 
     <div id="popup" class="hidden"></div>
 
-    <script src="script_analyst.js"></script>
+    <script src="{{ url_for('static', filename='script_analyst.js') }}"></script>
+    <script src="{{ url_for('static', filename='html2canvas.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='jspdf.umd.min.js') }}"></script>
 </body>
 </html>
