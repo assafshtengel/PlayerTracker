@@ -16,6 +16,7 @@ let wantMeasurable = false;
 let gameSummaryViewed = false;
 
 const mentalActions=["מנטאלי"];
+
 const positionActions={
     "חלוץ": [
         {name:"בעיטה לשער"},
@@ -106,15 +107,124 @@ function submitUserInfo(){
     loadActionsSelection(playerPosition);
 }
 
-function loadActionsSelection(position) { ... }
-function createActionSelectable(action,category){ ... }
-function addCustomAction(){ ... }
-function confirmActions(){ ... }
-function closeMeasurableConfirmPopup(){ ... }
-function handleMeasurableChoice(choice){ ... }
-function openMeasurableGoalsPopup(){ ... }
-function closeMeasurableGoalsPopup(){ ... }
-function saveMeasurableGoals(){ ... }
+function loadActionsSelection(position) {
+    const professionalContainer=document.getElementById("professional-actions");
+    const mentalContainer=document.getElementById("mental-actions");
+    const customContainer=document.getElementById("custom-actions");
+    professionalContainer.innerHTML="<h4>פעולות מקצועיות:</h4>";
+    mentalContainer.innerHTML="<h4>פעולות מנטאליות:</h4>";
+    customContainer.innerHTML="<h4>פעולות מותאמות אישית:</h4>";
+
+    const acts=positionActions[position]||[];
+    acts.forEach(a=>{
+        if(a.name==="מנטאלי"){
+            mentalContainer.appendChild(createActionSelectable(a.name,"mental"));
+        }else{
+            professionalContainer.appendChild(createActionSelectable(a.name,"professional"));
+        }
+    });
+
+    customActionsArr.forEach(c=>{
+        customContainer.appendChild(createActionSelectable(c,"custom"));
+    });
+}
+
+function createActionSelectable(action,category){
+    const div=document.createElement("div");
+    div.classList.add("action-toggle");
+    div.textContent=action;
+    div.dataset.selected="false";
+    div.dataset.category=category;
+    div.onclick=()=>{
+        if(div.dataset.selected==="false"){
+            div.dataset.selected="true";
+            div.classList.add("selected-action");
+        }else{
+            div.dataset.selected="false";
+            div.classList.remove("selected-action");
+        }
+    };
+    return div;
+}
+
+function addCustomAction(){
+    const input=document.getElementById("custom-action-input");
+    const val=input.value.trim();
+    if(!val){alert("אנא כתוב שם פעולה");return;}
+    customActionsArr.push(val);
+    const container=document.getElementById("custom-actions");
+    container.appendChild(createActionSelectable(val,"custom"));
+    input.value="";
+}
+
+function confirmActions(){
+    const selectedElems=document.querySelectorAll('.action-toggle.selected-action');
+    selectedActions=[];
+    selectedElems.forEach(e=>{
+        selectedActions.push({action:e.textContent,category:e.dataset.category});
+    });
+    document.getElementById("actions-selection-container").classList.add("hidden");
+    document.getElementById("are-you-want-measurable-popup").classList.remove("hidden");
+    document.getElementById("are-you-want-measurable-popup").classList.add("active");
+}
+
+function closeMeasurableConfirmPopup(){
+    const popup=document.getElementById("are-you-want-measurable-popup");
+    popup.classList.remove("active");
+    popup.classList.add("hidden");
+    if(!wantMeasurable){
+        document.getElementById("start-game-container").classList.remove("hidden");
+    }
+}
+
+function handleMeasurableChoice(choice){
+    wantMeasurable=choice;
+    closeMeasurableConfirmPopup();
+    if(wantMeasurable)openMeasurableGoalsPopup();
+    else document.getElementById("start-game-container").classList.remove("hidden");
+}
+
+function openMeasurableGoalsPopup(){
+    const popup=document.getElementById("measurable-goals-popup");
+    const tbody=popup.querySelector("#measurable-goals-table tbody");
+    tbody.innerHTML="";
+    selectedActions.forEach(act=>{
+        const tr=document.createElement("tr");
+        const tdAction=document.createElement("td");
+        tdAction.textContent=act.action;
+        const tdInput=document.createElement("td");
+        const inp=document.createElement("input");
+        inp.type="number";inp.min="0";inp.placeholder="יעד...";
+        inp.style.fontSize="20px";
+        inp.style.padding="10px";
+        inp.style.textAlign="center";
+        tdInput.appendChild(inp);
+        tr.appendChild(tdAction);
+        tr.appendChild(tdInput);
+        tbody.appendChild(tr);
+    });
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
+}
+
+function closeMeasurableGoalsPopup(){
+    const popup=document.getElementById("measurable-goals-popup");
+    popup.classList.remove("active");
+    popup.classList.add("hidden");
+    document.getElementById("start-game-container").classList.remove("hidden");
+}
+
+function saveMeasurableGoals(){
+    const popup=document.getElementById("measurable-goals-popup");
+    const rows=popup.querySelectorAll("tbody tr");
+    measurableGoalsData=[];
+    rows.forEach(r=>{
+        const actionName=r.cells[0].textContent;
+        const val=r.cells[1].querySelector("input").value.trim();
+        if(val) measurableGoalsData.push({action:actionName,goal:parseInt(val)});
+    });
+    closeMeasurableGoalsPopup();
+}
 
 function startGame(){
     document.getElementById("start-game-container").classList.add("hidden");
@@ -143,7 +253,18 @@ function startGame(){
     document.getElementById("end-buttons-container").classList.remove("hidden");
 }
 
-function enableActions(enable){ ... }
+function enableActions(enable){
+    const cards=document.querySelectorAll('.action-card');
+    cards.forEach(card=>{
+        if(enable){
+            card.style.opacity=1;
+            card.style.pointerEvents="auto";
+        } else {
+            card.style.opacity=0.5;
+            card.style.pointerEvents="none";
+        }
+    });
+}
 
 function endHalfTime(){
     if(gameInterval){clearInterval(gameInterval);gameInterval=null;}
@@ -249,8 +370,31 @@ function displayPlayerGoalsPerformance(){
     container.innerHTML+=html;
 }
 
-function showAllActions(){ ... }
-function closeAllActionsPopup(){ ... }
+function showAllActions(){
+    const allActionsList=document.getElementById("all-actions-list");
+    allActionsList.innerHTML="";
+    actions.forEach(({action,result,minute})=>{
+        let className=classifyResult(result);
+        const p=document.createElement("p");
+        p.className=className+" action-line";
+        const minuteBadge=document.createElement("span");
+        minuteBadge.className="minute-badge";
+        minuteBadge.textContent="דקה "+minute;
+        p.appendChild(minuteBadge);
+        const textNode=document.createTextNode(" "+action+" - "+result);
+        p.appendChild(textNode);
+        allActionsList.appendChild(p);
+    });
+    const actionsDetailPopup=document.getElementById("actions-detail-popup");
+    actionsDetailPopup.classList.remove("hidden");
+    actionsDetailPopup.classList.add("active");
+}
+
+function closeAllActionsPopup(){
+    const actionsDetailPopup=document.getElementById("actions-detail-popup");
+    actionsDetailPopup.classList.remove("active");
+    actionsDetailPopup.classList.add("hidden");
+}
 
 function openGeneralNotePopup(){
     document.getElementById("general-note-text").value="";
@@ -258,11 +402,13 @@ function openGeneralNotePopup(){
     popup.classList.remove("hidden");
     popup.classList.add("active");
 }
+
 function closeGeneralNotePopup(){
     const popup=document.getElementById("general-note-popup");
     popup.classList.remove("active");
     popup.classList.add("hidden");
 }
+
 function approveGeneralNote(){
     const note=document.getElementById("general-note-text").value.trim();
     if(note){
@@ -275,7 +421,15 @@ function approveGeneralNote(){
     },2300);
 }
 
-function showPopup(message,type="neutral"){ ... }
+function showPopup(message,type="neutral"){
+    const popup=document.getElementById("popup");
+    popup.textContent=message;
+    popup.classList.remove("hidden","popup-good","popup-bad","popup-neutral");
+    if(type==="good") popup.classList.add("popup-good");
+    else if(type==="bad") popup.classList.add("popup-bad");
+    else popup.classList.add("popup-neutral");
+    setTimeout(()=>{popup.classList.add("hidden");},800);
+}
 
 function openActionPopup(actionName){
     const popup=document.getElementById("action-popup");
@@ -287,29 +441,112 @@ function openActionPopup(actionName){
     if(actionPopupTimeout)clearTimeout(actionPopupTimeout);
     actionPopupTimeout=setTimeout(()=>{closeActionPopup();},4000);
 }
+
 function closeActionPopup(){
     const popup=document.getElementById("action-popup");
     popup.classList.remove("active");
 }
+
 function userInteractedWithPopup(){
     if(actionPopupTimeout)clearTimeout(actionPopupTimeout);
     actionPopupTimeout=setTimeout(()=>{closeActionPopup();},4000);
 }
+
 function chooseActionResult(actionName,result){
     const note=document.getElementById("action-popup-note").value.trim();
     trackAction(actionName,result);
     if(note) notes.push({text:note,minute:gameMinute});
     closeActionPopup();
 }
-function trackAction(action,result){ ... }
-function classifyResult(result){ ... }
-function getActionCounts(){ ... }
-function getSummaryHTML(counts,title){ ... }
-function classifyKey(key){ ... }
-function calculateScore(minutesPlayed){ ... }
 
-function showFeedback(score,minutesPlayed){ ... }
-function closeFeedbackPopup(){ ... }
+function trackAction(action,result){
+    if(!gameInterval||gameFinished){
+        alert("לא ניתן לרשום פעולה כשהסטופר לא פעיל או המשחק הסתיים!");
+        return;
+    }
+    actions.push({action:action,result:result,minute:gameMinute});
+    const type=classifyResult(result);
+    let message=`הפעולה "${action}" (${result}) נרשמה!`;
+    showPopup(message,type);
+}
+
+function classifyResult(result){
+    let lowerResult=result.toLowerCase();
+    if(lowerResult.includes("לא מוצלח")||lowerResult.includes("רעה")||lowerResult.includes("לא טוב")||lowerResult.includes("שלילית"))
+        return "bad";
+    if(lowerResult.includes("מוצלח")||lowerResult.includes("טוב")||lowerResult.includes("חיובית"))
+        return "good";
+    return "neutral";
+}
+
+function getActionCounts(){
+    return actions.reduce((acc,{action,result})=>{
+        const key=`${action}: ${result}`;
+        acc[key]=(acc[key]||0)+1;
+        return acc;
+    },{});
+}
+
+function getSummaryHTML(counts,title){
+    const summaryHTML=Object.entries(counts)
+    .map(([key,count])=>{
+        const className=classifyKey(key);
+        return `<p class="${className}">${key}: ${count} פעמים</p>`;
+    }).join("");
+    return `<h3>${title}:</h3>${summaryHTML}`;
+}
+
+function classifyKey(key){
+    let lowerKey=key.toLowerCase();
+    if(lowerKey.includes("לא מוצלח")||lowerKey.includes("רעה")||lowerKey.includes("לא טוב")||lowerKey.includes("שלילית"))return "bad";
+    if(lowerKey.includes("מוצלח")||lowerKey.includes("טוב")||lowerKey.includes("חיובית"))return "good";
+    return "neutral";
+}
+
+function calculateScore(minutesPlayed){
+    let score=50;
+    // אפשר לפתח אלגוריתם שמבוסס על יחס מוצלח/לא מוצלח
+    // כרגע לצורך הדגמה נשאיר 50 קבוע או אפשר לשפר:
+    const {successCount,failCount}=calculateSuccessRatio();
+    const total = successCount+failCount;
+    let ratio=0;
+    if(total>0) ratio=(successCount/total);
+    score=Math.round(50+(ratio*50));
+    return score;
+}
+
+function calculateSuccessRatio(){
+    let successCount=0;
+    let failCount=0;
+    actions.forEach(a=>{
+        let lower=a.result.toLowerCase();
+        if(lower.includes("לא מוצלח")||lower.includes("רעה")||lower.includes("לא טוב")||lower.includes("שלילית")){
+            failCount++;
+        } else if(lower.includes("מוצלח")||lower.includes("טוב")||lower.includes("חיובית")){
+            successCount++;
+        } else {
+            failCount++;
+        }
+    });
+    return {successCount,failCount};
+}
+
+function showFeedback(score,minutesPlayed){
+    let feedback="";
+    const {successCount,failCount}=calculateSuccessRatio();
+    const ratio=(successCount+failCount)>0?(successCount/(successCount+failCount)):0;
+    if(score>85) feedback="מצוין!";
+    else if(score>70) feedback="טוב מאוד";
+    else feedback="יש מקום לשיפור.";
+
+    document.getElementById("feedback-text").textContent=feedback;
+    const feedbackPopup=document.getElementById("feedback-popup");
+    feedbackPopup.classList.remove("hidden");
+}
+
+function closeFeedbackPopup(){
+    document.getElementById("feedback-popup").classList.add("hidden");
+}
 
 function reopenSummary(){
     const popup=document.getElementById("game-summary-popup");
@@ -328,7 +565,57 @@ function closePopup(){
     }
 }
 
-function takeScreenshot(){ ... }
+function takeScreenshot(){
+    const element=document.getElementById('game-summary-content');
+    if(!element)return;
+    html2canvas(element).then(canvas=>{
+        const link=document.createElement('a');
+        link.href=canvas.toDataURL();
+        link.download='game_summary_screenshot.png';
+        link.click();
+    });
+}
 
-function openMeasurableProgressPopup(){ ... }
-function closeMeasurableProgressPopup(){ ... }
+function openMeasurableProgressPopup(){
+    const popup=document.getElementById("measurable-progress-popup");
+    const tbody=popup.querySelector("#measurable-progress-table tbody");
+    tbody.innerHTML="";
+    
+    const actionCounts={};
+    actions.forEach(a=>{
+        if(!actionCounts[a.action])actionCounts[a.action]={success:0,fail:0};
+        let lower=a.result.toLowerCase();
+        if(lower.includes("מוצלח")||lower.includes("טוב")||lower.includes("חיובית")) actionCounts[a.action].success++;
+        else actionCounts[a.action].fail++;
+    });
+
+    selectedActions.forEach(sa=>{
+        const tr=document.createElement("tr");
+        const tdAction=document.createElement("td");
+        tdAction.textContent=sa.action;
+        const tdGoal=document.createElement("td");
+        let goalData = measurableGoalsData.find(g=>g.action===sa.action);
+        tdGoal.textContent=goalData?goalData.goal:"לא הוגדר";
+
+        const tdDone=document.createElement("td");
+        if(actionCounts[sa.action]){
+            tdDone.textContent=actionCounts[sa.action].success + actionCounts[sa.action].fail;
+        } else {
+            tdDone.textContent="0";
+        }
+
+        tr.appendChild(tdAction);
+        tr.appendChild(tdGoal);
+        tr.appendChild(tdDone);
+        tbody.appendChild(tr);
+    });
+
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
+}
+
+function closeMeasurableProgressPopup(){
+    const popup=document.getElementById("measurable-progress-popup");
+    popup.classList.remove("active");
+    popup.classList.add("hidden");
+}
