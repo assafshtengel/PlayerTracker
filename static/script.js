@@ -43,11 +43,21 @@ const colorMap = {
 };
 const paletteColors = ["אדום", "כחול", "ירוק", "צהוב", "שחור", "לבן", "כתום", "סגול", "ורוד", "חום", "אפור", "טורקיז"];
 
-const goalsKeeper = ["שיפור משחק רגל", "יציאות מהירות לכדור", "תקשורת עם ההגנה", "עצירות בעיטות קשות", "תזמון יציאה לכדורי גובה", "שליטה בגובה הרחבה", "שיפור תגובה 1 על 1"];
-const goalsDefense = ["שיפור ספיגת לחץ", "סגירת קווי מסירה", "הגבהה אחורה בטוחה", "תקשורת בין הבלמים", "יציאה מתואמת לנבדל", "שיפור כיסוי צדדים", "ניצול משחק ראש בהגנה"];
-const goalsMidfield = ["שיפור הנעת כדור", "מסירות לעומק", "שליטה בקצב המשחק", "חטיפות כדור במרכז", "החלפת אגפים חלקה", "ארגון התקפות מהירות", "שמירה על מבנה קישור"];
-const goalsAttack = ["סיום מצבים טוב יותר", "תנועה ללא כדור נכונה", "ניצול הזדמנויות ברחבה", "שיפור בעיטות לשער", "שיתוף פעולה בין החלוצים", "לחץ גבוה על ההגנה היריבה", "שיפור משחק ראש בהתקפה"];
+const goalsKeeper = [];
+const goalsDefense = [];
+const goalsMidfield = [];
+const goalsAttack = [];
 
+// נשנה את הלוגיקה: במקום להציג את כל המטרות כברירת מחדל, המאמן בוחר מתוך positionActions. כאן נניח שכבר בחר.
+// אך בהתאם לבקשה: בסיכום הסופי יציג רק את מה שנבחר על ידי המאמן.
+
+// מטרות קבוצתיות שנבחרו:
+let chosenKeeperGoals = [];
+let chosenDefenseGoals = [];
+let chosenMidfieldGoals = [];
+let chosenAttackGoals = [];
+
+// מטרות מותאמות לחוליות (עד 30 לכל חוליה)
 let customKeeperGoals = [];
 let customDefenseGoals = [];
 let customMidfieldGoals = [];
@@ -55,13 +65,22 @@ let customAttackGoals = [];
 
 const CUSTOM_GOAL_LIMIT = 30;
 
-// מטרות אישיות לשחקנים
+// מטרות אישיות לשחקנים (מתוך התפקידים)
 let personalPlayersGoals = []; 
-// {playerName, position(ARRAY?), goals: [{goal, numeric}]}
+// {playerName, positions:[], goals: [{goal, numeric}]}
 
-// שינוי: כעת בתפקיד שחקן יהיו צ'קבוקסים, ולכן playerPosition תהיה array.
+// למטרות אישיות: 
+// שלב 1: פופאפ personal-goals-popup (בחירת שם ותפקידים)
+// שלב 2: personal-goals-selection-popup (בחירת מטרות מתוך האיחוד + מותאמות)
+// שלב 3: personal-goals-numeric-popup (יעדים מספריים)
 
-// פונקציות כלליות
+// משתנים גלובליים לתהליך מטרות אישיות:
+let currentPersonalPlayerName = "";
+let currentPersonalPlayerPositions = [];
+let currentPersonalPlayerGoals = []; // מטרות שנבחרו בשלב הבחירה
+let currentPersonalPlayerFinalGoals = []; // לאחר הוספת מותאמות
+let currentAllGoalsForPositions = []; // כל המטרות הרלוונטיות לתפקידים
+
 function selectRole(role) {
     const roleContainer = document.getElementById("role-selection-container");
     if (roleContainer) {
@@ -398,7 +417,6 @@ function showPopup(message, type = "neutral") {
         popup.classList.add("popup-neutral");
     }
 
-    // לאבטומציה של סגירה אחרי 0.8 שניות:
     setTimeout(() => {
         popup.classList.add("hidden");
     }, 800);
@@ -639,974 +657,1013 @@ function calculateScore(minutesPlayed) {
         let actLower = action.toLowerCase();
         let isGood = resLower.includes("מוצלח") || resLower.includes("טוב") || resLower.includes("חיובית");
         let isBad = resLower.includes("רעה") || resLower.includes("לא מוצלח") || resLower.includes("לא טוב") || resLower.includes("שלילית");
-                if (isGood) {
-                    let isImportant = importantPosActions.some(a => actLower.includes(a.toLowerCase()));
-                    return isImportant ? "good_important" : "good_simple";
-                } else if (isBad) {
-                    let isCritical = criticalNegActions.some(a => actLower.includes(a.toLowerCase()));
-                    return isCritical ? "bad_critical" : "bad_easy";
+
+        if (isGood) {
+            let isImportant = importantPosActions.some(a => actLower.includes(a.toLowerCase()));
+            return isImportant ? "good_important" : "good_simple";
+        } else if (isBad) {
+            let isCritical = criticalNegActions.some(a => actLower.includes(a.toLowerCase()));
+            return isCritical ? "bad_critical" : "bad_easy";
+        } else {
+            return "neutral";
+        }
+    }
+
+    actions.forEach(({ action, result, minute }) => {
+        let category = determineCategory(action, result);
+        if (category.startsWith("good")) {
+            goodCount++;
+            if (category === "good_simple") {
+                simplePosCount[action] = (simplePosCount[action] || 0) + 1;
+                if (simplePosCount[action] > 10) {
+                    score += 1;
                 } else {
-                    return "neutral";
+                    score += 2;
                 }
-            }
-
-            actions.forEach(({ action, result, minute }) => {
-                let category = determineCategory(action, result);
-                if (category.startsWith("good")) {
-                    goodCount++;
-                    if (category === "good_simple") {
-                        simplePosCount[action] = (simplePosCount[action] || 0) + 1;
-                        if (simplePosCount[action] > 10) {
-                            score += 1;
-                        } else {
-                            score += 2;
-                        }
-                    } else {
-                        let base = 5;
-                        if (minute > 70) base += 1;
-                        score += base;
-                    }
-                } else if (category.startsWith("bad")) {
-                    badCount++;
-                    if (category === "bad_easy") {
-                        score -= 1;
-                    } else {
-                        let base = -3;
-                        if (minute > 70) base -= 1;
-                        score += base;
-                    }
-                }
-            });
-
-            let ratio = goodCount / (badCount + 1);
-            if (ratio < 1) {
-                score *= 0.9;
-            } else if (ratio > 2) {
-                score *= 1.05;
-            }
-
-            if (score < 0) score = 0;
-            if (score > 100) score = 100;
-
-            return Math.round(score);
-        }
-
-        function showFeedback(score, minutesPlayed) {
-            let feedback = "";
-            let successfulActions = actions.filter(a =>
-                a.result.includes("מוצלח") || a.result.includes("טוב") || a.result.includes("חיובית")
-            ).length;
-
-            if (score > 92) {
-                feedback = "מעולה פלוס! משחק יוצא דופן!";
-            } else if (score > 85) {
-                feedback = "מצוין! נתת משחק חזק. המשך לעבוד קשה!";
-            } else if (score > 70) {
-                feedback = "ביצוע טוב מאוד. שים לב לדייק יותר בחלק מהפעולות.";
-            } else if (score > 55) {
-                feedback = "עשית עבודה טובה, אך יש מקום לשיפור.";
             } else {
-                feedback = "יש הרבה מקום לשיפור. אל תתייאש, למד ושפר!";
+                let base = 5;
+                if (minute > 70) base += 1;
+                score += base;
             }
-
-            if (minutesPlayed < 30) {
-                feedback += " שיחקת פחות מ-30 דקות, נסה להאריך את משך המשחק.";
-            }
-
-            if (actions.length >= 4) {
-                feedback += " ביצעת מספר פעולות לא מבוטל - המשך להתמיד!";
-            }
-
-            if (successfulActions > 5) {
-                feedback += " מעל 5 פעולות מוצלחות - יפה מאוד!";
-            }
-
-            if (score < 50 && successfulActions > 3) {
-                feedback += " למרות הציון הנמוך, ראינו מספר פעולות מוצלחות.";
-            }
-
-            if (actions.length > 15) {
-                feedback += " ביצעת הרבה פעולות - מראה על נחישות!";
-            }
-
-            let counts = getActionCounts();
-            if ((counts['מנהיגות: חיובית'] || 0) > 3) {
-                feedback += " כישורי המנהיגות שלך בולטים מאוד!";
-            }
-
-            document.getElementById("feedback-text").textContent = feedback;
-            const feedbackPopup = document.getElementById("feedback-popup");
-            feedbackPopup.classList.remove("hidden");
-        }
-
-        function closeFeedbackPopup() {
-            document.getElementById("feedback-popup").classList.add("hidden");
-        }
-
-        function saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes) {
-            fetch('/save_data', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    playerName: playerName,
-                    teamName: teamName,
-                    position: position,
-                    gameDate: gameDate,
-                    score: score,
-                    actions: actions,
-                    parentNotes: parentNotes
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                console.log("Data saved to server:", data);
-            })
-            .catch(err => console.error(err));
-        }
-
-        function downloadPDF() {
-            const elem = document.getElementById("game-summary-popup");
-            html2canvas(elem).then((canvas) => {
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF();
-                pdf.addImage(imgData, 'PNG', 10, 10);
-                pdf.save("game-summary.pdf");
-            });
-        }
-
-        // פונקציות מאמן להמשך
-        function goToCoachGoals() {
-            const teamA = document.getElementById("coach-teamA").value.trim();
-            const teamB = document.getElementById("coach-teamB").value.trim();
-            const date = document.getElementById("coach-game-date").value;
-            const yearGroup = document.getElementById("coach-year-group").value;
-
-            if (!teamA || !teamB) {
-                alert("אנא מלא את שם הקבוצות");
-                return;
-            }
-
-            coachTeamAName = teamA;
-            coachTeamBName = teamB;
-            coachGameDate = date;
-
-            document.getElementById("coach-game-info-container").classList.add("hidden");
-
-            loadCoachGoalsPage();
-            document.getElementById("coach-goals-container").classList.remove("hidden");
-        }
-
-        function loadCoachGoalsPage() {
-            const keeperDiv = document.getElementById("coach-goals-keeper");
-            const defenseDiv = document.getElementById("coach-goals-defense");
-            const midfieldDiv = document.getElementById("coach-goals-midfield");
-            const attackDiv = document.getElementById("coach-goals-attack");
-
-            keeperDiv.innerHTML = "";
-            defenseDiv.innerHTML = "";
-            midfieldDiv.innerHTML = "";
-            attackDiv.innerHTML = "";
-
-            goalsKeeper.forEach(g => {
-                keeperDiv.appendChild(createGoalCheckbox(g));
-            });
-            goalsDefense.forEach(g => {
-                defenseDiv.appendChild(createGoalCheckbox(g));
-            });
-            goalsMidfield.forEach(g => {
-                midfieldDiv.appendChild(createGoalCheckbox(g));
-            });
-            goalsAttack.forEach(g => {
-                attackDiv.appendChild(createGoalCheckbox(g));
-            });
-        }
-
-        function createGoalCheckbox(goal) {
-            const div = document.createElement("div");
-            div.classList.add("action-item");
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.name = "coach-goals";
-            checkbox.value = goal;
-            checkbox.style.display = 'none';
-            div.appendChild(checkbox);
-
-            const label = document.createElement("label");
-            label.textContent = goal;
-            label.onclick = () => {
-                if (checkbox.checked) {
-                    checkbox.checked = false;
-                    label.classList.remove("selected");
-                } else {
-                    checkbox.checked = true;
-                    label.classList.add("selected");
-                }
-            };
-            div.appendChild(label);
-            return div;
-        }
-
-        function addCoachCustomGoal() {
-            const line = document.getElementById("coach-custom-goal-line").value;
-            const val = document.getElementById("coach-custom-goal-input").value.trim();
-            if (!val) {
-                alert("אנא הכנס מטרה לפני ההוספה");
-                return;
-            }
-            let arr;
-            if (line === "שוער") arr = customKeeperGoals;
-            else if (line === "הגנה") arr = customDefenseGoals;
-            else if (line === "קישור") arr = customMidfieldGoals;
-            else if (line === "התקפה") arr = customAttackGoals;
-
-            if (arr.length >= CUSTOM_GOAL_LIMIT) {
-                document.getElementById("coach-goal-limit-popup").classList.add("active");
-                document.getElementById("coach-goal-limit-popup").classList.remove("hidden");
-                return;
-            }
-
-            arr.push(val);
-            document.getElementById("coach-custom-goal-input").value = "";
-
-            const popup = document.getElementById("coach-custom-goal-popup");
-            const content = document.getElementById("coach-custom-goal-popup-content");
-            content.innerHTML = `<p>המטרה "<strong>${val}</strong>" נוספה לחוליית ${line} בהצלחה!</p>`;
-            popup.classList.remove("hidden");
-            popup.classList.add("active");
-
-            // סגירה אוטומטית של הפופאפ אחרי 0.8 שניות
-            setTimeout(() => {
-                closeCoachCustomGoalPopup();
-            }, 800);
-        }
-
-        function closeCoachCustomGoalPopup() {
-            const popup = document.getElementById("coach-custom-goal-popup");
-            popup.classList.remove("active");
-            popup.classList.add("hidden");
-        }
-
-        function closeCoachGoalLimitPopup() {
-            const popup = document.getElementById("coach-goal-limit-popup");
-            popup.classList.remove("active");
-            popup.classList.add("hidden");
-        }
-
-        function finishCoachSetup() {
-            const personalCheck = document.getElementById("coach-ask-personal-goals").checked;
-            if (personalCheck) {
-                openPersonalGoalsPopup();
+        } else if (category.startsWith("bad")) {
+            badCount++;
+            if (category === "bad_easy") {
+                score -= 1;
             } else {
-                goToFinalSummary();
+                let base = -3;
+                if (minute > 70) base -= 1;
+                score += base;
             }
         }
+    });
 
-        // מטרות אישיות לשחקנים
-        function openPersonalGoalsPopup() {
-            const popup = document.getElementById("personal-goals-popup");
-            popup.classList.remove("hidden");
-            popup.classList.add("active");
-            loadPersonalPlayerActions();
+    let ratio = goodCount / (badCount + 1);
+    if (ratio < 1) {
+        score *= 0.9;
+    } else if (ratio > 2) {
+        score *= 1.05;
+    }
+
+    if (score < 0) score = 0;
+    if (score > 100) score = 100;
+
+    return Math.round(score);
+}
+
+function showFeedback(score, minutesPlayed) {
+    let feedback = "";
+    let successfulActions = actions.filter(a =>
+        a.result.includes("מוצלח") || a.result.includes("טוב") || a.result.includes("חיובית")
+    ).length;
+
+    if (score > 92) {
+        feedback = "מעולה פלוס! משחק יוצא דופן!";
+    } else if (score > 85) {
+        feedback = "מצוין! נתת משחק חזק. המשך לעבוד קשה!";
+    } else if (score > 70) {
+        feedback = "ביצוע טוב מאוד. שים לב לדייק יותר בחלק מהפעולות.";
+    } else if (score > 55) {
+        feedback = "עשית עבודה טובה, אך יש מקום לשיפור.";
+    } else {
+        feedback = "יש הרבה מקום לשיפור. אל תתייאש, למד ושפר!";
+    }
+
+    if (minutesPlayed < 30) {
+        feedback += " שיחקת פחות מ-30 דקות, נסה להאריך את משך המשחק.";
+    }
+
+    if (actions.length >= 4) {
+        feedback += " ביצעת מספר פעולות לא מבוטל - המשך להתמיד!";
+    }
+
+    if (successfulActions > 5) {
+        feedback += " מעל 5 פעולות מוצלחות - יפה מאוד!";
+    }
+
+    if (score < 50 && successfulActions > 3) {
+        feedback += " למרות הציון הנמוך, ראינו מספר פעולות מוצלחות.";
+    }
+
+    if (actions.length > 15) {
+        feedback += " ביצעת הרבה פעולות - מראה על נחישות!";
+    }
+
+    let counts = getActionCounts();
+    if ((counts['מנהיגות: חיובית'] || 0) > 3) {
+        feedback += " כישורי המנהיגות שלך בולטים מאוד!";
+    }
+
+    document.getElementById("feedback-text").textContent = feedback;
+    const feedbackPopup = document.getElementById("feedback-popup");
+    feedbackPopup.classList.remove("hidden");
+}
+
+function closeFeedbackPopup() {
+    document.getElementById("feedback-popup").classList.add("hidden");
+}
+
+function saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes) {
+    fetch('/save_data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            playerName: playerName,
+            teamName: teamName,
+            position: position,
+            gameDate: gameDate,
+            score: score,
+            actions: actions,
+            parentNotes: parentNotes
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log("Data saved to server:", data);
+    })
+    .catch(err => console.error(err));
+}
+
+function downloadPDF() {
+    const elem = document.getElementById("game-summary-popup");
+    html2canvas(elem).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF();
+        pdf.addImage(imgData, 'PNG', 10, 10);
+        pdf.save("game-summary.pdf");
+    });
+}
+
+// מאמן
+function goToCoachGoals() {
+    const teamA = document.getElementById("coach-teamA").value.trim();
+    const teamB = document.getElementById("coach-teamB").value.trim();
+    const date = document.getElementById("coach-game-date").value;
+    const yearGroup = document.getElementById("coach-year-group").value;
+
+    if (!teamA || !teamB) {
+        alert("אנא מלא את שם הקבוצות");
+        return;
+    }
+
+    coachTeamAName = teamA;
+    coachTeamBName = teamB;
+    coachGameDate = date;
+
+    document.getElementById("coach-game-info-container").classList.add("hidden");
+
+    loadCoachGoalsPage();
+    document.getElementById("coach-goals-container").classList.remove("hidden");
+}
+
+function loadCoachGoalsPage() {
+    // כאן נטען מטרות ריקות בהתחלה, מעשית המאמן אמור לבחור אותן?
+
+    // נמיר כל מטרות קבוצתיות שנבחרו (במציאות, צריך שיהיה תהליך בחירה, כאן נניח שהמאמן יסמן מטרות)
+    // לשם הפשטות, המאמן יסמן בממשק. כאן אין קוד הסימון, אבל נניח שהמאמן יסמן ואחר כך נשתמש במטרות המסומנות.
+
+    // נחכה שהמאמן יסמן ואז בעת finishCoachSetup נקרא את המסומנות.
+    // בינתיים נציג לפי positionActions כמו קודם:
+
+    loadGoalsForLine("coach-goals-keeper", "שוער");
+    loadGoalsForLine("coach-goals-defense", "בלם", "מגן");
+    loadGoalsForLine("coach-goals-midfield", "קשר");
+    loadGoalsForLine("coach-goals-attack", "חלוץ", "כנף");
+}
+
+function loadGoalsForLine(containerId, ...positions) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+    // איחוד מטרות מכל התפקידים שהועברו
+    let lineGoals = [];
+    positions.forEach(pos => {
+        if (positionActions[pos]) {
+            lineGoals = lineGoals.concat(positionActions[pos]);
         }
+    });
+    lineGoals = [...new Set(lineGoals)];
+    lineGoals.forEach(g => {
+        container.appendChild(createGoalCheckbox(g));
+    });
+}
 
-        function closePersonalGoalsPopup() {
-            const popup = document.getElementById("personal-goals-popup");
-            popup.classList.remove("active");
-            popup.classList.add("hidden");
+function createGoalCheckbox(goal) {
+    const div = document.createElement("div");
+    div.classList.add("action-item");
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.name = "coach-goals";
+    checkbox.value = goal;
+    checkbox.style.display = 'none';
+    div.appendChild(checkbox);
+
+    const label = document.createElement("label");
+    label.textContent = goal;
+    label.onclick = () => {
+        if (checkbox.checked) {
+            checkbox.checked = false;
+            label.classList.remove("selected");
+        } else {
+            checkbox.checked = true;
+            label.classList.add("selected");
         }
+    };
+    div.appendChild(label);
+    return div;
+}
 
-        function loadPersonalPlayerActions() {
-            const container = document.getElementById("personal-player-actions-container");
-            container.innerHTML = "";
+function addCoachCustomGoal() {
+    const line = document.getElementById("coach-custom-goal-line").value;
+    const val = document.getElementById("coach-custom-goal-input").value.trim();
+    if (!val) {
+        alert("אנא הכנס מטרה לפני ההוספה");
+        return;
+    }
+    let arr;
+    if (line === "שוער") arr = customKeeperGoals;
+    else if (line === "הגנה") arr = customDefenseGoals;
+    else if (line === "קישור") arr = customMidfieldGoals;
+    else if (line === "התקפה") arr = customAttackGoals;
 
-            document.getElementById("personal-player-position").onchange = loadPersonalPlayerPositionActions;
+    if (arr.length >= CUSTOM_GOAL_LIMIT) {
+        document.getElementById("coach-goal-limit-popup").classList.add("active");
+        document.getElementById("coach-goal-limit-popup").classList.remove("hidden");
+        return;
+    }
+
+    arr.push(val);
+    document.getElementById("coach-custom-goal-input").value = "";
+
+    const popup = document.getElementById("coach-custom-goal-popup");
+    const content = document.getElementById("coach-custom-goal-popup-content");
+    content.innerHTML = `<p>המטרה "<strong>${val}</strong>" נוספה לחוליית ${line} בהצלחה!</p>`;
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
+
+    setTimeout(() => {
+        closeCoachCustomGoalPopup();
+    }, 800);
+}
+
+function closeCoachCustomGoalPopup() {
+    const popup = document.getElementById("coach-custom-goal-popup");
+    popup.classList.remove("active");
+    popup.classList.add("hidden");
+}
+
+function closeCoachGoalLimitPopup() {
+    const popup = document.getElementById("coach-goal-limit-popup");
+    popup.classList.remove("active");
+    popup.classList.add("hidden");
+}
+
+function finishCoachSetup() {
+    const personalCheck = document.getElementById("coach-ask-personal-goals").checked;
+
+    // נקרא את המטרות המסומנות לחוליות
+    chosenKeeperGoals = getSelectedGoalsFrom("coach-goals-keeper");
+    chosenDefenseGoals = getSelectedGoalsFrom("coach-goals-defense");
+    chosenMidfieldGoals = getSelectedGoalsFrom("coach-goals-midfield");
+    chosenAttackGoals = getSelectedGoalsFrom("coach-goals-attack");
+
+    if (personalCheck) {
+        openPersonalGoalsPopup();
+    } else {
+        goToFinalSummary();
+    }
+}
+
+function getSelectedGoalsFrom(containerId) {
+    const container = document.getElementById(containerId);
+    const checks = container.querySelectorAll('input[type="checkbox"][name="coach-goals"]:checked');
+    return Array.from(checks).map(c => c.value);
+}
+
+// מטרות אישיות
+function openPersonalGoalsPopup() {
+    const popup = document.getElementById("personal-goals-popup");
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
+}
+
+function closePersonalGoalsPopup() {
+    const popup = document.getElementById("personal-goals-popup");
+    popup.classList.remove("active");
+    popup.classList.add("hidden");
+}
+
+function confirmPersonalPlayerInfo() {
+    currentPersonalPlayerName = document.getElementById("personal-player-name").value.trim();
+    currentPersonalPlayerPositions = [...document.querySelectorAll('input[name="personal-player-roles"]:checked')].map(cb => cb.value);
+
+    if (!currentPersonalPlayerName || currentPersonalPlayerPositions.length === 0) {
+        alert("אנא מלא שם שחקן ובחר לפחות תפקיד אחד");
+        return;
+    }
+
+    closePersonalGoalsPopup();
+    openPersonalGoalsSelectionPopup();
+}
+
+function openPersonalGoalsSelectionPopup() {
+    const popup = document.getElementById("personal-goals-selection-popup");
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
+
+    const listDiv = document.getElementById("personal-goals-selection-list");
+    listDiv.innerHTML = "";
+
+    // איחוד מטרות מכל התפקידים שנבחרו
+    currentAllGoalsForPositions = [];
+    currentPersonalPlayerPositions.forEach(pos => {
+        let acts = positionActions[pos] || [];
+        currentAllGoalsForPositions = currentAllGoalsForPositions.concat(acts);
+    });
+
+    currentAllGoalsForPositions = [...new Set(currentAllGoalsForPositions)];
+
+    currentAllGoalsForPositions.forEach(g => {
+        listDiv.appendChild(createActionCheckboxPersonalSelection(g));
+    });
+}
+
+function createActionCheckboxPersonalSelection(goal) {
+    const div = document.createElement("div");
+    div.classList.add("action-item");
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.value = goal;
+    checkbox.name = "personal-player-goals-selection";
+    checkbox.style.display = 'none';
+    div.appendChild(checkbox);
+
+    const label = document.createElement("label");
+    label.textContent = goal;
+    label.onclick = () => {
+        if (checkbox.checked) {
+            checkbox.checked = false;
+            label.classList.remove("selected");
+        } else {
+            checkbox.checked = true;
+            label.classList.add("selected");
         }
+    };
+    div.appendChild(label);
+    return div;
+}
 
-        function loadPersonalPlayerPositionActions() {
-            const checkboxes = document.querySelectorAll('input[name="personal-player-roles"]:checked');
-            const container = document.getElementById("personal-player-actions-container");
-            container.innerHTML = "";
+function closePersonalGoalsSelectionPopup() {
+    const popup = document.getElementById("personal-goals-selection-popup");
+    popup.classList.remove("active");
+    popup.classList.add("hidden");
+}
 
-            // אם אין תפקידים נבחרים, לא נטען פעולות
-            if (checkboxes.length === 0) return;
+function addPersonalPlayerCustomGoal() {
+    const input = document.getElementById("personal-player-custom-goal-input");
+    const val = input.value.trim();
+    if (!val) {
+        alert("אנא הכנס מטרה לפני ההוספה");
+        return;
+    }
+    const listDiv = document.getElementById("personal-goals-selection-list");
+    listDiv.appendChild(createActionCheckboxPersonalSelection(val));
+    input.value = "";
+}
 
-            // נאחד את כל הפעולות מכל התפקידים שנבחרו
-            let allGoals = [];
-            checkboxes.forEach(cb => {
-                let pos = cb.value;
-                const actionsForPos = positionActions[pos] || [];
-                allGoals = allGoals.concat(actionsForPos);
+function finishPersonalPlayerGoalsSelection() {
+    const checks = document.querySelectorAll('input[name="personal-player-goals-selection"]:checked');
+    if (checks.length === 0) {
+        alert("אנא בחר לפחות מטרה אחת לשחקן");
+        return;
+    }
+
+    currentPersonalPlayerGoals = Array.from(checks).map(c => ({goal:c.value}));
+    closePersonalGoalsSelectionPopup();
+    openPersonalGoalsNumericPopup(currentPersonalPlayerGoals, currentPersonalPlayerName, currentPersonalPlayerPositions);
+}
+
+function openPersonalGoalsNumericPopup(goals, playerName, positions) {
+    currentPersonalPlayerGoals = goals; 
+    currentPersonalPlayerName = playerName;
+    currentPersonalPlayerPositions = positions; 
+
+    const popup = document.getElementById("personal-goals-numeric-popup");
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
+
+    const table = document.getElementById("personal-goals-numeric-table");
+    table.innerHTML = "";
+
+    goals.forEach(g => {
+        const row = document.createElement("div");
+        row.classList.add("numeric-row");
+        const label = document.createElement("span");
+        label.textContent = g.goal;
+        const input = document.createElement("input");
+        input.type = "number";
+        input.min = "0";
+        input.value = "0";
+        input.style.width = "60px";
+        row.appendChild(label);
+        row.appendChild(input);
+        g.input = input;
+        table.appendChild(row);
+    });
+}
+
+function closePersonalGoalsNumericPopup() {
+    const popup = document.getElementById("personal-goals-numeric-popup");
+    popup.classList.remove("active");
+    popup.classList.add("hidden");
+}
+
+function finishPersonalGoalsNumeric() {
+    currentPersonalPlayerGoals.forEach(g => {
+        g.numeric = parseInt(g.input.value) || 0;
+    });
+
+    closePersonalGoalsNumericPopup();
+
+    personalPlayersGoals.push({
+        playerName: currentPersonalPlayerName,
+        positions: currentPersonalPlayerPositions, 
+        goals: currentPersonalPlayerGoals
+    });
+
+    openPersonalGoalsAnotherPlayerPopup();
+}
+
+function openPersonalGoalsAnotherPlayerPopup() {
+    const popup = document.getElementById("personal-goals-another-player-popup");
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
+}
+
+function closePersonalGoalsAnotherPlayerPopup() {
+    const popup = document.getElementById("personal-goals-another-player-popup");
+    popup.classList.remove("active");
+    popup.classList.add("hidden");
+}
+
+function addAnotherPersonalPlayer(yes) {
+    closePersonalGoalsAnotherPlayerPopup();
+    if (yes) {
+        resetPersonalGoalsPopup();
+        openPersonalGoalsPopup();
+    } else {
+        showPersonalGoalsNotes();
+    }
+}
+
+function resetPersonalGoalsPopup() {
+    document.getElementById("personal-player-name").value = "";
+    document.querySelectorAll('input[name="personal-player-roles"]').forEach(cb => cb.checked = false);
+    currentPersonalPlayerGoals = [];
+    currentPersonalPlayerName = "";
+    currentPersonalPlayerPositions = [];
+    currentAllGoalsForPositions = [];
+}
+
+function showPersonalGoalsNotes() {
+    const container = document.getElementById("coach-personal-goals-notes");
+    container.innerHTML = "";
+    personalPlayersGoals.forEach(playerObj => {
+        const note = document.createElement("div");
+        note.classList.add("note");
+        let posStr = playerObj.positions.join(", ");
+        note.innerHTML = `<strong>${playerObj.playerName} (${posStr}):</strong><br>`;
+        playerObj.goals.forEach(g => {
+            note.innerHTML += `- ${g.goal} (יעד מספרי: ${g.numeric})<br>`;
+        });
+        container.appendChild(note);
+    });
+}
+
+function goToFinalSummary() {
+    document.getElementById("coach-goals-container").classList.add("hidden");
+    const finalContainer = document.getElementById("final-summary-container");
+    finalContainer.classList.remove("hidden");
+
+    const summaryDiv = document.getElementById("final-summary-content");
+    summaryDiv.innerHTML = "<h3>מטרות לחוליות:</h3>";
+
+    // מטרות שוער
+    if (chosenKeeperGoals.length > 0 || customKeeperGoals.length > 0) {
+        summaryDiv.innerHTML += "<strong>שוער:</strong><br>";
+        chosenKeeperGoals.forEach(g => summaryDiv.innerHTML += `- ${g}<br>`);
+        customKeeperGoals.forEach(g => summaryDiv.innerHTML += `- ${g} (מותאם)<br>`);
+        summaryDiv.innerHTML += "<br>";
+    }
+
+    // מטרות הגנה
+    if (chosenDefenseGoals.length > 0 || customDefenseGoals.length > 0) {
+        summaryDiv.innerHTML += "<strong>הגנה:</strong><br>";
+        chosenDefenseGoals.forEach(g => summaryDiv.innerHTML += `- ${g}<br>`);
+        customDefenseGoals.forEach(g => summaryDiv.innerHTML += `- ${g} (מותאם)<br>`);
+        summaryDiv.innerHTML += "<br>";
+    }
+
+    // מטרות קישור
+    if (chosenMidfieldGoals.length > 0 || customMidfieldGoals.length > 0) {
+        summaryDiv.innerHTML += "<strong>קישור:</strong><br>";
+        chosenMidfieldGoals.forEach(g => summaryDiv.innerHTML += `- ${g}<br>`);
+        customMidfieldGoals.forEach(g => summaryDiv.innerHTML += `- ${g} (מותאם)<br>`);
+        summaryDiv.innerHTML += "<br>";
+    }
+
+    // מטרות התקפה
+    if (chosenAttackGoals.length > 0 || customAttackGoals.length > 0) {
+        summaryDiv.innerHTML += "<strong>התקפה:</strong><br>";
+        chosenAttackGoals.forEach(g => summaryDiv.innerHTML += `- ${g}<br>`);
+        customAttackGoals.forEach(g => summaryDiv.innerHTML += `- ${g} (מותאם)<br>`);
+        summaryDiv.innerHTML += "<br>";
+    }
+
+    // מטרות אישיות
+    if (personalPlayersGoals.length > 0) {
+        summaryDiv.innerHTML += "<h3>מטרות אישיות לשחקנים:</h3>";
+        personalPlayersGoals.forEach(playerObj => {
+            let posStr = playerObj.positions.join(", ");
+            summaryDiv.innerHTML += `<strong>${playerObj.playerName} (${posStr}):</strong><br>`;
+            playerObj.goals.forEach(g => {
+                summaryDiv.innerHTML += `- ${g.goal} (יעד מספרי: ${g.numeric})<br>`;
             });
+            summaryDiv.innerHTML += "<br>";
+        });
+    }
+}
 
-            // הסר כפילויות אם יש
-            allGoals = [...new Set(allGoals)];
+function downloadFinalSummaryPDF() {
+    const elem = document.getElementById("final-summary-container");
+    html2canvas(elem).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF();
+        pdf.addImage(imgData, 'PNG', 10, 10);
+        pdf.save("final-summary.pdf");
+    });
+}
 
-            allGoals.forEach(a => container.appendChild(createActionCheckboxPersonal(a)));
-        }
+function goToCoachLiveGame() {
+    document.getElementById("final-summary-container").classList.add("hidden");
+    document.getElementById("coach-live-game-container").classList.remove("hidden");
+}
 
-        function createActionCheckboxPersonal(goal) {
-            const div = document.createElement("div");
-            div.classList.add("action-item");
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.value = goal;
-            checkbox.name = "personal-player-goals";
-            checkbox.style.display = 'none';
-            div.appendChild(checkbox);
+function startCoachLiveGame() {
+    document.getElementById("coach-live-game-container").classList.add("hidden");
+    document.getElementById("coach-live-update-container").classList.remove("hidden");
+}
 
-            const label = document.createElement("label");
-            label.textContent = goal;
-            label.onclick = () => {
-                if (checkbox.checked) {
-                    checkbox.checked = false;
-                    label.classList.remove("selected");
-                } else {
-                    checkbox.checked = true;
-                    label.classList.add("selected");
-                }
-            };
-            div.appendChild(label);
-            return div;
-        }
+// אנליסט
+function submitAnalystGameInfo() {
+    const teamA = document.getElementById("analyst-teamA").value.trim();
+    const teamB = document.getElementById("analyst-teamB").value.trim();
+    const date = document.getElementById("analyst-game-date").value;
 
-        // הסרת פונקציית addPersonalPlayerCustomGoal כי ביקשת להסיר את השדה הזה
+    if (!teamA || !teamB || !date) {
+        alert("אנא מלא את שם הקבוצות והתאריך");
+        return;
+    }
 
-        function finishPersonalPlayerGoals() {
-            const playerName = document.getElementById("personal-player-name").value.trim();
-            const roles = [...document.querySelectorAll('input[name="personal-player-roles"]:checked')].map(cb => cb.value);
+    analystTeamAName = teamA;
+    analystTeamBName = teamB;
+    analystGameDate = date;
 
-            if (!playerName || roles.length === 0) {
-                alert("אנא מלא שם שחקן ובחר לפחות תפקיד אחד");
-                return;
-            }
+    document.getElementById("analyst-game-info-container").classList.add("hidden");
 
-            const checkedGoals = document.querySelectorAll('#personal-player-actions-container input[name="personal-player-goals"]:checked');
-            const goalsSelected = Array.from(checkedGoals).map(cb => ({goal: cb.value}));
+    const teamSelect = document.getElementById("analyst-player-team-select");
+    teamSelect.innerHTML = "";
+    let optA = document.createElement("option");
+    optA.value = "A";
+    optA.textContent = analystTeamAName;
+    let optB = document.createElement("option");
+    optB.value = "B";
+    optB.textContent = analystTeamBName;
+    teamSelect.appendChild(optA);
+    teamSelect.appendChild(optB);
 
-            if (goalsSelected.length === 0) {
-                alert("לא נבחרו מטרות עבור השחקן");
-                return;
-            }
+    const nameInput = document.getElementById("analyst-player-name");
+    const addBtn = document.getElementById("add-player-btn");
+    nameInput.oninput = () => {
+        addBtn.disabled = !nameInput.value.trim();
+    };
 
-            closePersonalGoalsPopup();
+    document.getElementById("analyst-setup-container").classList.remove("hidden");
+}
 
-            openPersonalGoalsNumericPopup(goalsSelected, playerName, roles);
-        }
+function addAnalystPlayer() {
+    const name = document.getElementById("analyst-player-name").value.trim();
+    if (!name) return;
 
-        let currentPersonalPlayerGoals = []; 
-        let currentPersonalPlayerName = "";
-        let currentPersonalPlayerPositions = [];
+    const teamSide = document.getElementById("analyst-player-team-select").value; 
+    const number = document.getElementById("analyst-player-number").value.trim();
+    const position = document.getElementById("analyst-player-position").value;
 
-        function openPersonalGoalsNumericPopup(goals, playerName, positions) {
-            currentPersonalPlayerGoals = goals; 
-            currentPersonalPlayerName = playerName;
-            currentPersonalPlayerPositions = positions; // array of roles
+    let playerColor = (teamSide === 'A') ? analystTeamAColor : analystTeamBColor;
+    if (!playerColor) playerColor = "שחור";
 
-            const popup = document.getElementById("personal-goals-numeric-popup");
-            popup.classList.remove("hidden");
-            popup.classList.add("active");
+    analystPlayers.push({ name, number, position, teamSide, color: playerColor, notes: [] });
+    updateAnalystPlayersList();
 
-            const table = document.getElementById("personal-goals-numeric-table");
-            table.innerHTML = "";
+    document.getElementById("analyst-player-name").value = "";
+    document.getElementById("analyst-player-number").value = "";
+    document.getElementById("analyst-player-position").value = "";
+    document.getElementById("add-player-btn").disabled = true;
+}
 
-            goals.forEach(g => {
-                const row = document.createElement("div");
-                row.classList.add("numeric-row");
-                const label = document.createElement("span");
-                label.textContent = g.goal;
-                const input = document.createElement("input");
-                input.type = "number";
-                input.min = "0";
-                input.value = "0";
-                input.style.width = "60px";
-                row.appendChild(label);
-                row.appendChild(input);
-                g.input = input;
-                table.appendChild(row);
-            });
-        }
+function updateAnalystPlayersList() {
+    const list = document.getElementById("analyst-players-list");
+    list.innerHTML = "";
+    analystPlayers.forEach((player, i) => {
+        const card = document.createElement("div");
+        card.classList.add("player-card");
 
-        function closePersonalGoalsNumericPopup() {
-            const popup = document.getElementById("personal-goals-numeric-popup");
-            popup.classList.remove("active");
-            popup.classList.add("hidden");
-        }
-
-        function finishPersonalGoalsNumeric() {
-            currentPersonalPlayerGoals.forEach(g => {
-                g.numeric = parseInt(g.input.value) || 0;
-            });
-
-            closePersonalGoalsNumericPopup();
-
-            personalPlayersGoals.push({
-                playerName: currentPersonalPlayerName,
-                position: currentPersonalPlayerPositions, 
-                goals: currentPersonalPlayerGoals
-            });
-
-            openPersonalGoalsAnotherPlayerPopup();
-        }
-
-        function openPersonalGoalsAnotherPlayerPopup() {
-            const popup = document.getElementById("personal-goals-another-player-popup");
-            popup.classList.remove("hidden");
-            popup.classList.add("active");
-        }
-
-        function closePersonalGoalsAnotherPlayerPopup() {
-            const popup = document.getElementById("personal-goals-another-player-popup");
-            popup.classList.remove("active");
-            popup.classList.add("hidden");
-        }
-
-        function addAnotherPersonalPlayer(yes) {
-            closePersonalGoalsAnotherPlayerPopup();
-            if (yes) {
-                resetPersonalGoalsPopup();
-                openPersonalGoalsPopup();
-            } else {
-                showPersonalGoalsNotes();
-            }
-        }
-
-        function resetPersonalGoalsPopup() {
-            document.getElementById("personal-player-name").value = "";
-            document.querySelectorAll('input[name="personal-player-roles"]').forEach(cb => cb.checked = false);
-            document.getElementById("personal-player-actions-container").innerHTML = "";
-            currentPersonalPlayerGoals = [];
-            currentPersonalPlayerName = "";
-            currentPersonalPlayerPositions = [];
-        }
-
-        function showPersonalGoalsNotes() {
-            const container = document.getElementById("coach-personal-goals-notes");
-            container.innerHTML = "";
-            personalPlayersGoals.forEach(playerObj => {
-                const note = document.createElement("div");
-                note.classList.add("note");
-                let posStr = playerObj.position.join(", ");
-                note.innerHTML = `<strong>${playerObj.playerName} (${posStr}):</strong><br>`;
-                playerObj.goals.forEach(g => {
-                    note.innerHTML += `- ${g.goal} (יעד מספרי: ${g.numeric})<br>`;
-                });
-                container.appendChild(note);
-            });
-        }
-
-        function goToFinalSummary() {
-            document.getElementById("coach-goals-container").classList.add("hidden");
-            const finalContainer = document.getElementById("final-summary-container");
-            finalContainer.classList.remove("hidden");
-
-            const summaryDiv = document.getElementById("final-summary-content");
-            summaryDiv.innerHTML = "<h3>מטרות לחוליות:</h3>";
-
-            summaryDiv.innerHTML += "<strong>שוער:</strong><br>";
-            goalsKeeper.forEach(g => summaryDiv.innerHTML += `- ${g}<br>`);
-            customKeeperGoals.forEach(g => summaryDiv.innerHTML += `- ${g} (מותאם)<br>`);
-
-            summaryDiv.innerHTML += "<br><strong>הגנה:</strong><br>";
-            goalsDefense.forEach(g => summaryDiv.innerHTML += `- ${g}<br>`);
-            customDefenseGoals.forEach(g => summaryDiv.innerHTML += `- ${g} (מותאם)<br>`);
-
-            summaryDiv.innerHTML += "<br><strong>קישור:</strong><br>";
-            goalsMidfield.forEach(g => summaryDiv.innerHTML += `- ${g}<br>`);
-            customMidfieldGoals.forEach(g => summaryDiv.innerHTML += `- ${g} (מותאם)<br>`);
-
-            summaryDiv.innerHTML += "<br><strong>התקפה:</strong><br>";
-            goalsAttack.forEach(g => summaryDiv.innerHTML += `- ${g}<br>`);
-            customAttackGoals.forEach(g => summaryDiv.innerHTML += `- ${g} (מותאם)<br>`);
-
-            if (personalPlayersGoals.length > 0) {
-                summaryDiv.innerHTML += "<h3>מטרות אישיות לשחקנים:</h3>";
-                personalPlayersGoals.forEach(playerObj => {
-                    let posStr = playerObj.position.join(", ");
-                    summaryDiv.innerHTML += `<strong>${playerObj.playerName} (${posStr}):</strong><br>`;
-                    playerObj.goals.forEach(g => {
-                        summaryDiv.innerHTML += `- ${g.goal} (יעד מספרי: ${g.numeric})<br>`;
-                    });
-                    summaryDiv.innerHTML += "<br>";
-                });
-            }
-        }
-
-        function downloadFinalSummaryPDF() {
-            const elem = document.getElementById("final-summary-container");
-            html2canvas(elem).then((canvas) => {
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF();
-                pdf.addImage(imgData, 'PNG', 10, 10);
-                pdf.save("final-summary.pdf");
-            });
-        }
-
-        // לאחר הסיכום: מעבר לעמוד ביניים
-        function goToCoachLiveGame() {
-            document.getElementById("final-summary-container").classList.add("hidden");
-            document.getElementById("coach-live-game-container").classList.remove("hidden");
-        }
-
-        function startCoachLiveGame() {
-            document.getElementById("coach-live-game-container").classList.add("hidden");
-            document.getElementById("coach-live-update-container").classList.remove("hidden");
-        }
-
-        // אנליסט
-        function submitAnalystGameInfo() {
-            const teamA = document.getElementById("analyst-teamA").value.trim();
-            const teamB = document.getElementById("analyst-teamB").value.trim();
-            const date = document.getElementById("analyst-game-date").value;
-
-            if (!teamA || !teamB || !date) {
-                alert("אנא מלא את שם הקבוצות והתאריך");
-                return;
-            }
-
-            analystTeamAName = teamA;
-            analystTeamBName = teamB;
-            analystGameDate = date;
-
-            document.getElementById("analyst-game-info-container").classList.add("hidden");
-
-            const teamSelect = document.getElementById("analyst-player-team-select");
-            teamSelect.innerHTML = "";
-            let optA = document.createElement("option");
-            optA.value = "A";
-            optA.textContent = analystTeamAName;
-            let optB = document.createElement("option");
-            optB.value = "B";
-            optB.textContent = analystTeamBName;
-            teamSelect.appendChild(optA);
-            teamSelect.appendChild(optB);
-
-            const nameInput = document.getElementById("analyst-player-name");
-            const addBtn = document.getElementById("add-player-btn");
-            nameInput.oninput = () => {
-                addBtn.disabled = !nameInput.value.trim();
-            };
-
-            document.getElementById("analyst-setup-container").classList.remove("hidden");
-        }
-
-        function addAnalystPlayer() {
-            const name = document.getElementById("analyst-player-name").value.trim();
-            if (!name) return;
-
-            const teamSide = document.getElementById("analyst-player-team-select").value; 
-            const number = document.getElementById("analyst-player-number").value.trim();
-            const position = document.getElementById("analyst-player-position").value;
-
-            let playerColor = (teamSide === 'A') ? analystTeamAColor : analystTeamBColor;
-            if (!playerColor) playerColor = "שחור";
-
-            analystPlayers.push({ name, number, position, teamSide, color: playerColor, notes: [] });
+        const delBtn = document.createElement("div");
+        delBtn.classList.add("delete-player-btn");
+        delBtn.textContent = "X";
+        delBtn.onclick = () => {
+            analystPlayers.splice(i, 1);
             updateAnalystPlayersList();
+        };
+        card.appendChild(delBtn);
 
-            document.getElementById("analyst-player-name").value = "";
-            document.getElementById("analyst-player-number").value = "";
-            document.getElementById("analyst-player-position").value = "";
-            document.getElementById("add-player-btn").disabled = true;
+        const title = document.createElement("h4");
+        let titleText = player.name || "שחקן ללא שם";
+        title.textContent = titleText;
+        title.style.color = colorMap[player.color] || "black";
+        card.appendChild(title);
+
+        if (player.number) {
+            const shirtIcon = document.createElement("div");
+            shirtIcon.classList.add("shirt-icon");
+            shirtIcon.textContent = player.number;
+            shirtIcon.style.backgroundColor = colorMap[player.color] || "black";
+            if (['yellow', 'white', 'pink'].includes((colorMap[player.color] || "black"))) {
+                shirtIcon.style.color = "black";
+            } else {
+                shirtIcon.style.color = "white";
+            }
+            card.appendChild(shirtIcon);
         }
 
-        function updateAnalystPlayersList() {
-            const list = document.getElementById("analyst-players-list");
-            list.innerHTML = "";
-            analystPlayers.forEach((player, i) => {
-                const card = document.createElement("div");
-                card.classList.add("player-card");
+        let teamNameDisplayed = player.teamSide === 'A' ? analystTeamAName : analystTeamBName;
+        const pTeamSide = document.createElement("p");
+        pTeamSide.textContent = `משחק ב: ${teamNameDisplayed}`;
+        card.appendChild(pTeamSide);
 
-                const delBtn = document.createElement("div");
-                delBtn.classList.add("delete-player-btn");
-                delBtn.textContent = "X";
-                delBtn.onclick = () => {
-                    analystPlayers.splice(i, 1);
-                    updateAnalystPlayersList();
-                };
-                card.appendChild(delBtn);
-
-                const title = document.createElement("h4");
-                let titleText = player.name || "שחקן ללא שם";
-                title.textContent = titleText;
-                title.style.color = colorMap[player.color] || "black";
-                card.appendChild(title);
-
-                if (player.number) {
-                    const shirtIcon = document.createElement("div");
-                    shirtIcon.classList.add("shirt-icon");
-                    shirtIcon.textContent = player.number;
-                    shirtIcon.style.backgroundColor = colorMap[player.color] || "black";
-                    if (['yellow', 'white', 'pink'].includes((colorMap[player.color] || "black"))) {
-                        shirtIcon.style.color = "black";
-                    } else {
-                        shirtIcon.style.color = "white";
-                    }
-                    card.appendChild(shirtIcon);
-                }
-
-                let teamNameDisplayed = player.teamSide === 'A' ? analystTeamAName : analystTeamBName;
-                const pTeamSide = document.createElement("p");
-                pTeamSide.textContent = `משחק ב: ${teamNameDisplayed}`;
-                card.appendChild(pTeamSide);
-
-                if (player.position) {
-                    const pPos = document.createElement("p");
-                    pPos.textContent = `תפקיד: ${player.position}`;
-                    card.appendChild(pPos);
-                }
-
-                list.appendChild(card);
-            });
+        if (player.position) {
+            const pPos = document.createElement("p");
+            pPos.textContent = `תפקיד: ${player.position}`;
+            card.appendChild(pPos);
         }
 
-        function submitAnalystSetup() {
-            document.getElementById("analyst-setup-container").classList.add("hidden");
-            loadAnalystActions();
-            document.getElementById("analyst-actions-container").classList.remove("hidden");
-        }
+        list.appendChild(card);
+    });
+}
 
-        function loadAnalystActions() {
-            const container = document.getElementById("analyst-players-actions");
-            container.innerHTML = "";
+function submitAnalystSetup() {
+    document.getElementById("analyst-setup-container").classList.add("hidden");
+    loadAnalystActions();
+    document.getElementById("analyst-actions-container").classList.remove("hidden");
+}
 
-            if (analystPlayers.length === 0) {
-                const p = document.createElement("p");
-                p.textContent = "לא נוספו שחקנים. הוסף שחקן ולאחר מכן בחר פעולות.";
-                container.appendChild(p);
+function loadAnalystActions() {
+    const container = document.getElementById("analyst-players-actions");
+    container.innerHTML = "";
+
+    if (analystPlayers.length === 0) {
+        const p = document.createElement("p");
+        p.textContent = "לא נוספו שחקנים. הוסף שחקן ולאחר מכן בחר פעולות.";
+        container.appendChild(p);
+        return;
+    }
+
+    analystPlayers.forEach((player, index) => {
+        const playerDiv = document.createElement("div");
+        playerDiv.style.borderBottom = "1px solid #ddd";
+        playerDiv.style.marginBottom = "20px";
+        const title = document.createElement("h3");
+        let teamNameDisplayed = player.teamSide === 'A' ? analystTeamAName : analystTeamBName;
+        title.textContent = `${player.name || 'שחקן'} (${player.number ? '#' + player.number : ''}) - ${player.position || 'ללא תפקיד'} [${teamNameDisplayed}]`;
+        title.style.color = colorMap[player.color] || "black";
+        playerDiv.appendChild(title);
+
+        const actionsForPosition = positionActions[player.position] || [];
+
+        const profTitle = document.createElement("h4");
+        profTitle.textContent = "פעולות מקצועיות:";
+        playerDiv.appendChild(profTitle);
+
+        const profActionsDiv = document.createElement("div");
+        profActionsDiv.classList.add("actions-grid");
+        actionsForPosition.forEach(action => {
+            profActionsDiv.appendChild(createAnalystSelectableAction(action));
+        });
+        playerDiv.appendChild(profActionsDiv);
+
+        const mentalTitle = document.createElement("h4");
+        mentalTitle.textContent = "פעולות מנטאליות:";
+        playerDiv.appendChild(mentalTitle);
+
+        const mentalActionsDiv = document.createElement("div");
+        mentalActionsDiv.classList.add("actions-grid");
+        mentalActions.forEach(action => {
+            mentalActionsDiv.appendChild(createAnalystSelectableAction(action));
+        });
+        playerDiv.appendChild(mentalActionsDiv);
+
+        const customTitle = document.createElement("h4");
+        customTitle.textContent = "פעולות מותאמות אישית:";
+        playerDiv.appendChild(customTitle);
+
+        const customActionsDiv = document.createElement("div");
+        customActionsDiv.classList.add("actions-grid");
+        playerDiv.appendChild(customActionsDiv);
+
+        const customGroup = document.createElement("div");
+        customGroup.classList.add("input-group");
+        const customInput = document.createElement("input");
+        customInput.type = "text";
+        customInput.placeholder = "הכנס פעולה מותאמת";
+
+        const addButton = document.createElement("button");
+        addButton.textContent = "הוסף";
+        addButton.classList.add("blue-btn");
+        addButton.onclick = () => {
+            const val = customInput.value.trim();
+            if (!val) {
+                alert("אנא כתוב שם פעולה לפני ההוספה");
                 return;
             }
+            customActionsDiv.appendChild(createAnalystSelectableAction(val));
+            customInput.value = "";
+        };
 
-            analystPlayers.forEach((player, index) => {
-                const playerDiv = document.createElement("div");
-                playerDiv.style.borderBottom = "1px solid #ddd";
-                playerDiv.style.marginBottom = "20px";
-                const title = document.createElement("h3");
-                let teamNameDisplayed = player.teamSide === 'A' ? analystTeamAName : analystTeamBName;
-                title.textContent = `${player.name || 'שחקן'} (${player.number ? '#' + player.number : ''}) - ${player.position || 'ללא תפקיד'} [${teamNameDisplayed}]`;
-                title.style.color = colorMap[player.color] || "black";
-                playerDiv.appendChild(title);
+        customGroup.appendChild(customInput);
+        customGroup.appendChild(addButton);
+        playerDiv.appendChild(customGroup);
 
-                const actionsForPosition = positionActions[player.position] || [];
+        container.appendChild(playerDiv);
+    });
+}
 
-                const profTitle = document.createElement("h4");
-                profTitle.textContent = "פעולות מקצועיות:";
-                playerDiv.appendChild(profTitle);
-
-                const profActionsDiv = document.createElement("div");
-                profActionsDiv.classList.add("actions-grid");
-                actionsForPosition.forEach(action => {
-                    profActionsDiv.appendChild(createAnalystSelectableAction(action));
-                });
-                playerDiv.appendChild(profActionsDiv);
-
-                const mentalTitle = document.createElement("h4");
-                mentalTitle.textContent = "פעולות מנטאליות:";
-                playerDiv.appendChild(mentalTitle);
-
-                const mentalActionsDiv = document.createElement("div");
-                mentalActionsDiv.classList.add("actions-grid");
-                mentalActions.forEach(action => {
-                    mentalActionsDiv.appendChild(createAnalystSelectableAction(action));
-                });
-                playerDiv.appendChild(mentalActionsDiv);
-
-                const customTitle = document.createElement("h4");
-                customTitle.textContent = "פעולות מותאמות אישית:";
-                playerDiv.appendChild(customTitle);
-
-                const customActionsDiv = document.createElement("div");
-                customActionsDiv.classList.add("actions-grid");
-                playerDiv.appendChild(customActionsDiv);
-
-                const customGroup = document.createElement("div");
-                customGroup.classList.add("input-group");
-                const customInput = document.createElement("input");
-                customInput.type = "text";
-                customInput.placeholder = "הכנס פעולה מותאמת";
-
-                const addButton = document.createElement("button");
-                addButton.textContent = "הוסף";
-                addButton.classList.add("blue-btn");
-                addButton.onclick = () => {
-                    const val = customInput.value.trim();
-                    if (!val) {
-                        alert("אנא כתוב שם פעולה לפני ההוספה");
-                        return;
-                    }
-                    customActionsDiv.appendChild(createAnalystSelectableAction(val));
-                    customInput.value = "";
-                };
-
-                customGroup.appendChild(customInput);
-                customGroup.appendChild(addButton);
-                playerDiv.appendChild(customGroup);
-
-                container.appendChild(playerDiv);
-            });
+function createAnalystSelectableAction(action) {
+    const div = document.createElement("div");
+    div.classList.add("action-item");
+    const label = document.createElement("label");
+    label.textContent = action;
+    label.onclick = () => {
+        if (label.classList.contains("selected")) {
+            label.classList.remove("selected");
+        } else {
+            label.classList.add("selected");
         }
+    };
+    div.appendChild(label);
+    return div;
+}
 
-        function createAnalystSelectableAction(action) {
-            const div = document.createElement("div");
-            div.classList.add("action-item");
-            const label = document.createElement("label");
-            label.textContent = action;
-            label.onclick = () => {
-                if (label.classList.contains("selected")) {
-                    label.classList.remove("selected");
-                } else {
-                    label.classList.add("selected");
+function submitAnalystActions() {
+    const containers = document.querySelectorAll('#analyst-players-actions > div[style]');
+    analystPlayers.forEach((player, index) => {
+        let chosenActions = [];
+        const lbls = containers[index].querySelectorAll("label.selected");
+        lbls.forEach(l => chosenActions.push(l.textContent));
+        player.finalActions = chosenActions;
+    });
+
+    document.getElementById("analyst-actions-container").classList.add("hidden");
+    loadAnalystMarking();
+    document.getElementById("analyst-marking-container").classList.remove("hidden");
+    startAnalystTimer();
+}
+
+function startAnalystTimer() {
+    document.getElementById("game-timer").classList.remove("hidden");
+    gameMinute = 0;
+    document.getElementById("minute-counter").textContent = gameMinute;
+    if (gameInterval) clearInterval(gameInterval);
+    gameInterval = setInterval(() => {
+        gameMinute++;
+        document.getElementById("minute-counter").textContent = gameMinute;
+    }, 60000);
+    analystStartTime = true;
+}
+
+function loadAnalystMarking() {
+    const container = document.getElementById("analyst-marking-players");
+    container.innerHTML = "";
+
+    if (analystPlayers.length === 0) {
+        const p = document.createElement("p");
+        p.textContent = "לא נוספו שחקנים.";
+        container.appendChild(p);
+        return;
+    }
+
+    analystPlayers.forEach((player, index) => {
+        if (!player.notes) player.notes = [];
+        const playerWrapper = document.createElement("div");
+        playerWrapper.style.borderBottom = "1px solid #ddd";
+        playerWrapper.style.marginBottom = "20px";
+
+        const header = document.createElement("div");
+        header.classList.add("marking-player-header");
+        let teamNameDisplayed = player.teamSide === 'A' ? analystTeamAName : analystTeamBName;
+        let numHTML = player.number ? `<span class="shirt-number" style="background:${colorMap[player.color] || 'black'};padding:2px 5px;border-radius:5px;font-weight:bold;color:${(['yellow', 'white', 'pink'].includes((colorMap[player.color] || "black")) ? 'black' : 'white')}">${player.number}</span>` : '';
+        header.innerHTML = `${numHTML} ${player.name || 'שחקן'} - ${player.position || 'ללא תפקיד'} [${teamNameDisplayed}]`;
+        header.style.color = colorMap[player.color] || "black";
+
+        const actionsDiv = document.createElement("div");
+        actionsDiv.classList.add("marking-player-actions");
+
+        const notesContainer = document.createElement("div");
+        notesContainer.style.marginBottom = "10px";
+
+        const addNoteBtn = document.createElement("button");
+        addNoteBtn.textContent = "הוסף הערה";
+        addNoteBtn.classList.add("blue-btn");
+        addNoteBtn.style.marginBottom = "10px";
+        addNoteBtn.onclick = () => {
+            const noteDiv = document.createElement("div");
+            noteDiv.style.marginBottom = "5px";
+
+            const ta = document.createElement("textarea");
+            ta.placeholder = "הערה לשחקן זה (אופציונלי)";
+            ta.style.display = "block";
+            ta.style.marginBottom = "5px";
+
+            const btnSave = document.createElement("button");
+            btnSave.textContent = "שמור הערה";
+            btnSave.classList.add("blue-btn");
+            btnSave.style.marginRight = "5px";
+            const btnCancel = document.createElement("button");
+            btnCancel.textContent = "בטל";
+            btnCancel.classList.add("blue-btn");
+
+            btnSave.onclick = () => {
+                const val = ta.value.trim();
+                if (!val) {
+                    alert("אין טקסט בהערה");
+                    return;
                 }
+                player.notes.push({ text: val });
+                noteDiv.innerHTML = `<p style="font-style:italic;">- ${val}</p>`;
             };
-            div.appendChild(label);
-            return div;
-        }
 
-        function submitAnalystActions() {
-            const containers = document.querySelectorAll('#analyst-players-actions > div[style]');
-            analystPlayers.forEach((player, index) => {
-                let chosenActions = [];
-                const lbls = containers[index].querySelectorAll("label.selected");
-                lbls.forEach(l => chosenActions.push(l.textContent));
-                player.finalActions = chosenActions;
+            btnCancel.onclick = () => {
+                noteDiv.remove();
+            };
+
+            noteDiv.appendChild(ta);
+            noteDiv.appendChild(btnSave);
+            noteDiv.appendChild(btnCancel);
+            notesContainer.appendChild(noteDiv);
+        };
+
+        notesContainer.appendChild(addNoteBtn);
+        actionsDiv.appendChild(notesContainer);
+
+        header.onclick = () => {
+            actionsDiv.classList.toggle("visible");
+        };
+
+        playerWrapper.appendChild(header);
+
+        if (player.finalActions && player.finalActions.length > 0) {
+            player.finalActions.forEach(action => {
+                const row = document.createElement("div");
+                row.classList.add("action-group");
+
+                const badBtn = document.createElement("button");
+                badBtn.textContent = "X";
+                badBtn.style.backgroundColor = "#f44336";
+                badBtn.onclick = () => markAnalystAction(index, action, "לא מוצלח");
+
+                const h2 = document.createElement("h2");
+                h2.textContent = action;
+
+                const goodBtn = document.createElement("button");
+                goodBtn.textContent = "V";
+                goodBtn.style.backgroundColor = "#4CAF50";
+                goodBtn.onclick = () => markAnalystAction(index, action, "מוצלח");
+
+                row.appendChild(badBtn);
+                row.appendChild(h2);
+                row.appendChild(goodBtn);
+                actionsDiv.appendChild(row);
             });
-
-            document.getElementById("analyst-actions-container").classList.add("hidden");
-            loadAnalystMarking();
-            document.getElementById("analyst-marking-container").classList.remove("hidden");
-            startAnalystTimer();
+        } else {
+            const p = document.createElement("p");
+            p.textContent = "לא נבחרו פעולות.";
+            actionsDiv.appendChild(p);
         }
 
-        function startAnalystTimer() {
-            document.getElementById("game-timer").classList.remove("hidden");
-            gameMinute = 0;
-            document.getElementById("minute-counter").textContent = gameMinute;
-            if (gameInterval) clearInterval(gameInterval);
-            gameInterval = setInterval(() => {
-                gameMinute++;
-                document.getElementById("minute-counter").textContent = gameMinute;
-            }, 60000);
-            analystStartTime = true;
+        playerWrapper.appendChild(actionsDiv);
+        container.appendChild(playerWrapper);
+    });
+}
+
+function markAnalystAction(playerIndex, action, result) {
+    analystGameActions.push({ playerIndex, action, result, minute: gameMinute });
+    showPopup(`פעולה "${action}" (${result}) נרשמה!`, result.includes("מוצלח") ? "good" : "bad");
+}
+
+function finishAnalystGame() {
+    const generalNote = document.getElementById("analyst-general-note").value.trim();
+    document.getElementById("analyst-marking-container").classList.add("hidden");
+    showFinalSummary(generalNote);
+}
+
+function showFinalSummary(generalNote) {
+    const finalContainer = document.getElementById("analyst-final-summary-container");
+    finalContainer.classList.remove("hidden");
+
+    const finalDataDiv = document.getElementById("analyst-final-data");
+    finalDataDiv.innerHTML = "";
+
+    const title = document.createElement("h3");
+    title.textContent = `משחק בין ${analystTeamAName} ל-${analystTeamBName} בתאריך: ${analystGameDate}`;
+    finalDataDiv.appendChild(title);
+
+    const playersTitle = document.createElement("h3");
+    playersTitle.textContent = "נתוני השחקנים:";
+    finalDataDiv.appendChild(playersTitle);
+
+    analystPlayers.forEach((player, index) => {
+        const card = document.createElement("div");
+        card.style.border = "1px solid #ccc";
+        card.style.borderRadius = "5px";
+        card.style.padding = "10px";
+        card.style.marginBottom = "10px";
+
+        let teamNameDisplayed = player.teamSide === 'A' ? analystTeamAName : analystTeamBName;
+        let info = `${player.name || 'שחקן'} ${player.number ? ('#' + player.number) : ''} - ${player.position || 'ללא תפקיד'} [${teamNameDisplayed}]<br>`;
+        const pInfo = document.createElement("p");
+        pInfo.innerHTML = info;
+        pInfo.style.color = colorMap[player.color] || "black";
+        card.appendChild(pInfo);
+
+        const filteredActions = analystGameActions.filter(a => a.playerIndex === index);
+        if (player.finalActions && player.finalActions.length > 0 && filteredActions.length > 0) {
+            const ul = document.createElement("ul");
+            filteredActions.forEach(a => {
+                const li = document.createElement("li");
+                li.textContent = `${a.action}: ${a.result} (דקה ${a.minute})`;
+                ul.appendChild(li);
+            });
+            card.appendChild(ul);
+        } else {
+            const pNo = document.createElement("p");
+            pNo.textContent = "לא נבחרו פעולות או לא בוצעו.";
+            card.appendChild(pNo);
         }
 
-        function loadAnalystMarking() {
-            const container = document.getElementById("analyst-marking-players");
-            container.innerHTML = "";
+        if (player.notes && player.notes.length > 0) {
+            const notesTitle = document.createElement("p");
+            notesTitle.style.fontWeight = "bold";
+            notesTitle.textContent = "הערות על השחקן:";
+            card.appendChild(notesTitle);
 
-            if (analystPlayers.length === 0) {
-                const p = document.createElement("p");
-                p.textContent = "לא נוספו שחקנים.";
-                container.appendChild(p);
-                return;
-            }
-
-            analystPlayers.forEach((player, index) => {
-                if (!player.notes) player.notes = [];
-                const playerWrapper = document.createElement("div");
-                playerWrapper.style.borderBottom = "1px solid #ddd";
-                playerWrapper.style.marginBottom = "20px";
-
-                const header = document.createElement("div");
-                header.classList.add("marking-player-header");
-                let teamNameDisplayed = player.teamSide === 'A' ? analystTeamAName : analystTeamBName;
-                let numHTML = player.number ? `<span class="shirt-number" style="background:${colorMap[player.color] || 'black'};padding:2px 5px;border-radius:5px;font-weight:bold;color:${(['yellow', 'white', 'pink'].includes((colorMap[player.color] || "black")) ? 'black' : 'white')}">${player.number}</span>` : '';
-                header.innerHTML = `${numHTML} ${player.name || 'שחקן'} - ${player.position || 'ללא תפקיד'} [${teamNameDisplayed}]`;
-                header.style.color = colorMap[player.color] || "black";
-
-                const actionsDiv = document.createElement("div");
-                actionsDiv.classList.add("marking-player-actions");
-
-                const notesContainer = document.createElement("div");
-                notesContainer.style.marginBottom = "10px";
-
-                const addNoteBtn = document.createElement("button");
-                addNoteBtn.textContent = "הוסף הערה";
-                addNoteBtn.classList.add("blue-btn");
-                addNoteBtn.style.marginBottom = "10px";
-                addNoteBtn.onclick = () => {
-                    const noteDiv = document.createElement("div");
-                    noteDiv.style.marginBottom = "5px";
-
-                    const ta = document.createElement("textarea");
-                    ta.placeholder = "הערה לשחקן זה (אופציונלי)";
-                    ta.style.display = "block";
-                    ta.style.marginBottom = "5px";
-
-                    const btnSave = document.createElement("button");
-                    btnSave.textContent = "שמור הערה";
-                    btnSave.classList.add("blue-btn");
-                    btnSave.style.marginRight = "5px";
-                    const btnCancel = document.createElement("button");
-                    btnCancel.textContent = "בטל";
-                    btnCancel.classList.add("blue-btn");
-
-                    btnSave.onclick = () => {
-                        const val = ta.value.trim();
-                        if (!val) {
-                            alert("אין טקסט בהערה");
-                            return;
-                        }
-                        player.notes.push({ text: val });
-                        noteDiv.innerHTML = `<p style="font-style:italic;">- ${val}</p>`;
-                    };
-
-                    btnCancel.onclick = () => {
-                        noteDiv.remove();
-                    };
-
-                    noteDiv.appendChild(ta);
-                    noteDiv.appendChild(btnSave);
-                    noteDiv.appendChild(btnCancel);
-                    notesContainer.appendChild(noteDiv);
-                };
-
-                notesContainer.appendChild(addNoteBtn);
-                actionsDiv.appendChild(notesContainer);
-
-                header.onclick = () => {
-                    actionsDiv.classList.toggle("visible");
-                };
-
-                playerWrapper.appendChild(header);
-
-                if (player.finalActions && player.finalActions.length > 0) {
-                    player.finalActions.forEach(action => {
-                        const row = document.createElement("div");
-                        row.classList.add("action-group");
-
-                        const badBtn = document.createElement("button");
-                        badBtn.textContent = "X";
-                        badBtn.style.backgroundColor = "#f44336";
-                        badBtn.onclick = () => markAnalystAction(index, action, "לא מוצלח");
-
-                        const h2 = document.createElement("h2");
-                        h2.textContent = action;
-
-                        const goodBtn = document.createElement("button");
-                        goodBtn.textContent = "V";
-                        goodBtn.style.backgroundColor = "#4CAF50";
-                        goodBtn.onclick = () => markAnalystAction(index, action, "מוצלח");
-
-                        row.appendChild(badBtn);
-                        row.appendChild(h2);
-                        row.appendChild(goodBtn);
-                        actionsDiv.appendChild(row);
-                    });
-                } else {
-                    const p = document.createElement("p");
-                    p.textContent = "לא נבחרו פעולות.";
-                    actionsDiv.appendChild(p);
+            player.notes.forEach(n => {
+                if (n.text && n.text.trim()) {
+                    const noteP = document.createElement("p");
+                    noteP.style.fontStyle = "italic";
+                    noteP.textContent = "- " + n.text;
+                    card.appendChild(noteP);
                 }
-
-                playerWrapper.appendChild(actionsDiv);
-                container.appendChild(playerWrapper);
             });
         }
 
-        function markAnalystAction(playerIndex, action, result) {
-            analystGameActions.push({ playerIndex, action, result, minute: gameMinute });
-            showPopup(`פעולה "${action}" (${result}) נרשמה!`, result.includes("מוצלח") ? "good" : "bad");
-        }
+        finalDataDiv.appendChild(card);
+    });
 
-        function finishAnalystGame() {
-            const generalNote = document.getElementById("analyst-general-note").value.trim();
-            document.getElementById("analyst-marking-container").classList.add("hidden");
-            showFinalSummary(generalNote);
-        }
+    if (generalNote) {
+        const gNoteP = document.createElement("p");
+        gNoteP.style.fontWeight = "bold";
+        gNoteP.textContent = "הערה כללית: " + generalNote;
+        finalDataDiv.appendChild(gNoteP);
+    }
+}
 
-        function showFinalSummary(generalNote) {
-            const finalContainer = document.getElementById("analyst-final-summary-container");
-            finalContainer.classList.remove("hidden");
+async function downloadPDFAnalyst() {
+    const elem = document.getElementById("analyst-final-summary-container");
+    const canvas = await html2canvas(elem);
+    const imgData = canvas.toDataURL('image/png');
 
-            const finalDataDiv = document.getElementById("analyst-final-data");
-            finalDataDiv.innerHTML = "";
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save("summary.pdf");
+}
 
-            const title = document.createElement("h3");
-            title.textContent = `משחק בין ${analystTeamAName} ל-${analystTeamBName} בתאריך: ${analystGameDate}`;
-            finalDataDiv.appendChild(title);
+function goToCoachLiveGame() {
+    document.getElementById("final-summary-container").classList.add("hidden");
+    document.getElementById("coach-live-game-container").classList.remove("hidden");
+}
 
-            const playersTitle = document.createElement("h3");
-            playersTitle.textContent = "נתוני השחקנים:";
-            finalDataDiv.appendChild(playersTitle);
-
-            analystPlayers.forEach((player, index) => {
-                const card = document.createElement("div");
-                card.style.border = "1px solid #ccc";
-                card.style.borderRadius = "5px";
-                card.style.padding = "10px";
-                card.style.marginBottom = "10px";
-
-                let teamNameDisplayed = player.teamSide === 'A' ? analystTeamAName : analystTeamBName;
-                let info = `${player.name || 'שחקן'} ${player.number ? ('#' + player.number) : ''} - ${player.position || 'ללא תפקיד'} [${teamNameDisplayed}]<br>`;
-                const pInfo = document.createElement("p");
-                pInfo.innerHTML = info;
-                pInfo.style.color = colorMap[player.color] || "black";
-                card.appendChild(pInfo);
-
-                const filteredActions = analystGameActions.filter(a => a.playerIndex === index);
-                if (player.finalActions && player.finalActions.length > 0 && filteredActions.length > 0) {
-                    const ul = document.createElement("ul");
-                    filteredActions.forEach(a => {
-                        const li = document.createElement("li");
-                        li.textContent = `${a.action}: ${a.result} (דקה ${a.minute})`;
-                        ul.appendChild(li);
-                    });
-                    card.appendChild(ul);
-                } else {
-                    const pNo = document.createElement("p");
-                    pNo.textContent = "לא נבחרו פעולות או לא בוצעו.";
-                    card.appendChild(pNo);
-                }
-
-                if (player.notes && player.notes.length > 0) {
-                    const notesTitle = document.createElement("p");
-                    notesTitle.style.fontWeight = "bold";
-                    notesTitle.textContent = "הערות על השחקן:";
-                    card.appendChild(notesTitle);
-
-                    player.notes.forEach(n => {
-                        if (n.text && n.text.trim()) {
-                            const noteP = document.createElement("p");
-                            noteP.style.fontStyle = "italic";
-                            noteP.textContent = "- " + n.text;
-                            card.appendChild(noteP);
-                        }
-                    });
-                }
-
-                finalDataDiv.appendChild(card);
-            });
-
-            if (generalNote) {
-                const gNoteP = document.createElement("p");
-                gNoteP.style.fontWeight = "bold";
-                gNoteP.textContent = "הערה כללית: " + generalNote;
-                finalDataDiv.appendChild(gNoteP);
-            }
-        }
-
-        async function downloadPDFAnalyst() {
-            const elem = document.getElementById("analyst-final-summary-container");
-            const canvas = await html2canvas(elem);
-            const imgData = canvas.toDataURL('image/png');
-
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'pt', 'a4');
-            const imgProps = pdf.getImageProperties(imgData);
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save("summary.pdf");
-        }
-
-        // מעבר למשחק חי של מאמן
-        function goToCoachLiveGame() {
-            document.getElementById("final-summary-container").classList.add("hidden");
-            document.getElementById("coach-live-game-container").classList.remove("hidden");
-        }
-
-        function startCoachLiveGame() {
-            document.getElementById("coach-live-game-container").classList.add("hidden");
-            document.getElementById("coach-live-update-container").classList.remove("hidden");
-        }
-
-       
+function startCoachLiveGame() {
+    document.getElementById("coach-live-game-container").classList.add("hidden");
+    document.getElementById("coach-live-update-container").classList.remove("hidden");
+}
