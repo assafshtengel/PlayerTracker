@@ -10,7 +10,7 @@ let coachData = {
         "midfield":[],
         "attack":[]
     },
-    selectedGoals: [], // מטרות שנבחרו מכל החוליות
+    selectedGoals: [],
     actions: [],
     notes: [],
     quickNotes: [],
@@ -28,7 +28,6 @@ const defenseGoals = ["תיקול מוצלח", "הגנה על הקו", "נגיח
 const midfieldGoals = ["מסירה קדימה מדויקת", "חילוץ כדור", "שליטה בקצב המשחק"];
 const attackGoals = ["בעיטה למסגרת", "דריבל מוצלח", "נוכחות ברחבה"];
 
-// הכנת צבעים לבחירה
 document.addEventListener('DOMContentLoaded',()=>{
     createColorPalette("coach-teamA-colors",(color)=>{
         coachData.teamAColor = color;
@@ -39,7 +38,6 @@ document.addEventListener('DOMContentLoaded',()=>{
         checkCoachFormValidity();
     });
 
-    // הצגת מטרות ראשוניות
     loadHooliaGoals("goal-keeper",keeperGoals);
     loadHooliaGoals("defense",defenseGoals);
     loadHooliaGoals("midfield",midfieldGoals);
@@ -120,7 +118,6 @@ function createGoalCard(goal,hoolia){
         }else{
             div.dataset.selected="false";
             div.classList.remove("selected-action");
-            // הסרה מהמערך
             coachData.goals[hoolia]=coachData.goals[hoolia].filter(x=>x!==goal);
         }
     };
@@ -143,7 +140,6 @@ function addCoachGoal(hoolia){
 function submitCoachSetup(){
     document.getElementById("coach-setup-container").classList.add("hidden");
     document.getElementById("coach-tracking-container").classList.remove("hidden");
-    // הכנת מטרות שנבחרו כתצוגה למסך המעקב
     const allSelectedGoals=[];
     Object.keys(coachData.goals).forEach(h=>{
         coachData.goals[h].forEach(g=>{
@@ -177,6 +173,9 @@ function startCoachGame(){
     },60000);
 }
 
+let coachActionPopupTimeout=null;
+let currentCoachAction=null;
+
 function openCoachActionPopup(item){
     const popup=document.getElementById("coach-action-popup");
     document.getElementById("coach-action-popup-header").textContent=item.goal;
@@ -188,8 +187,6 @@ function openCoachActionPopup(item){
     currentCoachAction=item;
 }
 
-let coachActionPopupTimeout=null;
-let currentCoachAction=null;
 function coachUserInteractedWithPopup(){
     if(coachActionPopupTimeout)clearTimeout(coachActionPopupTimeout);
     coachActionPopupTimeout=setTimeout(()=>closeCoachActionPopup(),4000);
@@ -271,7 +268,6 @@ function captureTacticalBoard(){
 
 function endCoachHalf(){
     if(coachData.gameInterval){clearInterval(coachData.gameInterval);coachData.gameInterval=null;}
-    // הצגת סיכום מחצית
     const popup=document.getElementById("coach-half-summary-popup");
     const content=document.getElementById("coach-half-summary-content");
     content.innerHTML=getCoachSummaryHTML();
@@ -301,9 +297,7 @@ function closeCoachHalfSummary(){
 function endCoachGame(){
     if(coachData.gameInterval){clearInterval(coachData.gameInterval);coachData.gameInterval=null;}
     coachData.gameFinished=true;
-    // קריאת המסר ממצב רוח
     coachData.moodMessage=document.getElementById("coach-mood-message").value.trim()||"";
-    // מעבר לסיכום סופי
     document.getElementById("coach-tracking-container").classList.add("hidden");
     document.getElementById("coach-summary-container").classList.remove("hidden");
     const summaryContent=document.getElementById("coach-summary-content");
@@ -311,7 +305,6 @@ function endCoachGame(){
 }
 
 function getCoachSummaryHTML(){
-    // סיכום פשוט: ספירה של מוצלח/לא מוצלח מכל המטרות
     let html="<h3>סיכום מחצית</h3>";
     coachData.selectedGoals.forEach(g=>{
         html+=`<p>${g.goal}: מוצלח ${g.successful}, לא מוצלח ${g.unsuccessful}</p>`;
@@ -355,7 +348,6 @@ function savePDFCoach(){
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const summaryContent=document.getElementById("coach-summary-content").innerHTML;
-    // המרה בסיסית של טקסט (פשוטה, לא HTML מלא)
     doc.text("סיכום המשחק (מאמן)",10,10);
     doc.text("ראה מסמך HTML מלא לדוח מורכב.",10,20);
     doc.save("coach_summary.pdf");
@@ -372,7 +364,6 @@ function takeScreenshotCoach(){
     });
 }
 
-// פונקציה showPopup, אם תרצה הודעות קצרות:
 function showPopupCoach(message,type="neutral"){
     const popup=document.getElementById("popup");
     popup.textContent=message;
@@ -382,4 +373,3 @@ function showPopupCoach(message,type="neutral"){
     else popup.classList.add("popup-neutral");
     setTimeout(()=>{popup.classList.add("hidden");},800);
 }
-
