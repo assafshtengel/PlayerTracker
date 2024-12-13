@@ -4,7 +4,6 @@ import sqlite3
 
 app = Flask(__name__)
 
-# פונקציה ליצירת טבלת נתונים
 def init_db():
     conn = sqlite3.connect('games.db')
     c = conn.cursor()
