@@ -1,3 +1,4 @@
+
 const ACCESS_CODE = "1976";
 
 let actions = [];
@@ -43,21 +44,11 @@ const colorMap = {
 };
 const paletteColors = ["אדום", "כחול", "ירוק", "צהוב", "שחור", "לבן", "כתום", "סגול", "ורוד", "חום", "אפור", "טורקיז"];
 
-const goalsKeeper = [];
-const goalsDefense = [];
-const goalsMidfield = [];
-const goalsAttack = [];
-
-// נשנה את הלוגיקה: במקום להציג את כל המטרות כברירת מחדל, המאמן בוחר מתוך positionActions. כאן נניח שכבר בחר.
-// אך בהתאם לבקשה: בסיכום הסופי יציג רק את מה שנבחר על ידי המאמן.
-
-// מטרות קבוצתיות שנבחרו:
 let chosenKeeperGoals = [];
 let chosenDefenseGoals = [];
 let chosenMidfieldGoals = [];
 let chosenAttackGoals = [];
 
-// מטרות מותאמות לחוליות (עד 30 לכל חוליה)
 let customKeeperGoals = [];
 let customDefenseGoals = [];
 let customMidfieldGoals = [];
@@ -65,22 +56,12 @@ let customAttackGoals = [];
 
 const CUSTOM_GOAL_LIMIT = 30;
 
-// מטרות אישיות לשחקנים (מתוך התפקידים)
 let personalPlayersGoals = []; 
-// {playerName, positions:[], goals: [{goal, numeric}]}
 
-// למטרות אישיות: 
-// שלב 1: פופאפ personal-goals-popup (בחירת שם ותפקידים)
-// שלב 2: personal-goals-selection-popup (בחירת מטרות מתוך האיחוד + מותאמות)
-// שלב 3: personal-goals-numeric-popup (יעדים מספריים)
-
-// משתנים גלובליים לתהליך מטרות אישיות:
 let currentPersonalPlayerName = "";
 let currentPersonalPlayerPositions = [];
-let currentPersonalPlayerGoals = []; // מטרות שנבחרו בשלב הבחירה
-let currentPersonalPlayerFinalGoals = []; // לאחר הוספת מותאמות
-let currentAllGoalsForPositions = []; // כל המטרות הרלוונטיות לתפקידים
-
+let currentPersonalPlayerGoals = [];
+let currentAllGoalsForPositions = [];
 function selectRole(role) {
     const roleContainer = document.getElementById("role-selection-container");
     if (roleContainer) {
@@ -292,6 +273,19 @@ function addCustomAction() {
         alert("אנא כתוב שם פעולה לפני ההוספה");
         return;
     }
+    function addAnotherPersonalPlayer(yes) {
+    closePersonalGoalsAnotherPlayerPopup();
+    if (yes) {
+        resetPersonalGoalsPopup();
+        openPersonalGoalsPopup();
+    } else {
+        showPersonalGoalsNotes();
+        // לאחר שבחרנו לא להוסיף עוד שחקן, נבטל את הסימון של "מעוניין במטרות אישיות"
+        const personalCheck = document.getElementById("coach-ask-personal-goals");
+        personalCheck.checked = false;
+    }
+}
+
     customActionsArr.push(val);
     const container = document.getElementById("custom-actions");
     const div = document.createElement("div");
