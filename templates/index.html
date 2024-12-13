@@ -85,7 +85,6 @@
             <h2>הגדרת משחק למאמן</h2>
             <div class="input-group">
                 <input type="text" id="coach-teamA" placeholder="שם קבוצה א'">
-                <!-- צבע קבוצה א' -->
                 <h3>צבע קבוצה א'</h3>
                 <div id="coach-teamA-color-palette" class="color-palette"></div>
                 <button id="coach-teamA-change-color" class="blue-btn hidden" onclick="resetTeamAColor()">שנה צבע</button>
@@ -174,22 +173,20 @@
             <span class="close-btn" onclick="closePersonalGoalsPopup()">X</span>
             <div class="popup-content" id="personal-goals-popup-content">
                 <h3>מטרות אישיות לשחקן</h3>
-                <input type="text" id="personal-player-name" placeholder="שם השחקן">
-                <select id="personal-player-position">
-                    <option value="" disabled selected>בחר תפקיד</option>
-                    <option value="שוער">שוער</option>
-                    <option value="בלם">בלם</option>
-                    <option value="מגן">מגן</option>
-                    <option value="קשר">קשר</option>
-                    <option value="חלוץ">חלוץ</option>
-                    <option value="כנף">כנף</option>
-                </select>
-                <div id="personal-player-actions-container" class="actions-grid"></div>
-                <h3>הוסף מטרה מותאמת אישית לשחקן</h3>
-                <div class="input-group">
-                    <input type="text" id="personal-player-custom-goal-input" placeholder="הוסף מטרה לשחקן">
-                    <button class="blue-btn" onclick="addPersonalPlayerCustomGoal()">הוסף</button>
+                <input type="text" id="personal-player-name" class="large-input" placeholder="שם השחקן (גדול ובולט)">
+                <div class="checkbox-group">
+                    <p><strong>בחר תפקיד (ניתן לבחור יותר מאחד):</strong></p>
+                    <label><input type="checkbox" name="personal-player-roles" value="שוער"> שוער</label>
+                    <label><input type="checkbox" name="personal-player-roles" value="בלם"> בלם</label>
+                    <label><input type="checkbox" name="personal-player-roles" value="מגן"> מגן</label>
+                    <label><input type="checkbox" name="personal-player-roles" value="קשר"> קשר</label>
+                    <label><input type="checkbox" name="personal-player-roles" value="חלוץ"> חלוץ</label>
+                    <label><input type="checkbox" name="personal-player-roles" value="כנף"> כנף</label>
                 </div>
+                <div id="personal-player-actions-container" class="actions-grid"></div>
+
+                <!-- הסרת הוסף מטרה לשחקן מותאמת אישית -->
+                
                 <button class="blue-btn" onclick="finishPersonalPlayerGoals()">סיום</button>
             </div>
         </div>
@@ -197,7 +194,7 @@
         <!-- פופאפ יעדים מספריים למטרות השחקן -->
         <div id="personal-goals-numeric-popup" class="popup">
             <span class="close-btn" onclick="closePersonalGoalsNumericPopup()">X</span>
-            <div class="popup-content" id="personal-goals-numeric-popup-content">
+            <div class="popup-content numeric-content" id="personal-goals-numeric-popup-content">
                 <h3>הזן יעדים מספריים למטרות</h3>
                 <div id="personal-goals-numeric-table"></div>
                 <button class="blue-btn" onclick="finishPersonalGoalsNumeric()">אישור</button>
@@ -207,18 +204,35 @@
         <!-- פופאפ המשך לשחקן נוסף -->
         <div id="personal-goals-another-player-popup" class="popup">
             <span class="close-btn" onclick="closePersonalGoalsAnotherPlayerPopup()">X</span>
-            <div class="popup-content">
+            <div class="popup-content" style="display:flex;flex-direction:column;align-items:flex-start;gap:20px;">
                 <p>האם להוסיף מטרות אישיות לשחקן נוסף?</p>
-                <button class="blue-btn" onclick="addAnotherPersonalPlayer(true)">כן</button>
-                <button class="blue-btn" onclick="addAnotherPersonalPlayer(false)">לא</button>
+                <div style="display:flex;gap:20px;">
+                    <button class="blue-btn" onclick="addAnotherPersonalPlayer(true)">כן</button>
+                    <button class="blue-btn" onclick="addAnotherPersonalPlayer(false)">לא</button>
+                </div>
             </div>
         </div>
 
-        <!-- עמוד סיכום סופי יפה (לאנליסט/מאמן) -->
+        <!-- עמוד סיכום סופי -->
         <section id="final-summary-container" class="hidden game-info-container">
             <h2>סיכום כל המטרות</h2>
             <div id="final-summary-content"></div>
             <button class="blue-btn" onclick="downloadFinalSummaryPDF()">הורד PDF</button>
+            <button class="blue-btn" onclick="goToCoachLiveGame()">המשך למשחק</button>
+        </section>
+
+        <!-- עמוד ביניים למשחק חי של מאמן -->
+        <section id="coach-live-game-container" class="hidden game-info-container">
+            <h2>התחל משחק בזמן אמת</h2>
+            <p>לאחר שהכול הוגדר, ניתן להתחיל מעקב בזמן אמת.</p>
+            <button class="blue-btn" onclick="startCoachLiveGame()">התחל משחק בזמן אמת</button>
+        </section>
+
+        <!-- עמוד לדוגמה לעדכון פעולות בזמן משחק (coach) -->
+        <section id="coach-live-update-container" class="hidden game-info-container">
+            <h2>עדכון פעולות בזמן משחק</h2>
+            <p>כאן תוכל לעדכן את הפעולות בזמן אמת ...</p>
+            <!-- ניתן להרחיב בעתיד -->
         </section>
 
         <!-- עבור שחקן -->
