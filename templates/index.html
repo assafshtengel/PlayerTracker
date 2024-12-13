@@ -148,7 +148,6 @@
                 <label><input type="checkbox" id="coach-ask-personal-goals"> מעוניין לתת גם מטרות אישיות לשחקנים?</label>
             </div>
 
-            <!-- פתקים צהובים למטרות אישיות שיופיעו בהמשך -->
             <div id="coach-personal-goals-notes" class="notes-container"></div>
 
             <button class="blue-btn" onclick="finishCoachSetup()">אישור</button>
@@ -187,7 +186,7 @@
             </div>
         </div>
 
-        <!-- פופאפ בחירת מטרות אישיות על פי התפקידים -->
+        <!-- פופאפ בחירת מטרות אישיות -->
         <div id="personal-goals-selection-popup" class="popup">
             <span class="close-btn" onclick="closePersonalGoalsSelectionPopup()">X</span>
             <div class="popup-content" id="personal-goals-selection-popup-content">
@@ -227,9 +226,10 @@
         <!-- עמוד סיכום סופי -->
         <section id="final-summary-container" class="hidden game-info-container">
             <h2>סיכום כל המטרות</h2>
+            <p id="final-summary-game-info"></p>
             <div id="final-summary-content"></div>
-            <button class="blue-btn" onclick="downloadFinalSummaryPDF()">הורד PDF</button>
-            <button class="blue-btn" onclick="goToCoachLiveGame()">המשך למשחק</button>
+            <button class="blue-btn" id="download-pdf-btn" onclick="downloadFinalSummaryPDF()">הורד PDF</button>
+            <button class="blue-btn" id="continue-to-live-btn" onclick="goToCoachLiveGame()">המשך למשחק</button>
         </section>
 
         <!-- עמוד ביניים למשחק חי של מאמן -->
@@ -242,7 +242,8 @@
         <!-- עמוד לעדכון פעולות בזמן משחק (coach) -->
         <section id="coach-live-update-container" class="hidden game-info-container">
             <h2>עדכון פעולות בזמן משחק</h2>
-            <p>כאן תוכל לעדכן את הפעולות בזמן אמת ... (כעת ריק)</p>
+            <p>כאן יוצגו כל המטרות שנבחרו, מקובצות לפי חוליה, מטרות מותאמות, ומטרות אישיות לשחקנים.</p>
+            <div id="live-update-content"></div>
         </section>
 
         <!-- עבור שחקן -->
