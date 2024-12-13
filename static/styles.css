@@ -17,6 +17,7 @@ body {
     font-weight: bold;
     max-width: 500px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    text-align:center;
 }
 
 .game-info-container {
@@ -38,7 +39,7 @@ body {
 
 .game-info-container h3 {
     font-size: 20px;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     color: #333;
 }
 
@@ -414,4 +415,8 @@ textarea {
     border-radius:5px;
     margin:5px 0;
     font-weight:bold;
+}
+
+#coach-teamA-change-color {
+    margin-top:10px;
 }
