@@ -168,12 +168,12 @@
             </div>
         </div>
 
-        <!-- פופאפ מטרות אישיות לשחקן -->
+        <!-- פופאפ מידע שחקן אישי -->
         <div id="personal-goals-popup" class="popup">
             <span class="close-btn" onclick="closePersonalGoalsPopup()">X</span>
             <div class="popup-content" id="personal-goals-popup-content">
                 <h3>מטרות אישיות לשחקן</h3>
-                <input type="text" id="personal-player-name" class="large-input" placeholder="שם השחקן (גדול ובולט)">
+                <input type="text" id="personal-player-name" class="large-input" placeholder="שם השחקן">
                 <div class="checkbox-group">
                     <p><strong>בחר תפקיד (ניתן לבחור יותר מאחד):</strong></p>
                     <label><input type="checkbox" name="personal-player-roles" value="שוער"> שוער</label>
@@ -183,11 +183,22 @@
                     <label><input type="checkbox" name="personal-player-roles" value="חלוץ"> חלוץ</label>
                     <label><input type="checkbox" name="personal-player-roles" value="כנף"> כנף</label>
                 </div>
-                <div id="personal-player-actions-container" class="actions-grid"></div>
+                <button class="blue-btn" onclick="confirmPersonalPlayerInfo()">אישור</button>
+            </div>
+        </div>
 
-                <!-- הסרת הוסף מטרה לשחקן מותאמת אישית -->
-                
-                <button class="blue-btn" onclick="finishPersonalPlayerGoals()">סיום</button>
+        <!-- פופאפ בחירת מטרות אישיות על פי התפקידים -->
+        <div id="personal-goals-selection-popup" class="popup">
+            <span class="close-btn" onclick="closePersonalGoalsSelectionPopup()">X</span>
+            <div class="popup-content" id="personal-goals-selection-popup-content">
+                <h3>בחר מטרות אישיות (מתוך התפקידים שנבחרו)</h3>
+                <div id="personal-goals-selection-list" class="actions-grid"></div>
+                <h3>הוסף מטרה מותאמת לשחקן</h3>
+                <div class="input-group">
+                    <input type="text" id="personal-player-custom-goal-input" placeholder="הוסף מטרה לשחקן">
+                    <button class="blue-btn" onclick="addPersonalPlayerCustomGoal()">הוסף</button>
+                </div>
+                <button class="blue-btn" onclick="finishPersonalPlayerGoalsSelection()">אישור</button>
             </div>
         </div>
 
@@ -228,11 +239,10 @@
             <button class="blue-btn" onclick="startCoachLiveGame()">התחל משחק בזמן אמת</button>
         </section>
 
-        <!-- עמוד לדוגמה לעדכון פעולות בזמן משחק (coach) -->
+        <!-- עמוד לעדכון פעולות בזמן משחק (coach) -->
         <section id="coach-live-update-container" class="hidden game-info-container">
             <h2>עדכון פעולות בזמן משחק</h2>
-            <p>כאן תוכל לעדכן את הפעולות בזמן אמת ...</p>
-            <!-- ניתן להרחיב בעתיד -->
+            <p>כאן תוכל לעדכן את הפעולות בזמן אמת ... (כעת ריק)</p>
         </section>
 
         <!-- עבור שחקן -->
