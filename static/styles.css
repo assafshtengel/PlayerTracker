@@ -417,6 +417,44 @@ textarea {
     font-weight:bold;
 }
 
-#coach-teamA-change-color {
+#coach-teamA-change-color, #coach-teamB-change-color {
     margin-top:10px;
 }
+
+.notes-container {
+    margin:20px 0;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+.note {
+    background: yellow;
+    padding:10px;
+    border-radius:5px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.2);
+    max-width:200px;
+    word-wrap:break-word;
+}
+
+#personal-player-actions-container .action-item {
+    cursor:pointer;
+}
+
+#personal-goals-numeric-table {
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+#personal-goals-numeric-table .numeric-row {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+}
+
+#final-summary-content {
+    text-align: right;
+}
+
