@@ -43,13 +43,11 @@ const colorMap = {
 };
 const paletteColors = ["אדום", "כחול", "ירוק", "צהוב", "שחור", "לבן", "כתום", "סגול", "ורוד", "חום", "אפור", "טורקיז"];
 
-// מטרות לחוליות בסיס
 const goalsKeeper = ["שיפור משחק רגל", "יציאות מהירות לכדור", "תקשורת עם ההגנה", "עצירות בעיטות קשות", "תזמון יציאה לכדורי גובה", "שליטה בגובה הרחבה", "שיפור תגובה 1 על 1"];
 const goalsDefense = ["שיפור ספיגת לחץ", "סגירת קווי מסירה", "הגבהה אחורה בטוחה", "תקשורת בין הבלמים", "יציאה מתואמת לנבדל", "שיפור כיסוי צדדים", "ניצול משחק ראש בהגנה"];
 const goalsMidfield = ["שיפור הנעת כדור", "מסירות לעומק", "שליטה בקצב המשחק", "חטיפות כדור במרכז", "החלפת אגפים חלקה", "ארגון התקפות מהירות", "שמירה על מבנה קישור"];
 const goalsAttack = ["סיום מצבים טוב יותר", "תנועה ללא כדור נכונה", "ניצול הזדמנויות ברחבה", "שיפור בעיטות לשער", "שיתוף פעולה בין החלוצים", "לחץ גבוה על ההגנה היריבה", "שיפור משחק ראש בהתקפה"];
 
-// מטרות מותאמות לחוליות (עד 30 לחוליה)
 let customKeeperGoals = [];
 let customDefenseGoals = [];
 let customMidfieldGoals = [];
@@ -57,9 +55,9 @@ let customAttackGoals = [];
 
 const CUSTOM_GOAL_LIMIT = 30;
 
-// מטרות אישיות לשחקנים (מהמאמן)
+// מטרות אישיות לשחקנים
 let personalPlayersGoals = []; 
-// מבנה: [{playerName, position, goals: [{goal, numeric: number}], lineGoalsCustom: []}]
+// מבנה: [{playerName, position, goals: [{goal, numeric: number}]}]
 
 function selectRole(role) {
     const roleContainer = document.getElementById("role-selection-container");
@@ -773,19 +771,121 @@ function downloadPDF() {
     });
 }
 
-// מאז לאנליסט והמאמן: 
-// הקוד שכבר נכתב לפני כן נשאר ללא שינוי
-// נוסיף כאן את הפונקציות האחרונות הקשורות למאמן (ביצוע מטרות קבוצתיות/אישיות), ואת האנליסט, שכבר הושלם.
+// פונקציות מאמן
 
+function goToCoachGoals() {
+    const teamA = document.getElementById("coach-teamA").value.trim();
+    const teamB = document.getElementById("coach-teamB").value.trim();
+    const date = document.getElementById("coach-game-date").value;
+    const yearGroup = document.getElementById("coach-year-group").value;
 
-// *** בשל אורך הקוד והדרישות הארוכות, כל הפונקציות הרלוונטיות ליצירת מטרות נוספו קודם. 
-//    נוודא כעת את השלמת התהליך:
-//
-// פעולות המאמן אחרי הוספת מטרות לחוליה:
-// הפונקציות הוספו קודם, ונשאר רק לסיים לוגית את הזרימה לסיכום הסופי
+    if (!teamA || !teamB) {
+        alert("אנא מלא את שם הקבוצות");
+        return;
+    }
+
+    coachTeamAName = teamA;
+    coachTeamBName = teamB;
+    coachGameDate = date;
+
+    document.getElementById("coach-game-info-container").classList.add("hidden");
+
+    loadCoachGoalsPage();
+    document.getElementById("coach-goals-container").classList.remove("hidden");
+}
+
+function loadCoachGoalsPage() {
+    const keeperDiv = document.getElementById("coach-goals-keeper");
+    const defenseDiv = document.getElementById("coach-goals-defense");
+    const midfieldDiv = document.getElementById("coach-goals-midfield");
+    const attackDiv = document.getElementById("coach-goals-attack");
+
+    keeperDiv.innerHTML = "";
+    defenseDiv.innerHTML = "";
+    midfieldDiv.innerHTML = "";
+    attackDiv.innerHTML = "";
+
+    goalsKeeper.forEach(g => {
+        keeperDiv.appendChild(createGoalCheckbox(g));
+    });
+    goalsDefense.forEach(g => {
+        defenseDiv.appendChild(createGoalCheckbox(g));
+    });
+    goalsMidfield.forEach(g => {
+        midfieldDiv.appendChild(createGoalCheckbox(g));
+    });
+    goalsAttack.forEach(g => {
+        attackDiv.appendChild(createGoalCheckbox(g));
+    });
+}
+
+function createGoalCheckbox(goal) {
+    const div = document.createElement("div");
+    div.classList.add("action-item");
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.name = "coach-goals";
+    checkbox.value = goal;
+    checkbox.style.display = 'none';
+    div.appendChild(checkbox);
+
+    const label = document.createElement("label");
+    label.textContent = goal;
+    label.onclick = () => {
+        if (checkbox.checked) {
+            checkbox.checked = false;
+            label.classList.remove("selected");
+        } else {
+            checkbox.checked = true;
+            label.classList.add("selected");
+        }
+    };
+    div.appendChild(label);
+    return div;
+}
+
+function addCoachCustomGoal() {
+    const line = document.getElementById("coach-custom-goal-line").value;
+    const val = document.getElementById("coach-custom-goal-input").value.trim();
+    if (!val) {
+        alert("אנא הכנס מטרה לפני ההוספה");
+        return;
+    }
+    let arr;
+    if (line === "שוער") arr = customKeeperGoals;
+    else if (line === "הגנה") arr = customDefenseGoals;
+    else if (line === "קישור") arr = customMidfieldGoals;
+    else if (line === "התקפה") arr = customAttackGoals;
+
+    if (arr.length >= CUSTOM_GOAL_LIMIT) {
+        document.getElementById("coach-goal-limit-popup").classList.add("active");
+        document.getElementById("coach-goal-limit-popup").classList.remove("hidden");
+        return;
+    }
+
+    arr.push(val);
+    document.getElementById("coach-custom-goal-input").value = "";
+
+    const popup = document.getElementById("coach-custom-goal-popup");
+    const content = document.getElementById("coach-custom-goal-popup-content");
+    content.innerHTML = `<p>המטרה "<strong>${val}</strong>" נוספה לחוליית ${line} בהצלחה!</p>`;
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
+}
+
+function closeCoachCustomGoalPopup() {
+    const popup = document.getElementById("coach-custom-goal-popup");
+    popup.classList.remove("active");
+    popup.classList.add("hidden");
+}
+
+function closeCoachGoalLimitPopup() {
+    const popup = document.getElementById("coach-goal-limit-popup");
+    popup.classList.remove("active");
+    popup.classList.add("hidden");
+}
 
 function finishCoachSetup() {
-    // אם סומן מעוניין במטרות אישיות
     const personalCheck = document.getElementById("coach-ask-personal-goals").checked;
     if (personalCheck) {
         openPersonalGoalsPopup();
@@ -794,7 +894,7 @@ function finishCoachSetup() {
     }
 }
 
-// פופאפ מטרות אישיות לשחקנים
+// מטרות אישיות לשחקנים
 function openPersonalGoalsPopup() {
     const popup = document.getElementById("personal-goals-popup");
     popup.classList.remove("hidden");
@@ -808,16 +908,10 @@ function closePersonalGoalsPopup() {
     popup.classList.add("hidden");
 }
 
-// טוען פעולות עבור שחקן אישי
 function loadPersonalPlayerActions() {
     const container = document.getElementById("personal-player-actions-container");
     container.innerHTML = "";
 
-    // ניתן להציג את כל הפעולות בדומה לבחירת שחקן
-    // נציג את positionActions בהתאם לתפקיד שייבחר
-    // כעת עד שלא נבחר תפקיד, נשאיר ריק.
-    // לאחר בחירת התפקיד, נציג את הפעולות.
-    // נעשה זאת באיוונט של change בעמוד
     document.getElementById("personal-player-position").onchange = loadPersonalPlayerPositionActions;
 }
 
@@ -886,7 +980,6 @@ function finishPersonalPlayerGoals() {
 
     closePersonalGoalsPopup();
 
-    // כעת נשאל על יעדים מספריים
     openPersonalGoalsNumericPopup(goalsSelected, playerName, position);
 }
 
@@ -918,7 +1011,7 @@ function openPersonalGoalsNumericPopup(goals, playerName, position) {
         input.style.width = "60px";
         row.appendChild(label);
         row.appendChild(input);
-        g.input = input; // לשמירת רפרנס
+        g.input = input;
         table.appendChild(row);
     });
 }
@@ -930,21 +1023,18 @@ function closePersonalGoalsNumericPopup() {
 }
 
 function finishPersonalGoalsNumeric() {
-    // אסוף ערכים מספריים
     currentPersonalPlayerGoals.forEach(g => {
         g.numeric = parseInt(g.input.value) || 0;
     });
 
     closePersonalGoalsNumericPopup();
 
-    // שמור את השחקן והיעדים במערך personalPlayersGoals
     personalPlayersGoals.push({
         playerName: currentPersonalPlayerName,
         position: currentPersonalPlayerPosition,
         goals: currentPersonalPlayerGoals
     });
 
-    // שאל אם להוסיף עוד שחקן
     openPersonalGoalsAnotherPlayerPopup();
 }
 
@@ -963,12 +1053,9 @@ function closePersonalGoalsAnotherPlayerPopup() {
 function addAnotherPersonalPlayer(yes) {
     closePersonalGoalsAnotherPlayerPopup();
     if (yes) {
-        // פתח שוב את personal-goals-popup
         resetPersonalGoalsPopup();
         openPersonalGoalsPopup();
     } else {
-        // אין עוד שחקן
-        // הצג בפתקים צהובים את השחקנים והיעדים
         showPersonalGoalsNotes();
     }
 }
@@ -997,21 +1084,7 @@ function showPersonalGoalsNotes() {
     });
 }
 
-function closePersonalGoalsPopup() {
-    const popup = document.getElementById("personal-goals-popup");
-    popup.classList.remove("active");
-    popup.classList.add("hidden");
-}
-
-function openPersonalGoalsPopup() {
-    const popup = document.getElementById("personal-goals-popup");
-    popup.classList.remove("hidden");
-    popup.classList.add("active");
-    loadPersonalPlayerActions();
-}
-
 function goToFinalSummary() {
-    // כאן ניצור עמוד סיכום
     document.getElementById("coach-goals-container").classList.add("hidden");
     const finalContainer = document.getElementById("final-summary-container");
     finalContainer.classList.remove("hidden");
@@ -1057,54 +1130,8 @@ function downloadFinalSummaryPDF() {
     });
 }
 
-// פונקציות הוספת מטרה לחוליה ומגבלה
-function addCoachCustomGoal() {
-    const line = document.getElementById("coach-custom-goal-line").value;
-    const val = document.getElementById("coach-custom-goal-input").value.trim();
-    if (!val) {
-        alert("אנא הכנס מטרה לפני ההוספה");
-        return;
-    }
-    let arr;
-    if (line === "שוער") arr = customKeeperGoals;
-    else if (line === "הגנה") arr = customDefenseGoals;
-    else if (line === "קישור") arr = customMidfieldGoals;
-    else if (line === "התקפה") arr = customAttackGoals;
+// פונקציות אנליסט
 
-    if (arr.length >= CUSTOM_GOAL_LIMIT) {
-        // פופאפ מגבלת מטרות
-        document.getElementById("coach-goal-limit-popup").classList.add("active");
-        document.getElementById("coach-goal-limit-popup").classList.remove("hidden");
-        return;
-    }
-
-    arr.push(val);
-    document.getElementById("coach-custom-goal-input").value = "";
-
-    // פופאפ אישור
-    const popup = document.getElementById("coach-custom-goal-popup");
-    const content = document.getElementById("coach-custom-goal-popup-content");
-    content.innerHTML = `<p>המטרה "<strong>${val}</strong>" נוספה לחוליית ${line} בהצלחה!</p>`;
-    popup.classList.remove("hidden");
-    popup.classList.add("active");
-}
-
-function closeCoachCustomGoalPopup() {
-    const popup = document.getElementById("coach-custom-goal-popup");
-    popup.classList.remove("active");
-    popup.classList.add("hidden");
-}
-
-function closeCoachGoalLimitPopup() {
-    const popup = document.getElementById("coach-goal-limit-popup");
-    popup.classList.remove("active");
-    popup.classList.add("hidden");
-}
-
-// לאחר שסיים מטרות אישיות (אם בחר), חוזרים לסיכום
-// הסיכום כבר מופיע בפונקציה goToFinalSummary
-
-// אנליסט (כבר הושלם קודם)
 function submitAnalystGameInfo() {
     const teamA = document.getElementById("analyst-teamA").value.trim();
     const teamB = document.getElementById("analyst-teamB").value.trim();
@@ -1549,9 +1576,3 @@ async function downloadPDFAnalyst() {
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
     pdf.save("summary.pdf");
 }
-
-//
-// סיום הקוד המלא
-// 
-
-
