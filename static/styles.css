@@ -1,4 +1,4 @@
-body { 
+body {
     font-family: Arial, sans-serif;
     text-align: center;
     margin: 0;
@@ -17,33 +17,11 @@ body {
     font-weight: bold;
     max-width: 500px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    text-align: center;
-    position: relative;
 }
 
 .logo-text {
     font-weight: bold;
     font-size: 28px;
-}
-
-.back-home-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: #4A90E2;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-    border: none;
-}
-
-.back-home-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 .game-info-container {
@@ -83,15 +61,14 @@ body {
     margin: 0 auto;
 }
 
-input, select, textarea {
+.input-group input, 
+.input-group select {
     padding: 10px;
     font-size: 18px;
     border-radius: 8px;
     border: 1px solid #ccc;
     text-align:right;
     background: #f9f9f9;
-    box-sizing: border-box;
-    width:100%;
 }
 
 button {
@@ -103,8 +80,7 @@ button {
     color: white;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    margin-top: 10px;
-    width:100%;
+    margin-top: 20px;
 }
 
 button:hover {
@@ -114,44 +90,170 @@ button:hover {
 
 .blue-btn {
     background-color: #2196F3;
+    margin-top: 0;
+}
+
+.actions-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.action-item {
+    display: flex;
+    align-items: center;
+    gap: 10px; 
+    font-size: 18px;
+    color: #333;
+}
+
+.action-group {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-size: 16px;
+    min-height: 60px;
+    justify-content: space-between;
+}
+
+.action-group h2 {
+    font-size: 16px;
+    margin: 0;
+    text-align: center;
+    flex-grow: 1;
+    padding: 0 10px;
+    color:#333;
+    font-weight:bold;
+}
+
+.start-game-btn {
+    background-color: #2196F3;
+}
+
+.half-time-btn {
+    background-color: orange;
+    color:white;
+}
+
+.end-game-btn {
+    background-color: #f44336;
+    color:white;
+}
+
+.view-all-btn {
+    background-color: #2196F3;
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    display: inline-block;
+    color:white;
+}
+
+.same-size-btn {
+    width:140px;
+    margin:10px;
+    text-align:center;
+}
+
+.close-summary-btn {
+    background-color: #f44336;
+    color: white;
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-top: 20px;
+    display: inline-block;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.close-summary-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+}
+
+.actions-grid label {
+    cursor: pointer;
+}
+
+label.selected {
+    background: #e0f7fa;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.finished {
+    background-color: #9E9E9E !important;
+    cursor: not-allowed !important;
+}
+
+#game-timer {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
 }
 
 .hidden {
     display: none !important;
 }
 
-.action-toggle {
-    padding:10px;
-    margin:5px 0;
-    background:#eee;
-    border-radius:5px;
-    cursor:pointer;
-    font-size:18px;
-    text-align:right;
-    transition: background 0.2s;
+#popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 10px;
+    font-size: 20px;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s;
+}
+#popup:not(.hidden) {
+    opacity: 1;
+    visibility: visible;
 }
 
-.action-toggle.selected-action {
-    background:#ccc;
-    font-weight:bold;
+.popup-good {
+    background-color: green;
+}
+.popup-bad {
+    background-color: red;
+}
+.popup-neutral {
+    background-color: #9E9E9E;
 }
 
 .popup {
     position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 90%;
     max-width: 600px;
     background-color: white;
     border: 3px solid #333;
     border-radius: 10px;
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-    z-index: 9999; /* גבוה כדי להיות תמיד למעלה */
+    z-index: 1000;
     padding: 20px;
     display: none;
     text-align:right;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: auto; /* הבטחה שניתן ללחוץ */
 }
 
 .popup.active {
@@ -163,6 +265,43 @@ button:hover {
     overflow-y: auto;
     max-height: 80vh;
     text-align:right;
+}
+
+.popup-content h3 {
+    margin-top: 0;
+    font-size:24px;
+    color:#333;
+}
+
+.popup-content p {
+    margin: 10px 0;
+    font-size: 18px;
+    color:#333;
+}
+
+.minute-badge {
+    background-color: #333;
+    color: #fff;
+    font-size:14px;
+    padding:2px 5px;
+    border-radius:4px;
+    display:inline-block;
+    margin-left:5px;
+}
+
+.good {
+    color: green !important;
+    font-weight: bold;
+}
+
+.bad {
+    color: red !important;
+    font-weight: bold;
+}
+
+.neutral {
+    color: #9E9E9E;
+    font-weight: bold;
 }
 
 .close-btn {
@@ -179,95 +318,103 @@ button:hover {
     font-size: 30px !important;
 }
 
-.bad {
-    color: red !important;
-    font-weight: bold;
+#end-buttons-container {
+    margin: 20px;
 }
 
-.good {
-    color: green !important;
-    font-weight: bold;
+textarea {
+    width: 100%;
+    height: 100px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    box-sizing: border-box;
+    background: #f9f9f9;
+    color:#333;
 }
 
-.neutral {
-    color: #9E9E9E;
-    font-weight: bold;
+#final-score {
+    font-size: 28px;
+    font-weight:bold;
+    color:#333;
 }
 
-.view-all-btn {
-    background-color: #2196F3;
-    font-size: 18px;
-    padding: 10px 20px;
-    border-radius: 8px;
-    margin-top: 20px;
-    display: inline-block;
+.action-line {
+    margin:5px 0;
+    text-align:right;
+    color:#333;
 }
 
-.same-size-btn {
-    width:140px;
-    margin:10px;
-    text-align:center;
-}
-
-.action-card {
-    background:#fdfdfd;
+.player-card {
     border:1px solid #ddd;
-    border-radius:8px;
+    border-radius:5px;
+    padding:10px;
+    margin-bottom:10px;
+    position: relative;
+    text-align:right;
+}
+
+.delete-player-btn {
+    position:absolute;
+    top:5px;
+    left:5px;
+    color:red;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.marking-player-header {
+    cursor:pointer;
+    padding:10px;
+    background:#f5f5f5;
+    border-radius:5px;
+    margin-bottom:10px;
+    font-weight:bold;
+    font-size:18px;
+}
+
+.marking-player-actions {
+    display:none;
+    margin-bottom:20px;
+}
+
+.marking-player-actions.visible {
+    display:block;
+    background:#fff;
+    padding:10px;
+    border-radius:5px;
+    border:1px solid #ddd;
     box-shadow:0 2px 4px rgba(0,0,0,0.1);
-    padding:20px;margin-bottom:20px;
-    cursor:pointer;transition:transform 0.2s ease;
-    text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.action-card:hover {
-    transform:scale(1.02);box-shadow:0 4px 8px rgba(0,0,0,0.15);
-}
-.action-card h2 {
-    font-size:20px;margin:0;color:#333;font-weight:bold;
 }
 
-.minute-badge {
-    background-color: #333;
-    color: #fff;
-    font-size:14px;
-    padding:2px 5px;
-    border-radius:4px;
+.color-palette-group {
+    display:flex;
+    flex-direction:column;
+    align-items: flex-start;
+    gap:5px;
+}
+
+.color-palette {
+    display:flex;
+    flex-wrap:wrap;
+    gap:5px;
+    max-width:150px;
+}
+
+.color-palette div {
+    width:20px;
+    height:20px;
+    border:1px solid #000;
+    cursor:pointer;
+}
+
+.shirt-icon {
+    background: #2196F3;
+    color: white;
     display:inline-block;
-    margin-left:5px;
-}
-
-#general-note-text, #action-popup-note {
-    width:100%;
-    height:150px;
-    font-size:20px;
-    resize:vertical;
-}
-
-/* כפתורי מוצלח/לא מוצלח אדום/ירוק גדולים */
-.side-fail {
-    background-color: #f44336; /* אדום */
-    color: #fff;
-    font-weight: bold;
-    border-radius: 8px;
-    text-align: center;
-    line-height: 3;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    font-size:30px !important;
-}
-
-.side-success {
-    background-color: #4CAF50; /* ירוק */
-    color: #fff;
-    font-weight: bold;
-    border-radius: 8px;
-    text-align: center;
-    line-height: 3;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    font-size:30px !important;
-}
-
-.side-fail:hover, .side-success:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 2px 5px;
+    border-radius:5px;
+    margin:5px 0;
+    font-weight:bold;
 }
