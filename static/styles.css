@@ -466,23 +466,46 @@ textarea {
     word-wrap:break-word;
 }
 
-#personal-player-actions-container .action-item {
-    cursor:pointer;
+/* סגנון לשדה מספרי רחב יותר ונוח יותר */
+#personal-goals-numeric-table input[type="number"] {
+    font-size:18px;
+    padding:5px;
+    width:100px !important;
+    border-radius:5px;
+    border:1px solid #ccc;
 }
 
-#personal-goals-numeric-table {
+/* עמוד לייב - פעולות בזמן אמת */
+#live-update-content {
     display:flex;
     flex-direction:column;
-    gap:10px;
+    gap:30px;
 }
 
-#personal-goals-numeric-table .numeric-row {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
+.live-section {
+    border:1px solid #ddd;
+    border-radius:10px;
+    padding:20px;
+    background:#f7f7f7;
 }
 
-#final-summary-content {
-    text-align: right;
+.live-section h3 {
+    font-size:22px;
+    margin-bottom:15px;
+    text-align:right;
+}
+
+.goal-card {
+    display:inline-block;
+    background:#e0f7fa;
+    padding:10px;
+    margin:5px;
+    border-radius:5px;
+    font-size:16px;
+    color:#333;
+}
+
+.goal-card.personal {
+    background:#ffecb3; /* צהוב בהיר */
+    font-weight:bold;
 }
