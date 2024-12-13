@@ -42,8 +42,7 @@ const positionActions = {
 
 const mentalActions = ["מנטאלי"];
 const coachTacticalActions = {
-    "טקטיקה מקצועית": ["לחץ גבוה", "סגירה במרכז", "מיקום בהגנה אזורית", "יציאה מהירה למתפרצת", "הנעת כדור סבלנית", "שמירה אישית על מפתח", "הגבהות לרחבה בתקיפות", "סגירת אגפים", "תמיכה הדדית בהגנה", "ניצול כדורי גובה", "שינוי אגף מהיר"],
-    "טקטיקה מנטאלית": ["עידוד מתמיד בין השחקנים", "ניהול רגשי תחת לחץ", "תקשורת חיובית בכל חלקי המגרש"]
+    // ניתן להרחיב אם תרצה בהמשך
 };
 
 const colorMap = {
@@ -52,6 +51,14 @@ const colorMap = {
 };
 
 const paletteColors = ["אדום", "כחול", "ירוק", "צהוב", "שחור", "לבן", "כתום", "סגול", "ורוד", "חום", "אפור", "טורקיז"];
+
+// מטרות לדוגמה לחוליות למאמן
+const goalsKeeper = ["שיפור משחק רגל", "יציאות מהירות לכדור", "תקשורת עם ההגנה", "עצירות בעיטות קשות", "תזמון יציאה לכדורי גובה", "שליטה בגובה הרחבה", "שיפור תגובה 1 על 1"];
+const goalsDefense = ["שיפור ספיגת לחץ", "סגירת קווי מסירה", "הגבהה אחורה בטוחה", "תקשורת בין הבלמים", "יציאה מתואמת לנבדל", "שיפור כיסוי צדדים", "ניצול משחק ראש בהגנה"];
+const goalsMidfield = ["שיפור הנעת כדור", "מסירות לעומק", "שליטה בקצב המשחק", "חטיפות כדור במרכז", "החלפת אגפים חלקה", "ארגון התקפות מהירות", "שמירה על מבנה קישור"];
+const goalsAttack = ["סיום מצבים טוב יותר", "תנועה ללא כדור נכונה", "ניצול הזדמנויות ברחבה", "שיפור בעיטות לשער", "שיתוף פעולה בין החלוצים", "לחץ גבוה על ההגנה היריבה", "שיפור משחק ראש בהתקפה"];
+
+let coachCustomGoals = [];
 
 function selectRole(role) {
     const roleContainer = document.getElementById("role-selection-container");
@@ -68,10 +75,16 @@ function selectRole(role) {
 
         createTeamColorPalette("coach-teamA-color-palette", c => {
             coachTeamAColor = c;
+            finalizeTeamAColorChoice();
         });
         createTeamColorPalette("coach-teamB-color-palette", c => {
             coachTeamBColor = c;
         });
+
+        // קביעת תאריך ברירת מחדל להיום
+        const coachDateInput = document.getElementById("coach-game-date");
+        const today = new Date().toISOString().split('T')[0];
+        coachDateInput.value = today;
 
     } else if (role === 'analyst') {
         const analystContainer = document.getElementById("analyst-game-info-container");
@@ -100,11 +113,32 @@ function createTeamColorPalette(paletteId, onColorSelect) {
         colorDiv.title = c;
         colorDiv.onclick = () => {
             onColorSelect(c);
-            [...paletteDiv.children].forEach(ch => ch.style.outline = "none");
-            colorDiv.style.outline = "2px solid #000";
         };
         paletteDiv.appendChild(colorDiv);
     });
+}
+
+function finalizeTeamAColorChoice() {
+    const paletteDiv = document.getElementById("coach-teamA-color-palette");
+    if (paletteDiv) {
+        // ניקוי שאר הצבעים
+        [...paletteDiv.children].forEach(ch => {
+            if (colorMap[ch.title] !== colorMap[coachTeamAColor]) {
+                ch.remove();
+            } else {
+                ch.style.outline = "2px solid #000";
+            }
+        });
+        document.getElementById("coach-teamA-change-color").classList.remove("hidden");
+    }
+}
+
+function resetTeamAColor() {
+    createTeamColorPalette("coach-teamA-color-palette", c => {
+        coachTeamAColor = c;
+        finalizeTeamAColorChoice();
+    });
+    document.getElementById("coach-teamA-change-color").classList.add("hidden");
 }
 
 function checkAccessCode() {
@@ -717,6 +751,101 @@ function downloadPDF() {
     });
 }
 
+// מעבר למטרות המאמן
+function goToCoachGoals() {
+    const teamA = document.getElementById("coach-teamA").value.trim();
+    const teamB = document.getElementById("coach-teamB").value.trim();
+    const date = document.getElementById("coach-game-date").value;
+    const yearGroup = document.getElementById("coach-year-group").value;
+
+    if (!teamA || !teamB) {
+        alert("אנא מלא את שם הקבוצות");
+        return;
+    }
+
+    coachTeamAName = teamA;
+    coachTeamBName = teamB;
+    coachGameDate = date;
+
+    document.getElementById("coach-game-info-container").classList.add("hidden");
+
+    loadCoachGoalsPage();
+    document.getElementById("coach-goals-container").classList.remove("hidden");
+}
+
+function loadCoachGoalsPage() {
+    const keeperDiv = document.getElementById("coach-goals-keeper");
+    const defenseDiv = document.getElementById("coach-goals-defense");
+    const midfieldDiv = document.getElementById("coach-goals-midfield");
+    const attackDiv = document.getElementById("coach-goals-attack");
+
+    keeperDiv.innerHTML = "";
+    defenseDiv.innerHTML = "";
+    midfieldDiv.innerHTML = "";
+    attackDiv.innerHTML = "";
+
+    goalsKeeper.forEach(g => {
+        keeperDiv.appendChild(createGoalCheckbox(g));
+    });
+    goalsDefense.forEach(g => {
+        defenseDiv.appendChild(createGoalCheckbox(g));
+    });
+    goalsMidfield.forEach(g => {
+        midfieldDiv.appendChild(createGoalCheckbox(g));
+    });
+    goalsAttack.forEach(g => {
+        attackDiv.appendChild(createGoalCheckbox(g));
+    });
+}
+
+function createGoalCheckbox(goal) {
+    const div = document.createElement("div");
+    div.classList.add("action-item");
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.name = "coach-goals";
+    checkbox.value = goal;
+    checkbox.style.display = 'none';
+    div.appendChild(checkbox);
+
+    const label = document.createElement("label");
+    label.textContent = goal;
+    label.onclick = () => {
+        if (checkbox.checked) {
+            checkbox.checked = false;
+            label.classList.remove("selected");
+        } else {
+            checkbox.checked = true;
+            label.classList.add("selected");
+        }
+    };
+    div.appendChild(label);
+    return div;
+}
+
+function addCoachCustomGoal() {
+    const input = document.getElementById("coach-custom-goal-input");
+    const val = input.value.trim();
+    if (!val) {
+        alert("אנא הכנס מטרה לפני ההוספה");
+        return;
+    }
+    const customContainer = document.getElementById("coach-goals-custom");
+    customContainer.appendChild(createGoalCheckbox(val));
+    input.value = "";
+}
+
+function finishCoachSetup() {
+    // כאן אפשר לשמור את המטרות הנבחרות לשרת, או להתקדם לשלב הבא
+    // לדוגמה: לאסוף את כל ה-checkbox שנבחרו
+    const checkedGoals = document.querySelectorAll('#coach-goals-container input[name="coach-goals"]:checked');
+    const goalsSelected = Array.from(checkedGoals).map(cb => cb.value);
+
+    console.log("מטרות שנבחרו:", goalsSelected);
+
+    alert("מטרות נשמרו בהצלחה!");
+}
+
 function submitAnalystGameInfo() {
     const teamA = document.getElementById("analyst-teamA").value.trim();
     const teamB = document.getElementById("analyst-teamB").value.trim();
@@ -1161,4 +1290,3 @@ async function downloadPDFAnalyst() {
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
     pdf.save("summary.pdf");
 }
-
