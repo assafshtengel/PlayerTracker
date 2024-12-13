@@ -1,4 +1,3 @@
-
 const ACCESS_CODE = "1976";
 
 let actions = [];
@@ -62,6 +61,8 @@ let currentPersonalPlayerName = "";
 let currentPersonalPlayerPositions = [];
 let currentPersonalPlayerGoals = [];
 let currentAllGoalsForPositions = [];
+
+
 function selectRole(role) {
     const roleContainer = document.getElementById("role-selection-container");
     if (roleContainer) {
@@ -273,19 +274,6 @@ function addCustomAction() {
         alert("אנא כתוב שם פעולה לפני ההוספה");
         return;
     }
-    function addAnotherPersonalPlayer(yes) {
-    closePersonalGoalsAnotherPlayerPopup();
-    if (yes) {
-        resetPersonalGoalsPopup();
-        openPersonalGoalsPopup();
-    } else {
-        showPersonalGoalsNotes();
-        // לאחר שבחרנו לא להוסיף עוד שחקן, נבטל את הסימון של "מעוניין במטרות אישיות"
-        const personalCheck = document.getElementById("coach-ask-personal-goals");
-        personalCheck.checked = false;
-    }
-}
-
     customActionsArr.push(val);
     const container = document.getElementById("custom-actions");
     const div = document.createElement("div");
@@ -787,7 +775,7 @@ function downloadPDF() {
     });
 }
 
-// מאמן
+// פונקציות מאמן להמשך
 function goToCoachGoals() {
     const teamA = document.getElementById("coach-teamA").value.trim();
     const teamB = document.getElementById("coach-teamB").value.trim();
@@ -810,14 +798,6 @@ function goToCoachGoals() {
 }
 
 function loadCoachGoalsPage() {
-    // כאן נטען מטרות ריקות בהתחלה, מעשית המאמן אמור לבחור אותן?
-
-    // נמיר כל מטרות קבוצתיות שנבחרו (במציאות, צריך שיהיה תהליך בחירה, כאן נניח שהמאמן יסמן מטרות)
-    // לשם הפשטות, המאמן יסמן בממשק. כאן אין קוד הסימון, אבל נניח שהמאמן יסמן ואחר כך נשתמש במטרות המסומנות.
-
-    // נחכה שהמאמן יסמן ואז בעת finishCoachSetup נקרא את המסומנות.
-    // בינתיים נציג לפי positionActions כמו קודם:
-
     loadGoalsForLine("coach-goals-keeper", "שוער");
     loadGoalsForLine("coach-goals-defense", "בלם", "מגן");
     loadGoalsForLine("coach-goals-midfield", "קשר");
@@ -827,7 +807,6 @@ function loadCoachGoalsPage() {
 function loadGoalsForLine(containerId, ...positions) {
     const container = document.getElementById(containerId);
     container.innerHTML = "";
-    // איחוד מטרות מכל התפקידים שהועברו
     let lineGoals = [];
     positions.forEach(pos => {
         if (positionActions[pos]) {
@@ -913,7 +892,6 @@ function closeCoachGoalLimitPopup() {
 function finishCoachSetup() {
     const personalCheck = document.getElementById("coach-ask-personal-goals").checked;
 
-    // נקרא את המטרות המסומנות לחוליות
     chosenKeeperGoals = getSelectedGoalsFrom("coach-goals-keeper");
     chosenDefenseGoals = getSelectedGoalsFrom("coach-goals-defense");
     chosenMidfieldGoals = getSelectedGoalsFrom("coach-goals-midfield");
@@ -966,7 +944,6 @@ function openPersonalGoalsSelectionPopup() {
     const listDiv = document.getElementById("personal-goals-selection-list");
     listDiv.innerHTML = "";
 
-    // איחוד מטרות מכל התפקידים שנבחרו
     currentAllGoalsForPositions = [];
     currentPersonalPlayerPositions.forEach(pos => {
         let acts = positionActions[pos] || [];
@@ -1105,6 +1082,8 @@ function addAnotherPersonalPlayer(yes) {
         openPersonalGoalsPopup();
     } else {
         showPersonalGoalsNotes();
+        const personalCheck = document.getElementById("coach-ask-personal-goals");
+        personalCheck.checked = false;
     }
 }
 
@@ -1138,9 +1117,11 @@ function goToFinalSummary() {
     finalContainer.classList.remove("hidden");
 
     const summaryDiv = document.getElementById("final-summary-content");
+    const gameInfoP = document.getElementById("final-summary-game-info");
+    gameInfoP.textContent = `משחק בין ${coachTeamAName} ל-${coachTeamBName}, תאריך: ${coachGameDate}`;
+
     summaryDiv.innerHTML = "<h3>מטרות לחוליות:</h3>";
 
-    // מטרות שוער
     if (chosenKeeperGoals.length > 0 || customKeeperGoals.length > 0) {
         summaryDiv.innerHTML += "<strong>שוער:</strong><br>";
         chosenKeeperGoals.forEach(g => summaryDiv.innerHTML += `- ${g}<br>`);
@@ -1148,7 +1129,6 @@ function goToFinalSummary() {
         summaryDiv.innerHTML += "<br>";
     }
 
-    // מטרות הגנה
     if (chosenDefenseGoals.length > 0 || customDefenseGoals.length > 0) {
         summaryDiv.innerHTML += "<strong>הגנה:</strong><br>";
         chosenDefenseGoals.forEach(g => summaryDiv.innerHTML += `- ${g}<br>`);
@@ -1156,7 +1136,6 @@ function goToFinalSummary() {
         summaryDiv.innerHTML += "<br>";
     }
 
-    // מטרות קישור
     if (chosenMidfieldGoals.length > 0 || customMidfieldGoals.length > 0) {
         summaryDiv.innerHTML += "<strong>קישור:</strong><br>";
         chosenMidfieldGoals.forEach(g => summaryDiv.innerHTML += `- ${g}<br>`);
@@ -1164,7 +1143,6 @@ function goToFinalSummary() {
         summaryDiv.innerHTML += "<br>";
     }
 
-    // מטרות התקפה
     if (chosenAttackGoals.length > 0 || customAttackGoals.length > 0) {
         summaryDiv.innerHTML += "<strong>התקפה:</strong><br>";
         chosenAttackGoals.forEach(g => summaryDiv.innerHTML += `- ${g}<br>`);
@@ -1172,7 +1150,6 @@ function goToFinalSummary() {
         summaryDiv.innerHTML += "<br>";
     }
 
-    // מטרות אישיות
     if (personalPlayersGoals.length > 0) {
         summaryDiv.innerHTML += "<h3>מטרות אישיות לשחקנים:</h3>";
         personalPlayersGoals.forEach(playerObj => {
@@ -1187,12 +1164,20 @@ function goToFinalSummary() {
 }
 
 function downloadFinalSummaryPDF() {
+    const pdfBtn = document.getElementById("download-pdf-btn");
+    const contBtn = document.getElementById("continue-to-live-btn");
+    pdfBtn.style.display = "none";
+    contBtn.style.display = "none";
+
     const elem = document.getElementById("final-summary-container");
     html2canvas(elem).then((canvas) => {
         const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF();
         pdf.addImage(imgData, 'PNG', 10, 10);
         pdf.save("final-summary.pdf");
+
+        pdfBtn.style.display = "inline-block";
+        contBtn.style.display = "inline-block";
     });
 }
 
@@ -1204,6 +1189,80 @@ function goToCoachLiveGame() {
 function startCoachLiveGame() {
     document.getElementById("coach-live-game-container").classList.add("hidden");
     document.getElementById("coach-live-update-container").classList.remove("hidden");
+
+    const liveContent = document.getElementById("live-update-content");
+    liveContent.innerHTML = "";
+
+    if (chosenKeeperGoals.length > 0 || customKeeperGoals.length > 0) {
+        const sec = document.createElement("div");
+        sec.classList.add("live-section");
+        const h3 = document.createElement("h3");
+        h3.textContent = "שוער";
+        sec.appendChild(h3);
+        chosenKeeperGoals.forEach(g => {
+            sec.appendChild(createGoalCard(g));
+        });
+        customKeeperGoals.forEach(g => {
+            sec.appendChild(createGoalCard(g));
+        });
+        liveContent.appendChild(sec);
+    }
+
+    if (chosenDefenseGoals.length > 0 || customDefenseGoals.length > 0) {
+        const sec = document.createElement("div");
+        sec.classList.add("live-section");
+        const h3 = document.createElement("h3");
+        h3.textContent = "הגנה";
+        sec.appendChild(h3);
+        chosenDefenseGoals.forEach(g => sec.appendChild(createGoalCard(g)));
+        customDefenseGoals.forEach(g => sec.appendChild(createGoalCard(g)));
+        liveContent.appendChild(sec);
+    }
+
+    if (chosenMidfieldGoals.length > 0 || customMidfieldGoals.length > 0) {
+        const sec = document.createElement("div");
+        sec.classList.add("live-section");
+        const h3 = document.createElement("h3");
+        h3.textContent = "קישור";
+        sec.appendChild(h3);
+        chosenMidfieldGoals.forEach(g => sec.appendChild(createGoalCard(g)));
+        customMidfieldGoals.forEach(g => sec.appendChild(createGoalCard(g)));
+        liveContent.appendChild(sec);
+    }
+
+    if (chosenAttackGoals.length > 0 || customAttackGoals.length > 0) {
+        const sec = document.createElement("div");
+        sec.classList.add("live-section");
+        const h3 = document.createElement("h3");
+        h3.textContent = "התקפה";
+        sec.appendChild(h3);
+        chosenAttackGoals.forEach(g => sec.appendChild(createGoalCard(g)));
+        customAttackGoals.forEach(g => sec.appendChild(createGoalCard(g)));
+        liveContent.appendChild(sec);
+    }
+
+    if (personalPlayersGoals.length > 0) {
+        const sec = document.createElement("div");
+        sec.classList.add("live-section");
+        const h3 = document.createElement("h3");
+        h3.textContent = "מטרות אישיות לשחקנים";
+        sec.appendChild(h3);
+
+        personalPlayersGoals.forEach(p => {
+            p.goals.forEach(g => {
+                sec.appendChild(createGoalCard(`${p.playerName} (${p.positions.join(", ")}) - ${g.goal} (יעד: ${g.numeric})`, true));
+            });
+        });
+        liveContent.appendChild(sec);
+    }
+}
+
+function createGoalCard(goalText, personal=false) {
+    const div = document.createElement("div");
+    div.classList.add("goal-card");
+    if(personal) div.classList.add("personal");
+    div.textContent = goalText;
+    return div;
 }
 
 // אנליסט
@@ -1650,14 +1709,4 @@ async function downloadPDFAnalyst() {
     const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
     pdf.save("summary.pdf");
-}
-
-function goToCoachLiveGame() {
-    document.getElementById("final-summary-container").classList.add("hidden");
-    document.getElementById("coach-live-game-container").classList.remove("hidden");
-}
-
-function startCoachLiveGame() {
-    document.getElementById("coach-live-game-container").classList.add("hidden");
-    document.getElementById("coach-live-update-container").classList.remove("hidden");
 }
