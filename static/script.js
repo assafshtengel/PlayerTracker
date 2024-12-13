@@ -505,8 +505,6 @@ function classifyKey(key){
 
 function calculateScore(minutesPlayed){
     let score=50;
-    // אפשר לפתח אלגוריתם שמבוסס על יחס מוצלח/לא מוצלח
-    // כרגע לצורך הדגמה נשאיר 50 קבוע או אפשר לשפר:
     const {successCount,failCount}=calculateSuccessRatio();
     const total = successCount+failCount;
     let ratio=0;
