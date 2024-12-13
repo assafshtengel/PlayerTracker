@@ -55,14 +55,16 @@ const paletteColors = ["אדום", "כחול", "ירוק", "צהוב", "שחור
 
 function selectRole(role) {
     document.getElementById("role-selection-container").classList.add("hidden");
+
     if (role === 'player') {
         document.getElementById("login-container").classList.remove("hidden");
     } else if (role === 'coach') {
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById("coach-game-date").value = today;
-        createTeamColorPalette("coach-teamA-color-palette", c => {
-            coachTeamAColor = c;
-        });
+        document.getElementById("coach-game-info-container").classList.remove("hidden");
+    } else if (role === 'analyst') {
+        document.getElementById("analyst-game-info-container").classList.remove("hidden");
+    }
+}
+;
         createTeamColorPalette("coach-teamB-color-palette", c => {
             coachTeamBColor = c;
         });
