@@ -38,7 +38,6 @@ const positionActions = {
 };
 
 const mentalActions = ["מנטאלי"];
-
 const colorMap = {
     "אדום": "red", "כחול": "blue", "ירוק": "green", "צהוב": "yellow", "שחור": "black", "לבן": "white",
     "כתום": "orange", "סגול": "purple", "ורוד": "pink", "חום": "brown", "אפור": "gray", "טורקיז": "turquoise"
@@ -57,9 +56,8 @@ let customAttackGoals = [];
 
 const CUSTOM_GOAL_LIMIT = 30;
 
-let personalPlayersGoals = []; // מטרות אישיות
+let personalPlayersGoals = [];
 
-// משתנים עבור ניטור חי של המאמן:
 let coachLiveGameStarted = false;
 let coachLiveGameInterval = null;
 let coachLiveGameMinute = 0;
@@ -71,6 +69,9 @@ let matchEnded = false;
 let popupAutoCloseTimer = null;
 const availableMoods = ["מורל גבוה", "חוסר ריכוז", "רוגע", "התלהבות", "לחץ", "דריכות"];
 
+/**
+ * פונקציות בסיסיות לבחירת תפקיד וכו'
+ */
 
 function selectRole(role) {
     const roleContainer = document.getElementById("role-selection-container");
@@ -459,6 +460,26 @@ function resumeHalf() {
     enableActions(true);
 }
 
+function showHalfAllActionsPopup() {
+    const halfAllActionsList = document.getElementById("half-all-actions-list");
+    halfAllActionsList.innerHTML = "";
+    actions.forEach(({ action, result, minute }) => {
+        const p = document.createElement("p");
+        p.textContent = `דקה ${minute}: ${action} - ${result}`;
+        halfAllActionsList.appendChild(p);
+    });
+
+    const popup = document.getElementById("half-all-actions-popup");
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
+}
+
+function closeHalfAllActionsPopup() {
+    const popup = document.getElementById("half-all-actions-popup");
+    popup.classList.remove("active");
+    popup.classList.add("hidden");
+}
+
 function endGame() {
     if (gameInterval) {
         clearInterval(gameInterval);
@@ -532,15 +553,7 @@ function showAllActions() {
         let className = classifyResult(result);
         const p = document.createElement("p");
         p.className = className + " action-line";
-
-        const minuteBadge = document.createElement("span");
-        minuteBadge.className = "minute-badge";
-        minuteBadge.textContent = "דקה " + minute;
-        p.appendChild(minuteBadge);
-
-        const textNode = document.createTextNode(" " + action + " - " + result);
-        p.appendChild(textNode);
-
+        p.textContent = `דקה ${minute}: ${action} - ${result}`;
         allActionsList.appendChild(p);
     });
 
@@ -788,7 +801,6 @@ function goToCoachGoals() {
     const teamA = document.getElementById("coach-teamA").value.trim();
     const teamB = document.getElementById("coach-teamB").value.trim();
     const date = document.getElementById("coach-game-date").value;
-    const yearGroup = document.getElementById("coach-year-group").value;
 
     if (!teamA || !teamB) {
         alert("אנא מלא את שם הקבוצות");
@@ -1246,6 +1258,7 @@ function buildCoachLiveInterface() {
     const liveContent = document.getElementById("live-update-content");
     liveContent.innerHTML = "";
 
+    // מצב רוח הקבוצה
     const sidePanel = document.createElement("div");
     sidePanel.style.display = "flex";
     sidePanel.style.flexDirection = "column";
@@ -1257,6 +1270,7 @@ function buildCoachLiveInterface() {
     moodSection.style.borderRadius = "8px";
     moodSection.style.padding = "10px";
     moodSection.style.background = "#f0f0f0";
+
     const moodTitle = document.createElement("h4");
     moodTitle.textContent = "מצב רוח הקבוצה";
     moodSection.appendChild(moodTitle);
@@ -1270,6 +1284,7 @@ function buildCoachLiveInterface() {
     });
     moodSelect.onchange = () => {
         coachMood.mood = moodSelect.value;
+        coachMoodTimeStamp();
         renderCoachMood(sidePanel);
     };
     moodSection.appendChild(moodSelect);
@@ -1280,11 +1295,24 @@ function buildCoachLiveInterface() {
     moodInput.style.height = "60px";
     moodInput.oninput = () => {
         coachMood.message = moodInput.value.trim();
+        coachMoodTimeStamp();
         renderCoachMood(sidePanel);
     };
     moodSection.appendChild(moodInput);
+
+    // כפתור אישור מצב רוח
+    const moodSaveBtn = document.createElement("button");
+    moodSaveBtn.textContent = "אישור";
+    moodSaveBtn.classList.add("blue-btn");
+    moodSaveBtn.onclick = () => {
+        coachMoodTimeStamp();
+        alert("מצב רוח נשמר עם הדקה.");
+    };
+    moodSection.appendChild(moodSaveBtn);
+
     sidePanel.appendChild(moodSection);
 
+    // פתקים מהירים
     const notesSection = document.createElement("div");
     notesSection.style.border = "1px solid #ddd";
     notesSection.style.borderRadius = "8px";
@@ -1306,13 +1334,14 @@ function buildCoachLiveInterface() {
     addNoteBtn.onclick = () => {
         const val = noteInput.value.trim();
         if (!val) return;
-        quickNotes.push(val);
+        quickNotes.push({text:val, minute:coachLiveGameMinute});
         noteInput.value = "";
         renderQuickNotes(sidePanel);
     };
     notesSection.appendChild(addNoteBtn);
     sidePanel.appendChild(notesSection);
 
+    // לוח טקטי
     const tacticalSection = document.createElement("div");
     tacticalSection.style.border = "1px solid #ddd";
     tacticalSection.style.borderRadius = "8px";
@@ -1333,42 +1362,50 @@ function buildCoachLiveInterface() {
 
     liveContent.appendChild(sidePanel);
 
-    displayHulyaGoals(liveContent, "שוער", chosenKeeperGoals, customKeeperGoals);
-    displayHulyaGoals(liveContent, "הגנה", chosenDefenseGoals, customDefenseGoals);
-    displayHulyaGoals(liveContent, "קישור", chosenMidfieldGoals, customMidfieldGoals);
-    displayHulyaGoals(liveContent, "התקפה", chosenAttackGoals, customAttackGoals);
+    // במקום להציג פעולות מיידית, נציג כפתורים לפי חוליה ושחקנים:
+    // חוליות:
+    const hulyaSection = document.createElement("div");
+    hulyaSection.classList.add("live-section");
+    const hulyaTitle = document.createElement("h3");
+    hulyaTitle.textContent = "חוליות";
+    hulyaSection.appendChild(hulyaTitle);
 
+    ["שוער","הגנה","קישור","התקפה"].forEach(h => {
+        const btn = document.createElement("button");
+        btn.classList.add("blue-btn");
+        btn.textContent = h;
+        btn.style.margin = "5px";
+        btn.onclick = () => openHulyaActionsPopup(h);
+        hulyaSection.appendChild(btn);
+    });
+    liveContent.appendChild(hulyaSection);
+
+    // מטרות אישיות לשחקנים:
     if (personalPlayersGoals.length > 0) {
         const sec = document.createElement("div");
         sec.classList.add("live-section");
         const h3 = document.createElement("h3");
-        h3.textContent = "מטרות אישיות לשחקנים";
+        h3.textContent = "שחקנים (מטרות אישיות)";
         sec.appendChild(h3);
 
         personalPlayersGoals.forEach(p => {
-            p.goals.forEach(g => {
-                const goalCard = createGoalCard(`${p.playerName} (${p.positions.join(", ")}) - ${g.goal} (יעד: ${g.numeric})`, true);
-                goalCard.onclick = () => openGoalActionPopup(g, p);
-                sec.appendChild(goalCard);
-            });
+            const btn = document.createElement("button");
+            btn.classList.add("blue-btn");
+            btn.textContent = p.playerName+" ("+p.positions.join(", ")+")";
+            btn.style.margin="5px";
+            btn.onclick=()=>openPlayerActionsPopup(p);
+            sec.appendChild(btn);
         });
         liveContent.appendChild(sec);
     }
 
-    const controlSection = document.createElement("div");
-    controlSection.style.marginTop = "20px";
-    controlSection.style.textAlign = "center";
-
-    const endHalfBtn = document.createElement("button");
-    endHalfBtn.textContent = secondHalfStarted ? "סיים משחק" : "סיים מחצית";
-    endHalfBtn.classList.add("half-time-btn");
-    endHalfBtn.onclick = secondHalfStarted ? endCoachGame : endCoachHalfTime;
-    controlSection.appendChild(endHalfBtn);
-
-    liveContent.appendChild(controlSection);
-
+    // כפתורים: סיים מחצית, הצג פעולות, סיים משחק כבר קיימים
     renderQuickNotes(sidePanel);
     renderCoachMood(sidePanel);
+}
+
+function coachMoodTimeStamp() {
+    coachMood.minute = coachLiveGameMinute;
 }
 
 function renderCoachMood(sidePanel) {
@@ -1385,12 +1422,12 @@ function renderCoachMood(sidePanel) {
     moodDisplay.innerHTML = "";
     if (coachMood.mood) {
         const mP = document.createElement("p");
-        mP.innerHTML = `<strong>מצב רוח:</strong> ${coachMood.mood}`;
+        mP.innerHTML = `<strong>מצב רוח:</strong> ${coachMood.mood} (דקה: ${coachMood.minute || 0})`;
         moodDisplay.appendChild(mP);
     }
     if (coachMood.message) {
         const msgP = document.createElement("p");
-        msgP.innerHTML = `<strong>מסר לשחקנים:</strong> ${coachMood.message}`;
+        msgP.innerHTML = `<strong>מסר לשחקנים:</strong> ${coachMood.message} (דקה: ${coachMood.minute || 0})`;
         moodDisplay.appendChild(msgP);
     }
     if (!coachMood.mood && !coachMood.message) {
@@ -1412,158 +1449,157 @@ function renderQuickNotes(sidePanel) {
     } else {
         quickNotes.forEach(n => {
             const noteDiv = document.createElement("div");
-            noteDiv.style.background = "yellow";
-            noteDiv.style.padding = "10px";
-            noteDiv.style.borderRadius = "5px";
-            noteDiv.style.marginBottom = "5px";
-            noteDiv.textContent = n;
+            noteDiv.classList.add("note");
+            noteDiv.textContent = `${n.text} (דקה: ${n.minute})`;
+            noteDiv.style.marginBottom="5px";
             notesDisplay.appendChild(noteDiv);
         });
     }
 }
 
-function displayHulyaGoals(container, titleText, chosenGoals, customGoals) {
-    if (chosenGoals.length > 0 || customGoals.length > 0) {
-        const sec = document.createElement("div");
-        sec.classList.add("live-section");
-        const h3 = document.createElement("h3");
-        h3.textContent = titleText;
-        sec.appendChild(h3);
-        chosenGoals.forEach(g => {
-            const goalCard = createGoalCard(g);
-            goalCard.onclick = () => openGoalActionPopup({goal:g}, null, titleText); 
-            sec.appendChild(goalCard);
-        });
-        customGoals.forEach(g => {
-            const goalCard = createGoalCard(g);
-            goalCard.onclick = () => openGoalActionPopup({goal:g}, null, titleText); 
-            sec.appendChild(goalCard);
-        });
-        container.appendChild(sec);
-    }
-}
-
-function createGoalCard(goalText, personal=false) {
-    const div = document.createElement("div");
-    div.classList.add("goal-card");
-    div.style.display = "inline-block";
-    div.style.background = personal? "#ffecb3" : "#e0f7fa";
-    div.style.padding = "10px";
-    div.style.margin = "5px";
-    div.style.borderRadius = "5px";
-    div.style.fontSize = "16px";
-    div.style.color = "#333";
-    div.style.cursor = "pointer";
-    div.textContent = goalText;
-    return div;
-}
-
-function openGoalActionPopup(goalObj, personalPlayer=null, hulyaName="") {
-    closeGoalActionPopup();
+function openHulyaActionsPopup(hulyaName) {
+    // פופאפ לבחירת פעולה מחוליה
     const popup = document.createElement("div");
-    popup.classList.add("popup", "active");
-    popup.style.width = "90%";
-    popup.style.maxWidth = "700px";
-    popup.style.maxHeight = "90vh";
-    popup.style.overflow = "auto";
-    popup.style.fontSize = "20px";
-
-    const closeBtn = document.createElement("span");
+    popup.classList.add("popup","active");
+    const closeBtn=document.createElement("span");
     closeBtn.classList.add("close-btn");
-    closeBtn.textContent = "X";
-    closeBtn.onclick = () => closeGoalActionPopup(popup);
-    popup.appendChild(closeBtn);
+    closeBtn.textContent="X";
+    closeBtn.onclick=()=>document.body.removeChild(popup);
 
-    const content = document.createElement("div");
+    popup.appendChild(closeBtn);
+    const content=document.createElement("div");
     content.classList.add("popup-content");
-    const title = document.createElement("h3");
-    title.textContent = "עדכן פעולה למטרה";
+    const title=document.createElement("h3");
+    title.textContent=`פעולות לחוליית ${hulyaName}`;
     content.appendChild(title);
 
-    const goalName = personalPlayer ? `${personalPlayer.playerName} (${personalPlayer.positions.join(", ")}) - ${goalObj.goal}` : (hulyaName ? `${hulyaName}: ${goalObj.goal}` : goalObj.goal);
-    const goalP = document.createElement("p");
-    goalP.textContent = goalName;
-    goalP.style.fontWeight = "bold";
-    content.appendChild(goalP);
+    let relevantGoals=[];
+    if(hulyaName==="שוער") relevantGoals=chosenKeeperGoals.concat(customKeeperGoals);
+    else if(hulyaName==="הגנה") relevantGoals=chosenDefenseGoals.concat(customDefenseGoals);
+    else if(hulyaName==="קישור") relevantGoals=chosenMidfieldGoals.concat(customMidfieldGoals);
+    else if(hulyaName==="התקפה") relevantGoals=chosenAttackGoals.concat(customAttackGoals);
 
-    const btnContainer = document.createElement("div");
-    btnContainer.style.display = "flex";
-    btnContainer.style.gap = "20px";
-    btnContainer.style.marginBottom = "20px";
-    const successBtn = document.createElement("button");
-    successBtn.textContent = "מוצלח";
-    successBtn.style.backgroundColor = "green";
-    successBtn.style.color = "white";
-    successBtn.style.padding = "10px 20px";
-    successBtn.style.fontSize = "20px";
-    successBtn.onclick = () => registerGoalAction("מוצלח", goalObj, personalPlayer, popup);
+    if(relevantGoals.length===0) {
+        content.innerHTML+="<p>לא הוגדרו מטרות לחולייה זו.</p>";
+    } else {
+        relevantGoals.forEach(g=>{
+            const row=document.createElement("div");
+            row.style.display="flex";
+            row.style.justifyContent="space-between";
+            row.style.alignItems="center";
+            row.style.marginBottom="10px";
 
-    const failBtn = document.createElement("button");
-    failBtn.textContent = "לא מוצלח";
-    failBtn.style.backgroundColor = "red";
-    failBtn.style.color = "white";
-    failBtn.style.padding = "10px 20px";
-    failBtn.style.fontSize = "20px";
-    failBtn.onclick = () => registerGoalAction("לא מוצלח", goalObj, personalPlayer, popup);
+            const name=document.createElement("span");
+            name.textContent=g;
+            row.appendChild(name);
 
-    btnContainer.appendChild(successBtn);
-    btnContainer.appendChild(failBtn);
-    content.appendChild(btnContainer);
+            const successBtn=document.createElement("button");
+            successBtn.textContent="V";
+            successBtn.style.backgroundColor="#4CAF50";
+            successBtn.style.color="white";
+            successBtn.onclick=()=>{ actions.push({action:g,result:"מוצלח",minute:coachLiveGameMinute}); alert("נרשם מוצלח!"); };
+            row.appendChild(successBtn);
 
-    const commentArea = document.createElement("textarea");
-    commentArea.placeholder = "הערה (אופציונלי)";
-    commentArea.style.width = "100%";
-    commentArea.style.height = "80px";
-    commentArea.style.fontSize = "18px";
-    content.appendChild(commentArea);
+            const failBtn=document.createElement("button");
+            failBtn.textContent="X";
+            failBtn.style.backgroundColor="#f44336";
+            failBtn.style.color="white";
+            failBtn.onclick=()=>{ actions.push({action:g,result:"לא מוצלח",minute:coachLiveGameMinute}); alert("נרשם לא מוצלח!"); };
+            row.appendChild(failBtn);
+
+            content.appendChild(row);
+        });
+    }
 
     popup.appendChild(content);
     document.body.appendChild(popup);
-
-    popupAutoCloseTimer = setTimeout(() => {
-        closeGoalActionPopup(popup);
-    }, 10000);
 }
 
-function closeGoalActionPopup(popup=null) {
-    if (popupAutoCloseTimer) clearTimeout(popupAutoCloseTimer);
-    popupAutoCloseTimer = null;
-    const p = popup || document.querySelector(".popup.active");
-    if (p && p.parentNode === document.body) {
-        document.body.removeChild(p);
+function openPlayerActionsPopup(playerObj) {
+    // פופאפ לבחירת פעולה לשחקן אישי
+    const popup = document.createElement("div");
+    popup.classList.add("popup","active");
+    const closeBtn=document.createElement("span");
+    closeBtn.classList.add("close-btn");
+    closeBtn.textContent="X";
+    closeBtn.onclick=()=>document.body.removeChild(popup);
+
+    popup.appendChild(closeBtn);
+    const content=document.createElement("div");
+    content.classList.add("popup-content");
+    const title=document.createElement("h3");
+    title.textContent=`פעולות לשחקן ${playerObj.playerName} (${playerObj.positions.join(", ")})`;
+    content.appendChild(title);
+
+    if(playerObj.goals.length===0) {
+        content.innerHTML+="<p>לא הוגדרו מטרות אישיות.</p>";
+    } else {
+        playerObj.goals.forEach(g=>{
+            const row=document.createElement("div");
+            row.style.display="flex";
+            row.style.justifyContent="space-between";
+            row.style.alignItems="center";
+            row.style.marginBottom="10px";
+
+            const name=document.createElement("span");
+            name.textContent=g.goal+" (יעד:"+g.numeric+")";
+            row.appendChild(name);
+
+            const successBtn=document.createElement("button");
+            successBtn.textContent="V";
+            successBtn.style.backgroundColor="#4CAF50";
+            successBtn.style.color="white";
+            successBtn.onclick=()=>{ actions.push({action:g.goal,result:"מוצלח",minute:coachLiveGameMinute}); alert("נרשם מוצלח!"); };
+            row.appendChild(successBtn);
+
+            const failBtn=document.createElement("button");
+            failBtn.textContent="X";
+            failBtn.style.backgroundColor="#f44336";
+            failBtn.style.color="white";
+            failBtn.onclick=()=>{ actions.push({action:g.goal,result:"לא מוצלח",minute:coachLiveGameMinute}); alert("נרשם לא מוצלח!"); };
+            row.appendChild(failBtn);
+
+            content.appendChild(row);
+        });
     }
+
+    popup.appendChild(content);
+    document.body.appendChild(popup);
 }
 
-function registerGoalAction(result, goalObj, personalPlayer, popup) {
-    console.log(`Action for goal "${goalObj.goal}" recorded as ${result} in live match minute ${coachLiveGameMinute}`);
-    closeGoalActionPopup(popup);
+function showAllActionsDuringMatch() {
+    // פופאפ עם כל הפעולות עד כה
+    const allActionsList=document.createElement("div");
+    actions.forEach(({action,result,minute})=>{
+        const p=document.createElement("p");
+        p.textContent=`דקה ${minute}: ${action} - ${result}`;
+        allActionsList.appendChild(p);
+    });
+
+    const popup=document.createElement("div");
+    popup.classList.add("popup","active");
+    const closeBtn=document.createElement("span");
+    closeBtn.classList.add("close-btn");
+    closeBtn.textContent="X";
+    closeBtn.onclick=()=>document.body.removeChild(popup);
+    popup.appendChild(closeBtn);
+
+    const content=document.createElement("div");
+    content.classList.add("popup-content");
+    const title=document.createElement("h3");
+    title.textContent="כל הפעולות עד כה";
+    content.appendChild(title);
+    content.appendChild(allActionsList);
+    popup.appendChild(content);
+    document.body.appendChild(popup);
 }
 
-function endCoachHalfTime() {
-    if (coachLiveGameInterval) clearInterval(coachLiveGameInterval);
-    alert("סיכום מחצית (מדמה תצוגת סיכום)");
-
-    secondHalfStarted = true;
-    const startSecond = confirm("התחל מחצית שנייה?");
-    if (startSecond) {
-        startCoachLiveGame();
-    }
-}
-
-function endCoachGame() {
-    if (coachLiveGameInterval) clearInterval(coachLiveGameInterval);
-    matchEnded = true;
-    alert("סיום משחק - יציג סיכום מלא");
-    alert("סיכום מלא כולל כל הנתונים. כפתור הורד PDF זמין.");
-}
-
+// פונקציות לוח טקטי
 async function openTacticalBoardPopup() {
     const popup = document.createElement("div");
     popup.classList.add("popup", "active");
-    popup.style.width = "90%";
-    popup.style.maxWidth = "800px";
-    popup.style.height = "90vh";
-    popup.style.overflow = "auto";
+    popup.style.width = "85%";
+    popup.style.height = "85%";
 
     const closeBtn = document.createElement("span");
     closeBtn.classList.add("close-btn");
@@ -1574,6 +1610,9 @@ async function openTacticalBoardPopup() {
     const content = document.createElement("div");
     content.classList.add("popup-content");
     content.style.position = "relative";
+    content.style.width="100%";
+    content.style.height="100%";
+    content.style.overflow="hidden";
 
     const title = document.createElement("h3");
     title.textContent = "לוח טקטי אינטראקטיבי";
@@ -1581,59 +1620,111 @@ async function openTacticalBoardPopup() {
 
     const pitch = document.createElement("div");
     pitch.style.width = "100%";
-    pitch.style.height = "500px";
-    pitch.style.background = "green";
+    pitch.style.height = "calc(85% - 100px)";
+    pitch.style.background = "url('static/pitch.png') no-repeat center center";
+    pitch.style.backgroundSize = "contain";
     pitch.style.position = "relative";
     pitch.style.overflow = "hidden";
     content.appendChild(pitch);
 
-    for (let i=0; i<10; i++) {
-        const playerDot = document.createElement("div");
-        playerDot.style.width = "30px";
-        playerDot.style.height = "30px";
-        playerDot.style.borderRadius = "50%";
-        playerDot.style.background = (i<5)? colorMap[coachTeamAColor]||"black" : colorMap[coachTeamBColor]||"black";
-        playerDot.style.position = "absolute";
-        playerDot.style.top = `${Math.random()*400}px`;
-        playerDot.style.left = `${Math.random()*400}px`;
-        playerDot.style.cursor = "grab";
+    // יצירת מערך 4-4-2 לשתי קבוצות
+    // קבוצה א' (אדום) בצד שמאל
+    // קבוצה ב' (כחול) בצד ימין
 
-        let dragging = false;
+    // מערך קבוצה א' (אדום):
+    // נניח גודל המגרש height:500px width:auto
+    // פשוט נמקם יחסית:
+    const redPositions=[
+        // 4-4-2: שוער
+        {x:10,y:50},
+        // הגנה (4)
+        {x:20,y:20},{x:20,y:40},{x:20,y:60},{x:20,y:80},
+        // קישור(4)
+        {x:35,y:25},{x:35,y:45},{x:35,y:65},{x:35,y:85},
+        // התקפה(2)
+        {x:50,y:30},{x:50,y:70}
+    ];
+
+    // קבוצה ב' (כחול), מראה בצד ימין
+    const bluePositions=[
+        {x:90,y:50},
+        {x:80,y:20},{x:80,y:40},{x:80,y:60},{x:80,y:80},
+        {x:65,y:25},{x:65,y:45},{x:65,y:65},{x:65,y:85},
+        {x:55,y:30},{x:55,y:70}
+    ];
+
+    function createPlayerDot(color,xPerc,yPerc) {
+        const playerDot=document.createElement("div");
+        playerDot.style.width="20px";
+        playerDot.style.height="20px";
+        playerDot.style.borderRadius="50%";
+        playerDot.style.background=color;
+        playerDot.style.position="absolute";
+        playerDot.style.cursor="grab";
+
+        function setPosition() {
+            const rect=pitch.getBoundingClientRect();
+            playerDot.style.left=(rect.width*(xPerc/100)-10)+"px";
+            playerDot.style.top=(rect.height*(yPerc/100)-10)+"px";
+        }
+        setPosition();
+
+        let dragging=false;
         let offsetX=0,offsetY=0;
-        playerDot.onmousedown = (e) => {
-            dragging = true;
-            offsetX = e.offsetX;
-            offsetY = e.offsetY;
-            playerDot.style.cursor = "grabbing";
+
+        playerDot.onmousedown=(e)=>{
+            dragging=true;
+            offsetX=e.offsetX;
+            offsetY=e.offsetY;
+            playerDot.style.cursor="grabbing";
         };
-        document.onmouseup = () => {
-            dragging = false;
-            playerDot.style.cursor = "grab";
+        playerDot.ontouchstart=(e)=>{
+            dragging=true;
+            offsetX=10; offsetY=10; 
+            playerDot.style.cursor="grabbing";
         };
-        document.onmousemove = (e) => {
-            if (dragging) {
-                const rect = pitch.getBoundingClientRect();
-                let nx = e.clientX - rect.left - offsetX;
-                let ny = e.clientY - rect.top - offsetY;
-                if (nx<0) nx=0;
-                if (ny<0) ny=0;
-                if (nx>rect.width-30) nx=rect.width-30;
-                if (ny>rect.height-30) ny=rect.height-30;
-                playerDot.style.left = nx+"px";
-                playerDot.style.top = ny+"px";
+        document.onmouseup=()=>{dragging=false;playerDot.style.cursor="grab";};
+        document.ontouchend=()=>{dragging=false;playerDot.style.cursor="grab";};
+        document.onmousemove=(e)=>{
+            if(dragging){
+                const rect=pitch.getBoundingClientRect();
+                let nx=e.clientX-rect.left-offsetX;
+                let ny=e.clientY-rect.top-offsetY;
+                if(nx<0)nx=0;if(ny<0)ny=0;
+                if(nx>rect.width-20)nx=rect.width-20;
+                if(ny>rect.height-20)ny=rect.height-20;
+                playerDot.style.left=nx+"px";
+                playerDot.style.top=ny+"px";
+            }
+        };
+        document.ontouchmove=(e)=>{
+            if(dragging && e.touches.length>0){
+                const rect=pitch.getBoundingClientRect();
+                let nx=e.touches[0].clientX-rect.left-10;
+                let ny=e.touches[0].clientY-rect.top-10;
+                if(nx<0)nx=0;if(ny<0)ny=0;
+                if(nx>rect.width-20)nx=rect.width-20;
+                if(ny>rect.height-20)ny=rect.height-20;
+                playerDot.style.left=nx+"px";
+                playerDot.style.top=ny+"px";
             }
         };
 
+        window.addEventListener('resize',setPosition);
         pitch.appendChild(playerDot);
     }
 
-    const captureBtn = document.createElement("button");
-    captureBtn.textContent = "צלם תכנית";
+    redPositions.forEach(pos=>{createPlayerDot("red",pos.x,pos.y)});
+    bluePositions.forEach(pos=>{createPlayerDot("blue",pos.x,pos.y)});
+
+    const captureBtn=document.createElement("button");
+    captureBtn.textContent="צלם תכנית";
     captureBtn.classList.add("blue-btn");
-    captureBtn.style.marginTop = "20px";
-    captureBtn.onclick = async () => {
-        const canvas = await html2canvas(pitch);
-        tacticalPlanCaptured = canvas.toDataURL('image/png');
+    captureBtn.style.marginTop="20px";
+    captureBtn.onclick=async()=>{
+        const rect=pitch.getBoundingClientRect();
+        const canvas=await html2canvas(pitch);
+        tacticalPlanCaptured=canvas.toDataURL('image/png');
         alert("התכנית צולמה בהצלחה!");
     };
     content.appendChild(captureBtn);
@@ -2086,5 +2177,3 @@ async function downloadPDFAnalyst() {
     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
     pdf.save("summary.pdf");
 }
-
-// זהו קובץ script.js המלא והסופי לאחר כל השינויים.
