@@ -297,7 +297,7 @@ label.selected {
 }
 
 .numeric-content {
-    overflow:hidden; /* הסרת גלילה בפופאפ המספרי */
+    overflow:hidden;
 }
 
 .popup-content h3 {
