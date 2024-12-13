@@ -1,6 +1,6 @@
 const ACCESS_CODE = "1976";
 
-// משתנים גלובליים קיימים מהקוד המקורי
+// משתנים גלובליים
 let actions = [];
 let selectedActions = [];
 let gameInterval = null;
@@ -28,10 +28,6 @@ let coachGameDate = "";
 let coachTeamAColor = "שחור";
 let coachTeamBColor = "שחור";
 
-// פונקציות העזר, אובייקטים וכל הלוגיקה שהגדרת במקור
-// כולל positionActions, mentalActions, colorMap, paletteColors, וכו'.
-// להלן כל האובייקטים והקבועים שהיו בקוד המקורי:
-
 const positionActions = { 
     "שוער": ["עצירת כדור קשה", "יציאה לאגרוף", "משחק רגל מדויק", "שליטה ברחבה", "תקשורת עם ההגנה", "יציאה לכדורי גובה", "מסירה ארוכה מדויקת", "סגירת זויות בעיטות", "תגובות מהירות", "ביצוע 1 על 1", "מסירת מפתח", "הגבהה לרחבה"],
     "בלם": ["בלימת התקפה יריבה", "משחק ראש מוצלח", "סגירת תוקף", "חטיפת כדור", "הנעת כדור אחורה בבטחה", "משחק רוחב מדויק", "סגירת קווי מסירה", "הגנה על הרחבה", "הובלת הכדור קדימה", "החזרת כדור לשוער", "ביצוע 1 על 1", "מסירת מפתח", "הגבהה לרחבה", "בעיטה לשער", "בעיטה למסגרת"],
@@ -43,22 +39,39 @@ const positionActions = {
 
 const mentalActions = ["מנטאלי"];
 
-const coachTacticalActions = {
-    "טקטיקה מקצועית": ["לחץ גבוה", "סגירה במרכז", "מיקום בהגנה אזורית", "יציאה מהירה למתפרצת", "הנעת כדור סבלנית", "שמירה אישית על מפתח", "הגבהות לרחבה בתקיפות", "סגירת אגפים", "תמיכה הדדית בהגנה", "ניצול כדורי גובה", "שינוי אגף מהיר"],
-    "טקטיקה מנטאלית": ["עידוד מתמיד בין השחקנים", "ניהול רגשי תחת לחץ", "תקשורת חיובית בכל חלקי המגרש"]
-};
-
 const colorMap = {
     "אדום": "red", "כחול": "blue", "ירוק": "green", "צהוב": "yellow", "שחור": "black", "לבן": "white",
     "כתום": "orange", "סגול": "purple", "ורוד": "pink", "חום": "brown", "אפור": "gray", "טורקיז": "turquoise"
 };
-
 const paletteColors = ["אדום", "כחול", "ירוק", "צהוב", "שחור", "לבן", "כתום", "סגול", "ורוד", "חום", "אפור", "טורקיז"];
 
-// פונקציות selectRole, createTeamColorPalette, finalizeTeamAColorChoice, resetTeamAColor וכו'.
-// כל הפונקציות המקוריות שהיו בקוד שלך בתחילה, ללא שינוי, להלן:
+let chosenKeeperGoals = [];
+let chosenDefenseGoals = [];
+let chosenMidfieldGoals = [];
+let chosenAttackGoals = [];
 
-// פונקציית selectRole
+let customKeeperGoals = [];
+let customDefenseGoals = [];
+let customMidfieldGoals = [];
+let customAttackGoals = [];
+
+const CUSTOM_GOAL_LIMIT = 30;
+
+let personalPlayersGoals = []; // מטרות אישיות
+
+// משתנים עבור ניטור חי של המאמן:
+let coachLiveGameStarted = false;
+let coachLiveGameInterval = null;
+let coachLiveGameMinute = 0;
+let coachMood = { mood: '', message: '' };
+let quickNotes = [];
+let tacticalPlanCaptured = null;
+let secondHalfStarted = false;
+let matchEnded = false;
+let popupAutoCloseTimer = null;
+const availableMoods = ["מורל גבוה", "חוסר ריכוז", "רוגע", "התלהבות", "לחץ", "דריכות"];
+
+
 function selectRole(role) {
     const roleContainer = document.getElementById("role-selection-container");
     if (roleContainer) {
@@ -771,10 +784,6 @@ function downloadPDF() {
     });
 }
 
-// פונקציות מאמן נוספות (goToCoachGoals, loadCoachGoalsPage, וכו') מהקוד המקורי, ללא שינוי, ולאחר מכן נוסיף את מה שהתבקש
-// כאן מתווספות הפונקציות הידועות מהקוד הקודם: goToCoachGoals, loadCoachGoalsPage, createGoalCheckbox, addCoachCustomGoal, closeCoachCustomGoalPopup, closeCoachGoalLimitPopup וכו'.
-// שמירה על הסדר הקיים:
-
 function goToCoachGoals() {
     const teamA = document.getElementById("coach-teamA").value.trim();
     const teamB = document.getElementById("coach-teamB").value.trim();
@@ -857,8 +866,9 @@ function addCoachCustomGoal() {
     else if (line === "התקפה") arr = customAttackGoals;
 
     if (arr.length >= CUSTOM_GOAL_LIMIT) {
-        document.getElementById("coach-goal-limit-popup").classList.add("active");
-        document.getElementById("coach-goal-limit-popup").classList.remove("hidden");
+        const popup = document.getElementById("coach-goal-limit-popup");
+        popup.classList.add("active");
+        popup.classList.remove("hidden");
         return;
     }
 
@@ -1007,8 +1017,56 @@ function finishPersonalPlayerGoalsSelection() {
 
     currentPersonalPlayerGoals = Array.from(checks).map(c => ({goal:c.value}));
     closePersonalGoalsSelectionPopup();
-    // כאן נשתמש בפונקציה המשופרת להצגת היעדים המספריים
     openPersonalGoalsNumericPopup(currentPersonalPlayerGoals, currentPersonalPlayerName, currentPersonalPlayerPositions);
+}
+
+function openPersonalGoalsNumericPopup(goals, playerName, positions) {
+    currentPersonalPlayerGoals = goals; 
+    currentPersonalPlayerName = playerName;
+    currentPersonalPlayerPositions = positions; 
+
+    const popup = document.getElementById("personal-goals-numeric-popup");
+    popup.classList.remove("hidden");
+    popup.classList.add("active");
+
+    const table = document.getElementById("personal-goals-numeric-table");
+    table.innerHTML = "";
+
+    goals.forEach(g => {
+        const row = document.createElement("div");
+        row.classList.add("numeric-row");
+        row.style.display = "flex";
+        row.style.alignItems = "center";
+        row.style.justifyContent = "space-between";
+        row.style.gap = "10px";
+        row.style.marginBottom = "10px";
+
+        const labelContainer = document.createElement("div");
+        labelContainer.style.flex = "1";
+        const label = document.createElement("span");
+        label.textContent = g.goal;
+        label.style.fontWeight = "bold";
+        labelContainer.appendChild(label);
+
+        const inputContainer = document.createElement("div");
+        inputContainer.style.flex = "1";
+        const input = document.createElement("input");
+        input.type = "number";
+        input.min = "0";
+        input.value = "0";
+        input.style.width = "100px";
+        input.style.fontSize = "18px";
+        input.style.padding = "5px";
+        input.style.borderRadius = "5px";
+        input.style.border = "1px solid #ccc";
+        inputContainer.appendChild(input);
+
+        row.appendChild(labelContainer);
+        row.appendChild(inputContainer);
+
+        g.input = input;
+        table.appendChild(row);
+    });
 }
 
 function closePersonalGoalsNumericPopup() {
@@ -1157,11 +1215,432 @@ function downloadFinalSummaryPDF() {
     });
 }
 
-// פונקציות האנליסט מהקוד המקורי, ללא שינוי
-// submitAnalystGameInfo, addAnalystPlayer, updateAnalystPlayersList, submitAnalystSetup,
-// loadAnalystActions, createAnalystSelectableAction, submitAnalystActions, startAnalystTimer,
-// loadAnalystMarking, markAnalystAction, finishAnalystGame, showFinalSummary, downloadPDFAnalyst
-// כל אלה בדיוק כפי שהיו בקוד המקורי והעודכן שלך
+function goToCoachLiveGame() {
+    document.getElementById("final-summary-container").classList.add("hidden");
+    document.getElementById("coach-live-game-container").classList.remove("hidden");
+}
+
+function startCoachLiveGame() {
+    document.getElementById("coach-live-game-container").classList.add("hidden");
+    document.getElementById("coach-live-update-container").classList.remove("hidden");
+    coachLiveGameStarted = true;
+
+    coachLiveGameMinute = secondHalfStarted ? 45 : 0;
+    updateCoachLiveGameTimer();
+    if (coachLiveGameInterval) clearInterval(coachLiveGameInterval);
+    coachLiveGameInterval = setInterval(() => {
+        coachLiveGameMinute++;
+        updateCoachLiveGameTimer();
+    }, 60000);
+
+    buildCoachLiveInterface();
+}
+
+function updateCoachLiveGameTimer() {
+    const timerElem = document.getElementById("coach-live-minute-counter");
+    if (!timerElem) return;
+    timerElem.textContent = coachLiveGameMinute;
+}
+
+function buildCoachLiveInterface() {
+    const liveContent = document.getElementById("live-update-content");
+    liveContent.innerHTML = "";
+
+    const sidePanel = document.createElement("div");
+    sidePanel.style.display = "flex";
+    sidePanel.style.flexDirection = "column";
+    sidePanel.style.gap = "15px";
+    sidePanel.style.marginBottom = "20px";
+
+    const moodSection = document.createElement("div");
+    moodSection.style.border = "1px solid #ddd";
+    moodSection.style.borderRadius = "8px";
+    moodSection.style.padding = "10px";
+    moodSection.style.background = "#f0f0f0";
+    const moodTitle = document.createElement("h4");
+    moodTitle.textContent = "מצב רוח הקבוצה";
+    moodSection.appendChild(moodTitle);
+
+    const moodSelect = document.createElement("select");
+    availableMoods.forEach(m => {
+        const opt = document.createElement("option");
+        opt.value = m;
+        opt.textContent = m;
+        moodSelect.appendChild(opt);
+    });
+    moodSelect.onchange = () => {
+        coachMood.mood = moodSelect.value;
+        renderCoachMood(sidePanel);
+    };
+    moodSection.appendChild(moodSelect);
+
+    const moodInput = document.createElement("textarea");
+    moodInput.placeholder = "הוסף מסר לשחקנים...";
+    moodInput.style.width = "100%";
+    moodInput.style.height = "60px";
+    moodInput.oninput = () => {
+        coachMood.message = moodInput.value.trim();
+        renderCoachMood(sidePanel);
+    };
+    moodSection.appendChild(moodInput);
+    sidePanel.appendChild(moodSection);
+
+    const notesSection = document.createElement("div");
+    notesSection.style.border = "1px solid #ddd";
+    notesSection.style.borderRadius = "8px";
+    notesSection.style.padding = "10px";
+    notesSection.style.background = "#f0f0f0";
+    const notesTitle = document.createElement("h4");
+    notesTitle.textContent = "הערות מהירות (פתקים צהובים)";
+    notesSection.appendChild(notesTitle);
+
+    const noteInput = document.createElement("input");
+    noteInput.type = "text";
+    noteInput.placeholder = "כתוב פתק...";
+    notesSection.appendChild(noteInput);
+
+    const addNoteBtn = document.createElement("button");
+    addNoteBtn.textContent = "הוסף פתק";
+    addNoteBtn.classList.add("blue-btn");
+    addNoteBtn.style.marginRight = "10px";
+    addNoteBtn.onclick = () => {
+        const val = noteInput.value.trim();
+        if (!val) return;
+        quickNotes.push(val);
+        noteInput.value = "";
+        renderQuickNotes(sidePanel);
+    };
+    notesSection.appendChild(addNoteBtn);
+    sidePanel.appendChild(notesSection);
+
+    const tacticalSection = document.createElement("div");
+    tacticalSection.style.border = "1px solid #ddd";
+    tacticalSection.style.borderRadius = "8px";
+    tacticalSection.style.padding = "10px";
+    tacticalSection.style.background = "#f0f0f0";
+
+    const tacticalTitle = document.createElement("h4");
+    tacticalTitle.textContent = "לוח טקטי אינטראקטיבי";
+    tacticalSection.appendChild(tacticalTitle);
+
+    const openTacticalBtn = document.createElement("button");
+    openTacticalBtn.textContent = "פתח לוח טקטי";
+    openTacticalBtn.classList.add("blue-btn");
+    openTacticalBtn.onclick = openTacticalBoardPopup;
+    tacticalSection.appendChild(openTacticalBtn);
+
+    sidePanel.appendChild(tacticalSection);
+
+    liveContent.appendChild(sidePanel);
+
+    displayHulyaGoals(liveContent, "שוער", chosenKeeperGoals, customKeeperGoals);
+    displayHulyaGoals(liveContent, "הגנה", chosenDefenseGoals, customDefenseGoals);
+    displayHulyaGoals(liveContent, "קישור", chosenMidfieldGoals, customMidfieldGoals);
+    displayHulyaGoals(liveContent, "התקפה", chosenAttackGoals, customAttackGoals);
+
+    if (personalPlayersGoals.length > 0) {
+        const sec = document.createElement("div");
+        sec.classList.add("live-section");
+        const h3 = document.createElement("h3");
+        h3.textContent = "מטרות אישיות לשחקנים";
+        sec.appendChild(h3);
+
+        personalPlayersGoals.forEach(p => {
+            p.goals.forEach(g => {
+                const goalCard = createGoalCard(`${p.playerName} (${p.positions.join(", ")}) - ${g.goal} (יעד: ${g.numeric})`, true);
+                goalCard.onclick = () => openGoalActionPopup(g, p);
+                sec.appendChild(goalCard);
+            });
+        });
+        liveContent.appendChild(sec);
+    }
+
+    const controlSection = document.createElement("div");
+    controlSection.style.marginTop = "20px";
+    controlSection.style.textAlign = "center";
+
+    const endHalfBtn = document.createElement("button");
+    endHalfBtn.textContent = secondHalfStarted ? "סיים משחק" : "סיים מחצית";
+    endHalfBtn.classList.add("half-time-btn");
+    endHalfBtn.onclick = secondHalfStarted ? endCoachGame : endCoachHalfTime;
+    controlSection.appendChild(endHalfBtn);
+
+    liveContent.appendChild(controlSection);
+
+    renderQuickNotes(sidePanel);
+    renderCoachMood(sidePanel);
+}
+
+function renderCoachMood(sidePanel) {
+    let moodDisplay = sidePanel.querySelector(".mood-display");
+    if (!moodDisplay) {
+        moodDisplay = document.createElement("div");
+        moodDisplay.classList.add("mood-display");
+        moodDisplay.style.background = "#ffe";
+        moodDisplay.style.padding = "10px";
+        moodDisplay.style.borderRadius = "8px";
+        moodDisplay.style.marginTop = "10px";
+        sidePanel.appendChild(moodDisplay);
+    }
+    moodDisplay.innerHTML = "";
+    if (coachMood.mood) {
+        const mP = document.createElement("p");
+        mP.innerHTML = `<strong>מצב רוח:</strong> ${coachMood.mood}`;
+        moodDisplay.appendChild(mP);
+    }
+    if (coachMood.message) {
+        const msgP = document.createElement("p");
+        msgP.innerHTML = `<strong>מסר לשחקנים:</strong> ${coachMood.message}`;
+        moodDisplay.appendChild(msgP);
+    }
+    if (!coachMood.mood && !coachMood.message) {
+        moodDisplay.innerHTML = "<em>לא נקבע מצב רוח או מסר</em>";
+    }
+}
+
+function renderQuickNotes(sidePanel) {
+    let notesDisplay = sidePanel.querySelector(".notes-display");
+    if (!notesDisplay) {
+        notesDisplay = document.createElement("div");
+        notesDisplay.classList.add("notes-display");
+        notesDisplay.style.marginTop = "10px";
+        sidePanel.appendChild(notesDisplay);
+    }
+    notesDisplay.innerHTML = "";
+    if (quickNotes.length === 0) {
+        notesDisplay.innerHTML = "<em>אין פתקים</em>";
+    } else {
+        quickNotes.forEach(n => {
+            const noteDiv = document.createElement("div");
+            noteDiv.style.background = "yellow";
+            noteDiv.style.padding = "10px";
+            noteDiv.style.borderRadius = "5px";
+            noteDiv.style.marginBottom = "5px";
+            noteDiv.textContent = n;
+            notesDisplay.appendChild(noteDiv);
+        });
+    }
+}
+
+function displayHulyaGoals(container, titleText, chosenGoals, customGoals) {
+    if (chosenGoals.length > 0 || customGoals.length > 0) {
+        const sec = document.createElement("div");
+        sec.classList.add("live-section");
+        const h3 = document.createElement("h3");
+        h3.textContent = titleText;
+        sec.appendChild(h3);
+        chosenGoals.forEach(g => {
+            const goalCard = createGoalCard(g);
+            goalCard.onclick = () => openGoalActionPopup({goal:g}, null, titleText); 
+            sec.appendChild(goalCard);
+        });
+        customGoals.forEach(g => {
+            const goalCard = createGoalCard(g);
+            goalCard.onclick = () => openGoalActionPopup({goal:g}, null, titleText); 
+            sec.appendChild(goalCard);
+        });
+        container.appendChild(sec);
+    }
+}
+
+function createGoalCard(goalText, personal=false) {
+    const div = document.createElement("div");
+    div.classList.add("goal-card");
+    div.style.display = "inline-block";
+    div.style.background = personal? "#ffecb3" : "#e0f7fa";
+    div.style.padding = "10px";
+    div.style.margin = "5px";
+    div.style.borderRadius = "5px";
+    div.style.fontSize = "16px";
+    div.style.color = "#333";
+    div.style.cursor = "pointer";
+    div.textContent = goalText;
+    return div;
+}
+
+function openGoalActionPopup(goalObj, personalPlayer=null, hulyaName="") {
+    closeGoalActionPopup();
+    const popup = document.createElement("div");
+    popup.classList.add("popup", "active");
+    popup.style.width = "90%";
+    popup.style.maxWidth = "700px";
+    popup.style.maxHeight = "90vh";
+    popup.style.overflow = "auto";
+    popup.style.fontSize = "20px";
+
+    const closeBtn = document.createElement("span");
+    closeBtn.classList.add("close-btn");
+    closeBtn.textContent = "X";
+    closeBtn.onclick = () => closeGoalActionPopup(popup);
+    popup.appendChild(closeBtn);
+
+    const content = document.createElement("div");
+    content.classList.add("popup-content");
+    const title = document.createElement("h3");
+    title.textContent = "עדכן פעולה למטרה";
+    content.appendChild(title);
+
+    const goalName = personalPlayer ? `${personalPlayer.playerName} (${personalPlayer.positions.join(", ")}) - ${goalObj.goal}` : (hulyaName ? `${hulyaName}: ${goalObj.goal}` : goalObj.goal);
+    const goalP = document.createElement("p");
+    goalP.textContent = goalName;
+    goalP.style.fontWeight = "bold";
+    content.appendChild(goalP);
+
+    const btnContainer = document.createElement("div");
+    btnContainer.style.display = "flex";
+    btnContainer.style.gap = "20px";
+    btnContainer.style.marginBottom = "20px";
+    const successBtn = document.createElement("button");
+    successBtn.textContent = "מוצלח";
+    successBtn.style.backgroundColor = "green";
+    successBtn.style.color = "white";
+    successBtn.style.padding = "10px 20px";
+    successBtn.style.fontSize = "20px";
+    successBtn.onclick = () => registerGoalAction("מוצלח", goalObj, personalPlayer, popup);
+
+    const failBtn = document.createElement("button");
+    failBtn.textContent = "לא מוצלח";
+    failBtn.style.backgroundColor = "red";
+    failBtn.style.color = "white";
+    failBtn.style.padding = "10px 20px";
+    failBtn.style.fontSize = "20px";
+    failBtn.onclick = () => registerGoalAction("לא מוצלח", goalObj, personalPlayer, popup);
+
+    btnContainer.appendChild(successBtn);
+    btnContainer.appendChild(failBtn);
+    content.appendChild(btnContainer);
+
+    const commentArea = document.createElement("textarea");
+    commentArea.placeholder = "הערה (אופציונלי)";
+    commentArea.style.width = "100%";
+    commentArea.style.height = "80px";
+    commentArea.style.fontSize = "18px";
+    content.appendChild(commentArea);
+
+    popup.appendChild(content);
+    document.body.appendChild(popup);
+
+    popupAutoCloseTimer = setTimeout(() => {
+        closeGoalActionPopup(popup);
+    }, 10000);
+}
+
+function closeGoalActionPopup(popup=null) {
+    if (popupAutoCloseTimer) clearTimeout(popupAutoCloseTimer);
+    popupAutoCloseTimer = null;
+    const p = popup || document.querySelector(".popup.active");
+    if (p && p.parentNode === document.body) {
+        document.body.removeChild(p);
+    }
+}
+
+function registerGoalAction(result, goalObj, personalPlayer, popup) {
+    console.log(`Action for goal "${goalObj.goal}" recorded as ${result} in live match minute ${coachLiveGameMinute}`);
+    closeGoalActionPopup(popup);
+}
+
+function endCoachHalfTime() {
+    if (coachLiveGameInterval) clearInterval(coachLiveGameInterval);
+    alert("סיכום מחצית (מדמה תצוגת סיכום)");
+
+    secondHalfStarted = true;
+    const startSecond = confirm("התחל מחצית שנייה?");
+    if (startSecond) {
+        startCoachLiveGame();
+    }
+}
+
+function endCoachGame() {
+    if (coachLiveGameInterval) clearInterval(coachLiveGameInterval);
+    matchEnded = true;
+    alert("סיום משחק - יציג סיכום מלא");
+    alert("סיכום מלא כולל כל הנתונים. כפתור הורד PDF זמין.");
+}
+
+async function openTacticalBoardPopup() {
+    const popup = document.createElement("div");
+    popup.classList.add("popup", "active");
+    popup.style.width = "90%";
+    popup.style.maxWidth = "800px";
+    popup.style.height = "90vh";
+    popup.style.overflow = "auto";
+
+    const closeBtn = document.createElement("span");
+    closeBtn.classList.add("close-btn");
+    closeBtn.textContent = "X";
+    closeBtn.onclick = () => document.body.removeChild(popup);
+    popup.appendChild(closeBtn);
+
+    const content = document.createElement("div");
+    content.classList.add("popup-content");
+    content.style.position = "relative";
+
+    const title = document.createElement("h3");
+    title.textContent = "לוח טקטי אינטראקטיבי";
+    content.appendChild(title);
+
+    const pitch = document.createElement("div");
+    pitch.style.width = "100%";
+    pitch.style.height = "500px";
+    pitch.style.background = "green";
+    pitch.style.position = "relative";
+    pitch.style.overflow = "hidden";
+    content.appendChild(pitch);
+
+    for (let i=0; i<10; i++) {
+        const playerDot = document.createElement("div");
+        playerDot.style.width = "30px";
+        playerDot.style.height = "30px";
+        playerDot.style.borderRadius = "50%";
+        playerDot.style.background = (i<5)? colorMap[coachTeamAColor]||"black" : colorMap[coachTeamBColor]||"black";
+        playerDot.style.position = "absolute";
+        playerDot.style.top = `${Math.random()*400}px`;
+        playerDot.style.left = `${Math.random()*400}px`;
+        playerDot.style.cursor = "grab";
+
+        let dragging = false;
+        let offsetX=0,offsetY=0;
+        playerDot.onmousedown = (e) => {
+            dragging = true;
+            offsetX = e.offsetX;
+            offsetY = e.offsetY;
+            playerDot.style.cursor = "grabbing";
+        };
+        document.onmouseup = () => {
+            dragging = false;
+            playerDot.style.cursor = "grab";
+        };
+        document.onmousemove = (e) => {
+            if (dragging) {
+                const rect = pitch.getBoundingClientRect();
+                let nx = e.clientX - rect.left - offsetX;
+                let ny = e.clientY - rect.top - offsetY;
+                if (nx<0) nx=0;
+                if (ny<0) ny=0;
+                if (nx>rect.width-30) nx=rect.width-30;
+                if (ny>rect.height-30) ny=rect.height-30;
+                playerDot.style.left = nx+"px";
+                playerDot.style.top = ny+"px";
+            }
+        };
+
+        pitch.appendChild(playerDot);
+    }
+
+    const captureBtn = document.createElement("button");
+    captureBtn.textContent = "צלם תכנית";
+    captureBtn.classList.add("blue-btn");
+    captureBtn.style.marginTop = "20px";
+    captureBtn.onclick = async () => {
+        const canvas = await html2canvas(pitch);
+        tacticalPlanCaptured = canvas.toDataURL('image/png');
+        alert("התכנית צולמה בהצלחה!");
+    };
+    content.appendChild(captureBtn);
+
+    popup.appendChild(content);
+    document.body.appendChild(popup);
+}
 
 function submitAnalystGameInfo() {
     const teamA = document.getElementById("analyst-teamA").value.trim();
@@ -1608,5 +2087,4 @@ async function downloadPDFAnalyst() {
     pdf.save("summary.pdf");
 }
 
-// משאר הפונקציות של האנליסט, סיכום וכדומה נשארות כמות שהיו (לא שינינו אותן).
-// כל הפונקציות הקודמות מחוברות כאן ביחד ללא קיצורים וללא חתכים. זהו הקוד המלא.
+// זהו קובץ script.js המלא והסופי לאחר כל השינויים.
