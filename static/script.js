@@ -1,4 +1,4 @@
-const ACCESS_CODE = "1976"; 
+const ACCESS_CODE = "1976";
 
 let actions = [];
 let selectedActions = [];
@@ -54,31 +54,39 @@ const colorMap = {
 const paletteColors = ["אדום", "כחול", "ירוק", "צהוב", "שחור", "לבן", "כתום", "סגול", "ורוד", "חום", "אפור", "טורקיז"];
 
 function selectRole(role) {
-    document.getElementById("role-selection-container").classList.add("hidden");
+    const roleContainer = document.getElementById("role-selection-container");
+    if (roleContainer) {
+        roleContainer.classList.add("hidden");
+    }
 
     if (role === 'player') {
-        document.getElementById("login-container").classList.remove("hidden");
+        const loginContainer = document.getElementById("login-container");
+        if (loginContainer) loginContainer.classList.remove("hidden");
     } else if (role === 'coach') {
-        document.getElementById("coach-game-info-container").classList.remove("hidden");
-    } else if (role === 'analyst') {
-        document.getElementById("analyst-game-info-container").classList.remove("hidden");
-    }
-}
-;
+        const coachContainer = document.getElementById("coach-game-info-container");
+        if (coachContainer) coachContainer.classList.remove("hidden");
+
+        createTeamColorPalette("coach-teamA-color-palette", c => {
+            coachTeamAColor = c;
+        });
         createTeamColorPalette("coach-teamB-color-palette", c => {
             coachTeamBColor = c;
         });
-        document.getElementById("coach-game-info-container").classList.remove("hidden");
+
     } else if (role === 'analyst') {
+        const analystContainer = document.getElementById("analyst-game-info-container");
+        if (analystContainer) analystContainer.classList.remove("hidden");
+
         const today = new Date().toISOString().split('T')[0];
-        document.getElementById("analyst-game-date").value = today;
+        const analystDateInput = document.getElementById("analyst-game-date");
+        if (analystDateInput) analystDateInput.value = today;
+
         createTeamColorPalette("teamA-color-palette", c => {
             analystTeamAColor = c;
         });
         createTeamColorPalette("teamB-color-palette", c => {
             analystTeamBColor = c;
         });
-        document.getElementById("analyst-game-info-container").classList.remove("hidden");
     }
 }
 
@@ -98,6 +106,7 @@ function createTeamColorPalette(paletteId, onColorSelect) {
         paletteDiv.appendChild(colorDiv);
     });
 }
+
 function checkAccessCode() {
     const code = document.getElementById("access-code").value.trim();
     if (code === ACCESS_CODE) {
@@ -279,6 +288,7 @@ function startGame() {
 
     document.getElementById("end-buttons-container").classList.remove("hidden");
 }
+
 function createActionRow(action, category = "") {
     const div = document.createElement("div");
     div.classList.add("action-group");
@@ -400,11 +410,6 @@ function endGame() {
     const today = new Date().toLocaleDateString("he-IL");
     const gameDate = today;
 
-    let actionsSummary = "";
-    actions.forEach(a => {
-        actionsSummary += `דקה ${a.minute}: ${a.action} - ${a.result}\n`;
-    });
-
     const summaryContent = document.getElementById("summary-content");
     summaryContent.innerHTML = getSummaryHTML(getActionCounts(), "סיכום המשחק");
     summaryContent.innerHTML += `<h3 id="final-score">ציון סיום המשחק שלך: ${score}</h3>`;
@@ -451,6 +456,7 @@ function reopenSummary() {
     popup.classList.remove("hidden");
     popup.classList.add("active");
 }
+
 function showAllActions() {
     const allActionsList = document.getElementById("all-actions-list");
     allActionsList.innerHTML = "";
@@ -551,12 +557,14 @@ function openGeneralNotePopup() {
     const popup = document.getElementById("general-note-popup");
     popup.classList.remove("hidden");
     popup.classList.add("active");
+    enableActions(false);
 }
 
 function closeGeneralNotePopup() {
     const popup = document.getElementById("general-note-popup");
     popup.classList.remove("active");
     popup.classList.add("hidden");
+    enableActions(true);
 }
 
 function calculateScore(minutesPlayed) {
@@ -625,186 +633,7 @@ function calculateScore(minutesPlayed) {
 
     return Math.round(score);
 }
-function showFeedback(score, minutesPlayed) {
-    let feedback = "";
-    let successfulActions = actions.filter(a =>
-        a.result.includes("מוצלח") || a.result.includes("טוב") || a.result.includes("חיובית")
-    ).length;
 
-    if (score > 92) {
-        feedback = "מעולה פלוס! משחק יוצא דופן!";
-    } else if (score > 85) {
-        feedback = "מצוין! נתת משחק חזק. המשך לעבוד קשה!";
-    } else if (score > 70) {
-        feedback = "ביצוע טוב מאוד. שים לב לדייק יותר בחלק מהפעולות.";
-    } else if (score > 55) {
-        feedback = "עשית עבודה טובה, אך יש מקום לשיפור.";
-    } else {
-        feedback = "יש הרבה מקום לשיפור. אל תתייאש, למד ושפר!";
-    }
-
-    if (minutesPlayed < 30) {
-        feedback += " שיחקת פחות מ-30 דקות, נסה להאריך את משך המשחק.";
-    }
-
-    if (actions.length >= 4) {
-        feedback += " ביצעת מספר פעולות לא מבוטל - המשך להתמיד!";
-    }
-
-    if (successfulActions > 5) {
-        feedback += " מעל 5 פעולות מוצלחות - יפה מאוד!";
-    }
-
-    if (score < 50 && successfulActions > 3) {
-        feedback += " למרות הציון הנמוך, ראינו מספר פעולות מוצלחות.";
-    }
-
-    if (actions.length > 15) {
-        feedback += " ביצעת הרבה פעולות - מראה על נחישות!";
-    }
-
-    let counts = getActionCounts();
-    if ((counts['מנהיגות: חיובית'] || 0) > 3) {
-        feedback += " כישורי המנהיגות שלך בולטים מאוד!";
-    }
-
-    document.getElementById("feedback-text").textContent = feedback;
-    const feedbackPopup = document.getElementById("feedback-popup");
-    feedbackPopup.classList.remove("hidden");
-}
-
-function closeFeedbackPopup() {
-    document.getElementById("feedback-popup").classList.add("hidden");
-}
-
-function saveGameDataToServer(playerName, teamName, position, gameDate, score, actions, parentNotes) {
-    fetch('/save_data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            playerName: playerName,
-            teamName: teamName,
-            position: position,
-            gameDate: gameDate,
-            score: score,
-            actions: actions,
-            parentNotes: parentNotes
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log("Data saved to server:", data);
-    })
-    .catch(err => console.error(err));
-}
-
-function startAnalystTimer() {
-    document.getElementById("game-timer").classList.remove("hidden");
-    gameMinute = 0;
-    document.getElementById("minute-counter").textContent = gameMinute;
-    if (gameInterval) clearInterval(gameInterval);
-    gameInterval = setInterval(() => {
-        gameMinute++;
-        document.getElementById("minute-counter").textContent = gameMinute;
-    }, 60000);
-    analystStartTime = true;
-}
-
-function markAnalystAction(playerIndex, action, result) {
-    analystGameActions.push({ playerIndex, action, result, minute: gameMinute });
-    showPopup(`פעולה "${action}" (${result}) נרשמה!`, result.includes("מוצלח") ? "good" : "bad");
-}
-
-function finishAnalystGame() {
-    const generalNote = document.getElementById("analyst-general-note").value.trim();
-    document.getElementById("analyst-marking-container").classList.add("hidden");
-    showFinalSummary(generalNote);
-}
-
-function showFinalSummary(generalNote) {
-    const finalContainer = document.getElementById("analyst-final-summary-container");
-    finalContainer.classList.remove("hidden");
-
-    const finalDataDiv = document.getElementById("analyst-final-data");
-    finalDataDiv.innerHTML = "";
-
-    const title = document.createElement("h3");
-    title.textContent = `משחק בין ${analystTeamAName} ל-${analystTeamBName} בתאריך: ${analystGameDate}`;
-    finalDataDiv.appendChild(title);
-
-    const playersTitle = document.createElement("h3");
-    playersTitle.textContent = "נתוני השחקנים:";
-    finalDataDiv.appendChild(playersTitle);
-
-    analystPlayers.forEach((player, index) => {
-        const card = document.createElement("div");
-        card.style.border = "1px solid #ccc";
-        card.style.borderRadius = "5px";
-        card.style.padding = "10px";
-        card.style.marginBottom = "10px";
-
-        let teamNameDisplayed = player.teamSide === 'A' ? analystTeamAName : analystTeamBName;
-        let info = `${player.name || 'שחקן'} ${player.number ? ('#' + player.number) : ''} - ${player.position || 'ללא תפקיד'} [${teamNameDisplayed}]<br>`;
-        const pInfo = document.createElement("p");
-        pInfo.innerHTML = info;
-        pInfo.style.color = colorMap[player.color] || "black";
-        card.appendChild(pInfo);
-
-        const filteredActions = analystGameActions.filter(a => a.playerIndex === index);
-        if (player.finalActions && player.finalActions.length > 0 && filteredActions.length > 0) {
-            const ul = document.createElement("ul");
-            filteredActions.forEach(a => {
-                const li = document.createElement("li");
-                li.textContent = `${a.action}: ${a.result} (דקה ${a.minute})`;
-                ul.appendChild(li);
-            });
-            card.appendChild(ul);
-        } else {
-            const pNo = document.createElement("p");
-            pNo.textContent = "לא נבחרו פעולות או לא בוצעו.";
-            card.appendChild(pNo);
-        }
-
-        if (player.notes && player.notes.length > 0) {
-            const notesTitle = document.createElement("p");
-            notesTitle.style.fontWeight = "bold";
-            notesTitle.textContent = "הערות על השחקן:";
-            card.appendChild(notesTitle);
-
-            player.notes.forEach(n => {
-                if (n.text && n.text.trim()) {
-                    const noteP = document.createElement("p");
-                    noteP.style.fontStyle = "italic";
-                    noteP.textContent = "- " + n.text;
-                    card.appendChild(noteP);
-                }
-            });
-        }
-
-        finalDataDiv.appendChild(card);
-    });
-
-    if (generalNote) {
-        const gNoteP = document.createElement("p");
-        gNoteP.style.fontWeight = "bold";
-        gNoteP.textContent = "הערה כללית: " + generalNote;
-        finalDataDiv.appendChild(gNoteP);
-    }
-}
-
-async function downloadPDF() {
-    const elem = document.getElementById("analyst-final-summary-container");
-    const canvas = await html2canvas(elem);
-    const imgData = canvas.toDataURL('image/png');
-
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF('p', 'pt', 'a4');
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save("summary.pdf");
-}
 function showFeedback(score, minutesPlayed) {
     let feedback = "";
     let successfulActions = actions.filter(a =>
@@ -887,6 +716,7 @@ function downloadPDF() {
         pdf.save("game-summary.pdf");
     });
 }
+
 function submitAnalystGameInfo() {
     const teamA = document.getElementById("analyst-teamA").value.trim();
     const teamB = document.getElementById("analyst-teamB").value.trim();
@@ -934,7 +764,7 @@ function addAnalystPlayer() {
     let playerColor = (teamSide === 'A') ? analystTeamAColor : analystTeamBColor;
     if (!playerColor) playerColor = "שחור";
 
-    analystPlayers.push({ name, number, team: "", position, teamSide, color: playerColor, notes: [] });
+    analystPlayers.push({ name, number, position, teamSide, color: playerColor, notes: [] });
     updateAnalystPlayersList();
 
     document.getElementById("analyst-player-name").value = "";
@@ -992,6 +822,7 @@ function updateAnalystPlayersList() {
         list.appendChild(card);
     });
 }
+
 function submitAnalystSetup() {
     document.getElementById("analyst-setup-container").classList.add("hidden");
     loadAnalystActions();
@@ -1235,6 +1066,11 @@ function loadAnalystMarking() {
     });
 }
 
+function markAnalystAction(playerIndex, action, result) {
+    analystGameActions.push({ playerIndex, action, result, minute: gameMinute });
+    showPopup(`פעולה "${action}" (${result}) נרשמה!`, result.includes("מוצלח") ? "good" : "bad");
+}
+
 function finishAnalystGame() {
     const generalNote = document.getElementById("analyst-general-note").value.trim();
     document.getElementById("analyst-marking-container").classList.add("hidden");
@@ -1310,5 +1146,19 @@ function showFinalSummary(generalNote) {
         gNoteP.textContent = "הערה כללית: " + generalNote;
         finalDataDiv.appendChild(gNoteP);
     }
+}
+
+async function downloadPDFAnalyst() {
+    const elem = document.getElementById("analyst-final-summary-container");
+    const canvas = await html2canvas(elem);
+    const imgData = canvas.toDataURL('image/png');
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save("summary.pdf");
 }
 
