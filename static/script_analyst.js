@@ -3,8 +3,8 @@ let analystData = {
     teamBName:"",
     gameDate:null,
     players:[],
-    actions:[], // {playerIndex,action,result,minute,note}
-    selectedActionsPerPlayer:[], // {playerIndex,actions:[{name,successful,unsuccessful,notes:[]}]}
+    actions:[],
+    selectedActionsPerPlayer:[],
     gameInterval:null,
     gameMinute:0,
     halfCount:1,
@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     // אין צורך בבדיקת תקינות כאן, כפתור "המשך" זמין תמיד
 });
 
-// מסך הגדרת פרטי המשחק
 function submitAnalystGameInfo(){
     analystData.teamAName=document.getElementById("analyst-teamA").value.trim();
     analystData.teamBName=document.getElementById("analyst-teamB").value.trim();
@@ -106,7 +105,6 @@ function displayAnalystPlayersActionsSetup(){
         div.style.marginBottom="20px";
         div.innerHTML=`<h3>${p.name} (#${p.number||"ללא"}, ${p.position}, ${p.team})</h3><p>בחר פעולות:</p>`;
         
-        // פעולות מקצועיות
         const proContainer=document.createElement('div');
         proContainer.innerHTML="<h4>פעולות מקצועיות:</h4>";
         let profGoals=positionProfessionalGoals[p.position]||[];
@@ -114,14 +112,12 @@ function displayAnalystPlayersActionsSetup(){
             proContainer.appendChild(createActionToggle(g,p,"professional",pi));
         });
 
-        // פעולות מנטליות
         const mentalContainer=document.createElement('div');
         mentalContainer.innerHTML="<h4>פעולות מנטאליות:</h4>";
         mentalGoals.forEach(m=>{
             mentalContainer.appendChild(createActionToggle(m,p,"mental",pi));
         });
 
-        // פעולות מותאמות אישית
         const customContainer=document.createElement('div');
         customContainer.innerHTML="<h4>פעולות מותאמות אישית:</h4>";
         const input=document.createElement('input');
@@ -170,7 +166,6 @@ function createActionToggle(action,player,cat,playerIndex,isCustom=false){
 }
 
 function confirmAnalystActions(){
-    // חייבים שיהיה לפחות שחקן אחד עם פעולה אחת
     const hasActions=analystData.players.some(p=>p.selectedActions.length>0);
     if(!hasActions){
         alert("בחר לפחות פעולה אחת לשחקן אחד");
@@ -216,6 +211,7 @@ function displayAnalystMarking(){
 
 let analystActionPopupTimeout=null;
 let currentAnalystAction={playerIndex:null,action:null};
+
 function openAnalystActionPopup(playerIndex,action){
     const popup=document.getElementById("analyst-action-popup");
     document.getElementById("analyst-action-popup-header").textContent=action;
@@ -280,7 +276,6 @@ function closeAnalystHalfSummary(){
 }
 
 function getAnalystSummaryHTML(){
-    // סיכום פשוט: ספירת מוצלח/לא מוצלח פר שחקן
     let html="<h3>סיכום מחצית</h3>";
     analystData.players.forEach((p,pi)=>{
         html+=`<h4>${p.name}</h4>`;
