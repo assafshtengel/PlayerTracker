@@ -24,11 +24,39 @@
             </div>
         </section>
 
-        <section id="user-login" class="hidden">
-            <h2>כניסה למערכת</h2>
-            <label for="access-code">הכנס קוד גישה:</label>
-            <input type="password" id="access-code" placeholder="הקלד קוד">
-            <button onclick="checkAccessCode()">אישור</button>
+        <section id="user-input" class="hidden">
+            <h2>פרטי שחקן</h2>
+            <div class="input-group">
+                <input type="text" id="player-name" placeholder="שם השחקן">
+                <input type="text" id="team-name" placeholder="שם הקבוצה">
+                <select id="player-position">
+                    <option value="" selected disabled>בחר תפקיד</option>
+                    <option value="שוער">שוער</option>
+                    <option value="בלם">בלם</option>
+                    <option value="קשר">קשר</option>
+                    <option value="חלוץ">חלוץ</option>
+                </select>
+                <button onclick="submitUserInfo()">התחל</button>
+            </div>
+        </section>
+
+        <section id="actions-selection" class="hidden">
+            <h2>בחירת פעולות</h2>
+            <p>בחר בין 6 ל-10 פעולות להתמקד בהן.</p>
+            <div class="actions-grid" id="professional-actions"></div>
+            <div class="actions-grid" id="mental-actions"></div>
+            <div class="actions-grid" id="custom-actions"></div>
+            <div class="input-group">
+                <input type="text" id="custom-action-input" placeholder="הוסף פעולה מותאמת אישית">
+                <button onclick="addCustomAction()">הוסף פעולה</button>
+            </div>
+            <button onclick="confirmActions()">אישור</button>
+        </section>
+
+        <section id="game-summary" class="hidden">
+            <h2>סיכום המשחק</h2>
+            <div id="summary-content"></div>
+            <button onclick="downloadPDF()">שמור כ-PDF</button>
         </section>
     </main>
 
