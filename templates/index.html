@@ -15,17 +15,25 @@
     </header>
 
     <main>
-        <section id="role-selection-container">
-            <div class="game-info-container">
-                <h1>ברוך הבא למערכת ניתוח ביצועים</h1>
-                <p>בחר את התפקיד שלך:</p>
+        <!-- עמוד פתיחה מעוצב -->
+        <section id="home-page-container">
+            <div class="home-box">
+                <h1 class="home-title">ברוך הבא למערכת הניתוח</h1>
+                <p class="home-subtext">המערכת נועדה לעזור לשחקנים, למאמנים ולאנליסטים לנתח את ביצועי המשחק על בסיס נתונים מדויקים.</p>
+
                 <div class="role-buttons">
-                    <button class="role-button" onclick="selectRole('player')">שחקן</button>
-                    <button class="role-button" onclick="selectRole('coach')">מאמן</button>
-                    <button class="role-button" onclick="selectRole('analyst')">אנליסט</button>
+                    <button class="role-button-big" onclick="selectRole('player')">שחקן</button>
+                    <button class="role-button-big" onclick="selectRole('coach')">מאמן</button>
+                    <button class="role-button-big" onclick="selectRole('analyst')">אנליסט</button>
+                </div>
+
+                <div class="extra-button">
+                    <button class="role-button-big summary-btn">סיכום אימון</button>
                 </div>
             </div>
         </section>
+
+        <!-- המשך: קונטיינרים אחרים מוסתרים עד לבחירת תפקיד -->
 
         <section id="login-container" class="hidden game-info-container">
             <h2>כניסת שחקן</h2>
@@ -227,7 +235,6 @@
             <button class="blue-btn" onclick="startCoachLiveGame()">התחל משחק בזמן אמת</button>
         </section>
 
-        <!-- עידכון פעולות בזמן משחק -->
         <section id="coach-live-update-container" class="hidden game-info-container live-style" style="max-width:1000px;">
             <div id="live-header" style="text-align:center;margin-bottom:20px;">
                 <h2 style="font-size:28px;">עדכון פעולות בזמן משחק</h2>
@@ -274,7 +281,6 @@
             </div>
         </div>
 
-        <!-- פופאפ סיכום מחצית מלא -->
         <div id="half-all-actions-popup" class="popup">
             <span class="close-btn" onclick="closeHalfAllActionsPopup()">X</span>
             <div class="popup-content">
@@ -325,7 +331,6 @@
             <button class="blue-btn" onclick="reopenSummary()">פתח שוב את הסיכום</button>
         </div>
 
-        <!-- אנליסט -->
         <section id="analyst-game-info-container" class="hidden game-info-container">
             <h2>הגדרת משחק לאנליסט</h2>
             <div class="input-group">
