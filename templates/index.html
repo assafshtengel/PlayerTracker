@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>מערכת ניתוח ביצועים</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <!-- ספריות ליצירת PDF -->
+    <!-- ספריות ל-PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
 </head>
@@ -15,25 +15,20 @@
     </header>
 
     <main>
-        <!-- עמוד פתיחה -->
-        <section id="home-page-container">
-            <div class="home-box">
-                <h1 class="home-title">ברוך הבא למערכת הניתוח</h1>
-                <p class="home-subtext">המערכת נועדה לעזור לשחקנים, למאמנים ולאנליסטים לנתח את ביצועי המשחק על בסיס נתונים מדויקים.</p>
-
+        <!-- בחירת תפקיד -->
+        <section id="role-selection-container">
+            <div class="game-info-container">
+                <h1>ברוך הבא למערכת ניתוח ביצועים</h1>
+                <p>בחר את התפקיד שלך:</p>
                 <div class="role-buttons">
-                    <button class="role-button-big" onclick="selectRole('player')">שחקן</button>
-                    <button class="role-button-big" onclick="selectRole('coach')">מאמן</button>
-                    <button class="role-button-big" onclick="selectRole('analyst')">אנליסט</button>
-                </div>
-
-                <div class="extra-button">
-                    <button class="role-button-big summary-btn">סיכום אימון</button>
+                    <button class="role-button" onclick="selectRole('player')">שחקן</button>
+                    <button class="role-button" onclick="selectRole('coach')">מאמן</button>
+                    <button class="role-button" onclick="selectRole('analyst')">אנליסט</button>
                 </div>
             </div>
         </section>
 
-        <!-- טפסים ותצוגות בהתאם לבחירת תפקיד -->
+        <!-- כניסת שחקן -->
         <section id="login-container" class="hidden game-info-container">
             <h2>כניסת שחקן</h2>
             <p>הכנס קוד גישה:</p>
@@ -43,6 +38,7 @@
             </div>
         </section>
 
+        <!-- פרטי שחקן -->
         <section id="user-input-container" class="hidden game-info-container">
             <h2>פרטי שחקן</h2>
             <div class="input-group">
@@ -61,6 +57,7 @@
             </div>
         </section>
 
+        <!-- בחירת פעולות לשחקן -->
         <section id="actions-selection-container" class="hidden game-info-container">
             <h2>בחירת פעולות</h2>
             <p>בחר בין 6 ל-10 פעולות להתמקד בהן.</p>
@@ -77,16 +74,18 @@
             <button onclick="confirmActions()">אישור</button>
         </section>
 
+        <!-- התחלת משחק (שחקן) -->
         <section id="start-game-container" class="hidden game-info-container">
             <h2>התחלת משחק</h2>
             <button class="start-game-btn" onclick="startGame()">התחל משחק</button>
         </section>
 
-        <!-- מסך מאמן: הגדרת משחק -->
+        <!-- עמוד מאמן -->
         <section id="coach-game-info-container" class="hidden game-info-container">
             <h2>הגדרת משחק למאמן</h2>
             <div class="input-group">
                 <input type="text" id="coach-teamA" placeholder="שם קבוצה א'">
+                <!-- צבע קבוצה א' -->
                 <h3>צבע קבוצה א'</h3>
                 <div id="coach-teamA-color-palette" class="color-palette"></div>
                 <button id="coach-teamA-change-color" class="blue-btn hidden" onclick="resetTeamAColor()">שנה צבע</button>
@@ -118,10 +117,10 @@
             </div>
         </section>
 
-        <!-- מטרות קבוצתיות למאמן -->
-        <section id="coach-goals-container" class="hidden game-info-container" style="max-width:800px;">
-            <h2 style="font-size:28px;">בחירת מטרות קבוצתיות</h2>
-            <p>בחר מטרות לפי חוליות, וכן הוסף מטרות משלך לחוליות.</p>
+        <!-- עמוד מטרות למאמן -->
+        <section id="coach-goals-container" class="hidden game-info-container">
+            <h2>בחירת מטרות קבוצתיות</h2>
+            <p>בחר מטרות לפי חוליות וכן הוסף מטרות משלך לחוליות:</p>
             <h3>שוער</h3>
             <div class="actions-grid" id="coach-goals-keeper"></div>
 
@@ -146,108 +145,89 @@
                 <button class="blue-btn" onclick="addCoachCustomGoal()">הוסף מטרה</button>
             </div>
 
-            <div class="actions-grid" style="font-size:20px;">
-                <label><input type="checkbox" id="coach-ask-personal-goals" style="width:20px;height:20px;"> הוסף מטרות אישיות לשחקנים?</label>
+            <div class="actions-grid" id="coach-goals-custom-hint">
+                <label><input type="checkbox" id="coach-ask-personal-goals"> מעוניין לתת גם מטרות אישיות לשחקנים?</label>
             </div>
 
+            <!-- פתקים צהובים למטרות אישיות שיופיעו בהמשך -->
             <div id="coach-personal-goals-notes" class="notes-container"></div>
 
             <button class="blue-btn" onclick="finishCoachSetup()">אישור</button>
         </section>
 
+        <!-- פופאפ הוספת מטרה לחוליה (אישור) -->
         <div id="coach-custom-goal-popup" class="popup">
             <span class="close-btn" onclick="closeCoachCustomGoalPopup()">X</span>
             <div class="popup-content" id="coach-custom-goal-popup-content"></div>
         </div>
 
+        <!-- פופאפ מגבלת מטרות -->
         <div id="coach-goal-limit-popup" class="popup">
             <span class="close-btn" onclick="closeCoachGoalLimitPopup()">X</span>
             <div class="popup-content">
-                <p>הגעת למגבלת המטרות האפשריות בחולייה זו (30 מטרות).</p>
+                <p>הגעת למגבלת הפעולות האפשריות בחולייה זו (30 מטרות).</p>
             </div>
         </div>
 
-        <!-- מטרות אישיות לשחקנים -->
+        <!-- פופאפ מטרות אישיות לשחקן -->
         <div id="personal-goals-popup" class="popup">
             <span class="close-btn" onclick="closePersonalGoalsPopup()">X</span>
             <div class="popup-content" id="personal-goals-popup-content">
                 <h3>מטרות אישיות לשחקן</h3>
-                <input type="text" id="personal-player-name" class="large-input" placeholder="שם השחקן">
-                <div class="checkbox-group" style="padding:10px;">
-                    <p><strong>בחר תפקיד (ניתן לבחור יותר מאחד):</strong></p>
-                    <label><input type="checkbox" name="personal-player-roles" value="שוער"> שוער</label>
-                    <label><input type="checkbox" name="personal-player-roles" value="בלם"> בלם</label>
-                    <label><input type="checkbox" name="personal-player-roles" value="מגן"> מגן</label>
-                    <label><input type="checkbox" name="personal-player-roles" value="קשר"> קשר</label>
-                    <label><input type="checkbox" name="personal-player-roles" value="חלוץ"> חלוץ</label>
-                    <label><input type="checkbox" name="personal-player-roles" value="כנף"> כנף</label>
-                </div>
-                <button class="blue-btn" onclick="confirmPersonalPlayerInfo()">אישור</button>
-            </div>
-        </div>
-
-        <div id="personal-goals-selection-popup" class="popup">
-            <span class="close-btn" onclick="closePersonalGoalsSelectionPopup()">X</span>
-            <div class="popup-content">
-                <h3>בחר מטרות אישיות</h3>
-                <div id="personal-goals-selection-list" class="actions-grid"></div>
-                <h3>הוסף מטרה מותאמת לשחקן</h3>
+                <input type="text" id="personal-player-name" placeholder="שם השחקן">
+                <select id="personal-player-position">
+                    <option value="" disabled selected>בחר תפקיד</option>
+                    <option value="שוער">שוער</option>
+                    <option value="בלם">בלם</option>
+                    <option value="מגן">מגן</option>
+                    <option value="קשר">קשר</option>
+                    <option value="חלוץ">חלוץ</option>
+                    <option value="כנף">כנף</option>
+                </select>
+                <div id="personal-player-actions-container" class="actions-grid"></div>
+                <h3>הוסף מטרה מותאמת אישית לשחקן</h3>
                 <div class="input-group">
                     <input type="text" id="personal-player-custom-goal-input" placeholder="הוסף מטרה לשחקן">
                     <button class="blue-btn" onclick="addPersonalPlayerCustomGoal()">הוסף</button>
                 </div>
-                <button class="blue-btn" onclick="finishPersonalPlayerGoalsSelection()">אישור</button>
+                <button class="blue-btn" onclick="finishPersonalPlayerGoals()">סיום</button>
             </div>
         </div>
 
+        <!-- פופאפ יעדים מספריים למטרות השחקן -->
         <div id="personal-goals-numeric-popup" class="popup">
             <span class="close-btn" onclick="closePersonalGoalsNumericPopup()">X</span>
-            <div class="popup-content numeric-content">
+            <div class="popup-content" id="personal-goals-numeric-popup-content">
                 <h3>הזן יעדים מספריים למטרות</h3>
                 <div id="personal-goals-numeric-table"></div>
                 <button class="blue-btn" onclick="finishPersonalGoalsNumeric()">אישור</button>
             </div>
         </div>
 
+        <!-- פופאפ המשך לשחקן נוסף -->
         <div id="personal-goals-another-player-popup" class="popup">
             <span class="close-btn" onclick="closePersonalGoalsAnotherPlayerPopup()">X</span>
-            <div class="popup-content" style="display:flex;flex-direction:column;align-items:flex-start;gap:20px;">
+            <div class="popup-content">
                 <p>האם להוסיף מטרות אישיות לשחקן נוסף?</p>
-                <div style="display:flex;gap:20px;">
-                    <button class="blue-btn" onclick="addAnotherPersonalPlayer(true)">כן</button>
-                    <button class="blue-btn" onclick="addAnotherPersonalPlayer(false)">לא</button>
-                </div>
+                <button class="blue-btn" onclick="addAnotherPersonalPlayer(true)">כן</button>
+                <button class="blue-btn" onclick="addAnotherPersonalPlayer(false)">לא</button>
             </div>
         </div>
 
-        <section id="final-summary-container" class="hidden game-info-container" style="max-width:800px;">
-            <h2 style="font-size:28px;">סיכום המטרות</h2>
-            <p id="final-summary-game-info" style="font-size:20px;"></p>
-            <div id="final-summary-content" style="font-size:18px;line-height:1.6;"></div>
-            <button class="blue-btn" id="download-pdf-btn" onclick="downloadFinalSummaryPDF()">הורד PDF</button>
-            <button class="blue-btn" id="continue-to-live-btn" onclick="goToCoachLiveGame()">המשך למשחק</button>
+        <!-- עמוד סיכום סופי יפה (לאנליסט/מאמן) -->
+        <section id="final-summary-container" class="hidden game-info-container">
+            <h2>סיכום כל המטרות</h2>
+            <div id="final-summary-content"></div>
+            <button class="blue-btn" onclick="downloadFinalSummaryPDF()">הורד PDF</button>
         </section>
 
-        <section id="coach-live-game-container" class="hidden game-info-container">
-            <h2>התחל משחק בזמן אמת</h2>
-            <p>לאחר שהכול הוגדר, ניתן להתחיל מעקב בזמן אמת.</p>
-            <button class="blue-btn" onclick="startCoachLiveGame()">התחל משחק בזמן אמת</button>
-        </section>
-
-        <section id="coach-live-update-container" class="hidden game-info-container live-style" style="max-width:1000px;">
-            <div id="live-header" style="text-align:center;margin-bottom:20px;">
-                <h2 style="font-size:28px;">עדכון פעולות בזמן משחק</h2>
-                <p style="font-size:20px;" id="match-info"></p>
-                <p style="font-size:20px;">דקה: <span id="coach-live-minute-counter">0</span></p>
-            </div>
-            <div id="live-update-content"></div>
-        </section>
-
+        <!-- עבור שחקן -->
         <div id="game-timer" class="hidden">
             דקה: <span id="minute-counter">0</span>
         </div>
 
         <h2 id="actions-title" class="hidden">רישום פעולות</h2>
+
         <section id="notes-container" class="hidden">
             <button class="blue-btn" onclick="openGeneralNotePopup()">הוסף הערה</button>
         </section>
@@ -262,11 +242,11 @@
         </section>
 
         <div id="end-buttons-container" class="hidden">
-            <button id="end-half" class="half-time-btn" onclick="endHalfTime()">סיים מחצית</button>
-            <button class="blue-btn" onclick="showAllActionsDuringMatch()">הצג פעולות</button>
-            <button id="end-game" class="end-game-btn" onclick="endGame()">סיים משחק</button>
+            <button id="end-half" class="half-time-btn" onclick="endHalfTime()">סיום מחצית</button>
+            <button id="end-game" class="end-game-btn" onclick="endGame()">סיום משחק</button>
         </div>
 
+        <!-- פופאפ סיכום מחצית -->
         <div id="half-time-summary-popup" class="popup">
             <span class="close-btn" onclick="resumeHalf()">X</span>
             <div class="popup-content">
@@ -275,18 +255,10 @@
                     <h3>הערות מחצית:</h3>
                     <ul id="half-parent-notes-list"></ul>
                 </div>
-                <button class="blue-btn" onclick="showHalfAllActionsPopup()">סכם מחצית</button>
             </div>
         </div>
 
-        <div id="half-all-actions-popup" class="popup">
-            <span class="close-btn" onclick="closeHalfAllActionsPopup()">X</span>
-            <div class="popup-content">
-                <h3>כל הפעולות במחצית</h3>
-                <div id="half-all-actions-list"></div>
-            </div>
-        </div>
-
+        <!-- פופאפ סיכום משחק -->
         <div id="game-summary-popup" class="popup">
             <span class="close-btn" onclick="closePopup()">X</span>
             <div class="popup-content">
@@ -300,6 +272,7 @@
             </div>
         </div>
 
+        <!-- פופאפ פירוט כל הפעולות -->
         <div id="actions-detail-popup" class="popup">
             <span class="close-btn big-close" onclick="closeAllActionsPopup()">X</span>
             <div class="popup-content">
@@ -308,6 +281,7 @@
             </div>
         </div>
 
+        <!-- פופאפ הוספת הערה כללית -->
         <div id="general-note-popup" class="popup">
             <span class="close-btn" onclick="closeGeneralNotePopup()">X</span>
             <div class="popup-content">
@@ -317,6 +291,7 @@
             </div>
         </div>
 
+        <!-- פופאפ משוב -->
         <div id="feedback-popup" class="popup hidden">
             <span class="close-btn" onclick="closeFeedbackPopup()">X</span>
             <div class="popup-content">
@@ -329,7 +304,7 @@
             <button class="blue-btn" onclick="reopenSummary()">פתח שוב את הסיכום</button>
         </div>
 
-        <!-- אנליסט: הגדרת משחק -->
+        <!-- אזור אנליסט -->
         <section id="analyst-game-info-container" class="hidden game-info-container">
             <h2>הגדרת משחק לאנליסט</h2>
             <div class="input-group">
@@ -345,7 +320,7 @@
         </section>
 
         <section id="analyst-setup-container" class="hidden game-info-container">
-            <h2>הוספת שחקנים (אנליסט)</h2>
+            <h2>הוספת שחקנים</h2>
             <div class="input-group">
                 <input type="text" id="analyst-player-name" placeholder="שם השחקן">
                 <input type="text" id="analyst-player-number" placeholder="מס' חולצה">
@@ -359,7 +334,7 @@
                     <option value="כנף">כנף</option>
                 </select>
                 <select id="analyst-player-team-select"></select>
-                <button id="add-player-btn" class="blue-btn" disabled>הוסף שחקן</button>
+                <button id="add-player-btn" class="blue-btn" disabled onclick="addAnalystPlayer()">הוסף שחקן</button>
             </div>
             <h3>שחקנים שנוספו:</h3>
             <div id="analyst-players-list"></div>
@@ -367,7 +342,7 @@
         </section>
 
         <section id="analyst-actions-container" class="hidden game-info-container">
-            <h2>בחירת פעולות (אנליסט)</h2>
+            <h2>בחירת פעולות לאנליסט</h2>
             <div id="analyst-players-actions"></div>
             <button class="blue-btn" onclick="submitAnalystActions()">הבא</button>
         </section>
