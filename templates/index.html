@@ -111,10 +111,10 @@
             </div>
         </section>
 
-        <!-- מטרות למאמן -->
-        <section id="coach-goals-container" class="hidden game-info-container">
-            <h2>בחירת מטרות קבוצתיות</h2>
-            <p>בחר מטרות לפי חוליות וכן הוסף מטרות משלך לחוליות:</p>
+        <!-- מטרות למאמן (קבוצתיות) -->
+        <section id="coach-goals-container" class="hidden game-info-container" style="max-width:800px;">
+            <h2 style="font-size:28px;">בחירת מטרות קבוצתיות</h2>
+            <p>בחר מטרות לפי חוליות וכן הוסף מטרות משלך לחוליות. נצל את המקום כדי לראות היטב את כל האפשרויות.</p>
             <h3>שוער</h3>
             <div class="actions-grid" id="coach-goals-keeper"></div>
 
@@ -139,8 +139,8 @@
                 <button class="blue-btn" onclick="addCoachCustomGoal()">הוסף מטרה</button>
             </div>
 
-            <div class="actions-grid" id="coach-goals-custom-hint">
-                <label><input type="checkbox" id="coach-ask-personal-goals"> מעוניין לתת גם מטרות אישיות לשחקנים?</label>
+            <div class="actions-grid" id="coach-goals-custom-hint" style="font-size:20px;">
+                <label><input type="checkbox" id="coach-ask-personal-goals" style="width:20px;height:20px;"> מעוניין לתת גם מטרות אישיות לשחקנים?</label>
             </div>
 
             <div id="coach-personal-goals-notes" class="notes-container"></div>
@@ -165,7 +165,7 @@
             <span class="close-btn" onclick="closePersonalGoalsPopup()">X</span>
             <div class="popup-content" id="personal-goals-popup-content">
                 <h3>מטרות אישיות לשחקן</h3>
-                <input type="text" id="personal-player-name" class="large-input big-text-input" placeholder="שם השחקן (גדול ובולט)">
+                <input type="text" id="personal-player-name" class="large-input" placeholder="שם השחקן">
                 <div class="checkbox-group" style="padding:10px;">
                     <p><strong>בחר תפקיד (ניתן לבחור יותר מאחד):</strong></p>
                     <label><input type="checkbox" name="personal-player-roles" value="שוער"> שוער</label>
@@ -213,10 +213,10 @@
             </div>
         </div>
 
-        <section id="final-summary-container" class="hidden game-info-container">
-            <h2>סיכום כל המטרות</h2>
-            <p id="final-summary-game-info"></p>
-            <div id="final-summary-content"></div>
+        <section id="final-summary-container" class="hidden game-info-container" style="max-width:800px;">
+            <h2 style="font-size:28px;">סיכום כל המטרות</h2>
+            <p id="final-summary-game-info" style="font-size:20px;"></p>
+            <div id="final-summary-content" style="font-size:18px;line-height:1.6;"></div>
             <button class="blue-btn" id="download-pdf-btn" onclick="downloadFinalSummaryPDF()">הורד PDF</button>
             <button class="blue-btn" id="continue-to-live-btn" onclick="goToCoachLiveGame()">המשך למשחק</button>
         </section>
@@ -228,9 +228,12 @@
         </section>
 
         <!-- עידכון פעולות בזמן משחק -->
-        <section id="coach-live-update-container" class="hidden game-info-container live-style">
-            <h2>עדכון פעולות בזמן משחק</h2>
-            <p>דקה: <span id="coach-live-minute-counter">0</span></p>
+        <section id="coach-live-update-container" class="hidden game-info-container live-style" style="max-width:1000px;">
+            <div id="live-header" style="text-align:center;margin-bottom:20px;">
+                <h2 style="font-size:28px;">עדכון פעולות בזמן משחק</h2>
+                <p style="font-size:20px;" id="match-info"></p>
+                <p style="font-size:20px;">דקה: <span id="coach-live-minute-counter">0</span></p>
+            </div>
             <div id="live-update-content"></div>
         </section>
 
