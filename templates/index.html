@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>מערכת ניתוח ביצועים</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <!-- ספריות ל-PDF -->
+    <!-- ספריות ליצירת PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
 </head>
@@ -15,7 +15,7 @@
     </header>
 
     <main>
-        <!-- עמוד פתיחה מעוצב -->
+        <!-- עמוד פתיחה -->
         <section id="home-page-container">
             <div class="home-box">
                 <h1 class="home-title">ברוך הבא למערכת הניתוח</h1>
@@ -33,8 +33,7 @@
             </div>
         </section>
 
-        <!-- המשך: קונטיינרים אחרים מוסתרים עד לבחירת תפקיד -->
-
+        <!-- טפסים ותצוגות בהתאם לבחירת תפקיד -->
         <section id="login-container" class="hidden game-info-container">
             <h2>כניסת שחקן</h2>
             <p>הכנס קוד גישה:</p>
@@ -83,7 +82,7 @@
             <button class="start-game-btn" onclick="startGame()">התחל משחק</button>
         </section>
 
-        <!-- מאמן הגדרת משחק -->
+        <!-- מסך מאמן: הגדרת משחק -->
         <section id="coach-game-info-container" class="hidden game-info-container">
             <h2>הגדרת משחק למאמן</h2>
             <div class="input-group">
@@ -119,10 +118,10 @@
             </div>
         </section>
 
-        <!-- מטרות למאמן (קבוצתיות) -->
+        <!-- מטרות קבוצתיות למאמן -->
         <section id="coach-goals-container" class="hidden game-info-container" style="max-width:800px;">
             <h2 style="font-size:28px;">בחירת מטרות קבוצתיות</h2>
-            <p>בחר מטרות לפי חוליות וכן הוסף מטרות משלך לחוליות. נצל את המקום כדי לראות היטב את כל האפשרויות.</p>
+            <p>בחר מטרות לפי חוליות, וכן הוסף מטרות משלך לחוליות.</p>
             <h3>שוער</h3>
             <div class="actions-grid" id="coach-goals-keeper"></div>
 
@@ -147,8 +146,8 @@
                 <button class="blue-btn" onclick="addCoachCustomGoal()">הוסף מטרה</button>
             </div>
 
-            <div class="actions-grid" id="coach-goals-custom-hint" style="font-size:20px;">
-                <label><input type="checkbox" id="coach-ask-personal-goals" style="width:20px;height:20px;"> מעוניין לתת גם מטרות אישיות לשחקנים?</label>
+            <div class="actions-grid" style="font-size:20px;">
+                <label><input type="checkbox" id="coach-ask-personal-goals" style="width:20px;height:20px;"> הוסף מטרות אישיות לשחקנים?</label>
             </div>
 
             <div id="coach-personal-goals-notes" class="notes-container"></div>
@@ -164,11 +163,11 @@
         <div id="coach-goal-limit-popup" class="popup">
             <span class="close-btn" onclick="closeCoachGoalLimitPopup()">X</span>
             <div class="popup-content">
-                <p>הגעת למגבלת הפעולות האפשריות בחולייה זו (30 מטרות).</p>
+                <p>הגעת למגבלת המטרות האפשריות בחולייה זו (30 מטרות).</p>
             </div>
         </div>
 
-        <!-- מטרות אישיות לשחקן -->
+        <!-- מטרות אישיות לשחקנים -->
         <div id="personal-goals-popup" class="popup">
             <span class="close-btn" onclick="closePersonalGoalsPopup()">X</span>
             <div class="popup-content" id="personal-goals-popup-content">
@@ -189,8 +188,8 @@
 
         <div id="personal-goals-selection-popup" class="popup">
             <span class="close-btn" onclick="closePersonalGoalsSelectionPopup()">X</span>
-            <div class="popup-content" id="personal-goals-selection-popup-content">
-                <h3>בחר מטרות אישיות (מתוך התפקידים שנבחרו)</h3>
+            <div class="popup-content">
+                <h3>בחר מטרות אישיות</h3>
                 <div id="personal-goals-selection-list" class="actions-grid"></div>
                 <h3>הוסף מטרה מותאמת לשחקן</h3>
                 <div class="input-group">
@@ -203,7 +202,7 @@
 
         <div id="personal-goals-numeric-popup" class="popup">
             <span class="close-btn" onclick="closePersonalGoalsNumericPopup()">X</span>
-            <div class="popup-content numeric-content" id="personal-goals-numeric-popup-content">
+            <div class="popup-content numeric-content">
                 <h3>הזן יעדים מספריים למטרות</h3>
                 <div id="personal-goals-numeric-table"></div>
                 <button class="blue-btn" onclick="finishPersonalGoalsNumeric()">אישור</button>
@@ -222,7 +221,7 @@
         </div>
 
         <section id="final-summary-container" class="hidden game-info-container" style="max-width:800px;">
-            <h2 style="font-size:28px;">סיכום כל המטרות</h2>
+            <h2 style="font-size:28px;">סיכום המטרות</h2>
             <p id="final-summary-game-info" style="font-size:20px;"></p>
             <div id="final-summary-content" style="font-size:18px;line-height:1.6;"></div>
             <button class="blue-btn" id="download-pdf-btn" onclick="downloadFinalSummaryPDF()">הורד PDF</button>
@@ -249,7 +248,6 @@
         </div>
 
         <h2 id="actions-title" class="hidden">רישום פעולות</h2>
-
         <section id="notes-container" class="hidden">
             <button class="blue-btn" onclick="openGeneralNotePopup()">הוסף הערה</button>
         </section>
@@ -331,6 +329,7 @@
             <button class="blue-btn" onclick="reopenSummary()">פתח שוב את הסיכום</button>
         </div>
 
+        <!-- אנליסט: הגדרת משחק -->
         <section id="analyst-game-info-container" class="hidden game-info-container">
             <h2>הגדרת משחק לאנליסט</h2>
             <div class="input-group">
@@ -346,7 +345,7 @@
         </section>
 
         <section id="analyst-setup-container" class="hidden game-info-container">
-            <h2>הוספת שחקנים</h2>
+            <h2>הוספת שחקנים (אנליסט)</h2>
             <div class="input-group">
                 <input type="text" id="analyst-player-name" placeholder="שם השחקן">
                 <input type="text" id="analyst-player-number" placeholder="מס' חולצה">
@@ -360,7 +359,7 @@
                     <option value="כנף">כנף</option>
                 </select>
                 <select id="analyst-player-team-select"></select>
-                <button id="add-player-btn" class="blue-btn" disabled onclick="addAnalystPlayer()">הוסף שחקן</button>
+                <button id="add-player-btn" class="blue-btn" disabled>הוסף שחקן</button>
             </div>
             <h3>שחקנים שנוספו:</h3>
             <div id="analyst-players-list"></div>
@@ -368,7 +367,7 @@
         </section>
 
         <section id="analyst-actions-container" class="hidden game-info-container">
-            <h2>בחירת פעולות לאנליסט</h2>
+            <h2>בחירת פעולות (אנליסט)</h2>
             <div id="analyst-players-actions"></div>
             <button class="blue-btn" onclick="submitAnalystActions()">הבא</button>
         </section>
