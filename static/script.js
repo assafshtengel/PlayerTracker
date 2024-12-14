@@ -1472,6 +1472,37 @@ function openHulyaActionsPopup(hulyaName) {
     closeBtn.textContent="X";
     closeBtn.onclick=()=>document.body.removeChild(popup);
 
+    // בפונקציה openHulyaActionsPopup לפני סגירת popup.appendChild(content):
+
+const noteLabel = document.createElement("h4");
+noteLabel.textContent="הוסף הערה לפעולה (אופציונלי):";
+content.appendChild(noteLabel);
+
+const noteArea=document.createElement("textarea");
+noteArea.placeholder="הערה...";
+content.appendChild(noteArea);
+
+const saveNoteBtn=document.createElement("button");
+saveNoteBtn.textContent="שמור הערה";
+saveNoteBtn.classList.add("blue-btn");
+saveNoteBtn.onclick=()=>{
+  const val=noteArea.value.trim();
+  if(val){
+    actions.push({action:"הערה",result:"הערה",minute:coachLiveGameMinute,text:val});
+    alert("הערה נשמרה!");
+  } else {
+    alert("לא הוזנה הערה");
+  }
+};
+content.appendChild(saveNoteBtn);
+
+const closeBtnBottom=document.createElement("button");
+closeBtnBottom.textContent="סגור";
+closeBtnBottom.classList.add("blue-btn");
+closeBtnBottom.style.marginTop="20px";
+closeBtnBottom.onclick=()=>document.body.removeChild(popup);
+content.appendChild(closeBtnBottom);
+
     popup.appendChild(closeBtn);
     const content=document.createElement("div");
     content.classList.add("popup-content");
