@@ -165,8 +165,8 @@
             <span class="close-btn" onclick="closePersonalGoalsPopup()">X</span>
             <div class="popup-content" id="personal-goals-popup-content">
                 <h3>מטרות אישיות לשחקן</h3>
-                <input type="text" id="personal-player-name" class="large-input" placeholder="שם השחקן">
-                <div class="checkbox-group">
+                <input type="text" id="personal-player-name" class="large-input big-text-input" placeholder="שם השחקן (גדול ובולט)">
+                <div class="checkbox-group" style="padding:10px;">
                     <p><strong>בחר תפקיד (ניתן לבחור יותר מאחד):</strong></p>
                     <label><input type="checkbox" name="personal-player-roles" value="שוער"> שוער</label>
                     <label><input type="checkbox" name="personal-player-roles" value="בלם"> בלם</label>
@@ -267,6 +267,16 @@
                     <h3>הערות מחצית:</h3>
                     <ul id="half-parent-notes-list"></ul>
                 </div>
+                <button class="blue-btn" onclick="showHalfAllActionsPopup()">סכם מחצית</button>
+            </div>
+        </div>
+
+        <!-- פופאפ סיכום מחצית מלא -->
+        <div id="half-all-actions-popup" class="popup">
+            <span class="close-btn" onclick="closeHalfAllActionsPopup()">X</span>
+            <div class="popup-content">
+                <h3>כל הפעולות במחצית</h3>
+                <div id="half-all-actions-list"></div>
             </div>
         </div>
 
