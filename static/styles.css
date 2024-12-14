@@ -65,6 +65,11 @@ body {
     color:#333;
 }
 
+.big-text-input {
+    font-size:24px !important;
+    padding:15px !important;
+}
+
 button {
     background-color:#0078D7;
     color:white;
@@ -159,25 +164,6 @@ button:disabled {
     margin-top:20px;
     display:inline-block;
     color:white;
-}
-
-.close-summary-btn {
-    background-color:#f44336;
-    color:white;
-    font-size:18px;
-    padding:10px 20px;
-    border-radius:5px;
-    margin-top:20px;
-    display:inline-block;
-    cursor:pointer;
-    border:none;
-    box-shadow:0 4px 6px rgba(0,0,0,0.1);
-    transition:transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.close-summary-btn:hover {
-    transform:scale(1.05);
-    box-shadow:0 6px 8px rgba(0,0,0,0.2);
 }
 
 label.selected {
@@ -429,4 +415,3 @@ textarea {
     padding:20px;
     box-shadow:0 4px 8px rgba(0,0,0,0.1);
 }
-
