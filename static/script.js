@@ -184,6 +184,12 @@ function checkAccessCode() {
         alert("קוד שגוי, נסה שוב");
     }
 }
+function registerGoalAction(result, goalObj, personalPlayer, popup) {
+    actions.push({action:goalObj.goal,result:result,minute:coachLiveGameMinute});
+    showPopup(`"${goalObj.goal}" ${result} נרשם!`, result.includes("מוצלח")?"good":"bad",900); // 0.9 שניות
+    closeGoalActionPopup(popup,900);
+}
+
 
 function submitUserInfo() {
     const playerName = document.getElementById("player-name").value.trim();
