@@ -9,7 +9,9 @@ logger = logging.getLogger(__name__)
 print("Current directory:", os.getcwd())
 print("Templates:", os.listdir('templates'))
 
-app = Flask(__name__)
+
+app = Flask(__name__, static_folder='static', template_folder='templates')
+
 
 @app.route('/')
 def home():
