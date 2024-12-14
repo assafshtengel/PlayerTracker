@@ -69,11 +69,35 @@ let matchEnded = false;
 let popupAutoCloseTimer = null;
 const availableMoods = ["מורל גבוה", "חוסר ריכוז", "רוגע", "התלהבות", "לחץ", "דריכות"];
 
-// פונקציות בסיסיות
+// פונקציה לפופאפ זמני עם משך קצוב
+function showTempPopup(message, type="neutral", duration=800) {
+    const tempPopup=document.createElement("div");
+    tempPopup.style.position="fixed";
+    tempPopup.style.top="50%";
+    tempPopup.style.left="50%";
+    tempPopup.style.transform="translate(-50%,-50%)";
+    tempPopup.style.zIndex=9999;
+    tempPopup.style.padding="30px";
+    tempPopup.style.borderRadius="10px";
+    tempPopup.style.fontSize="24px";
+    tempPopup.style.fontWeight="bold";
+    tempPopup.style.color="white";
+    if(type==="good") tempPopup.style.background="green";
+    else if(type==="bad") tempPopup.style.background="red";
+    else tempPopup.style.background="#9E9E9E";
+
+    tempPopup.textContent=message;
+    document.body.appendChild(tempPopup);
+
+    setTimeout(()=>{
+        document.body.removeChild(tempPopup);
+    },duration);
+}
+
 function selectRole(role) {
-    const roleContainer = document.getElementById("role-selection-container");
+    const roleContainer = document.getElementById("home-page-container");
     if (roleContainer) {
-        roleContainer.classList.add("hidden");
+        roleContainer.style.display = "none";
     }
 
     if (role === 'player') {
@@ -82,6 +106,9 @@ function selectRole(role) {
     } else if (role === 'coach') {
         const coachContainer = document.getElementById("coach-game-info-container");
         if (coachContainer) coachContainer.classList.remove("hidden");
+        const coachDateInput = document.getElementById("coach-game-date");
+        const today = new Date().toISOString().split('T')[0];
+        coachDateInput.value = today;
 
         createTeamColorPalette("coach-teamA-color-palette", c => {
             coachTeamAColor = c;
@@ -91,11 +118,6 @@ function selectRole(role) {
             coachTeamBColor = c;
             finalizeTeamBColorChoice();
         });
-
-        const coachDateInput = document.getElementById("coach-game-date");
-        const today = new Date().toISOString().split('T')[0];
-        coachDateInput.value = today;
-
     } else if (role === 'analyst') {
         const analystContainer = document.getElementById("analyst-game-info-container");
         if (analystContainer) analystContainer.classList.remove("hidden");
@@ -832,31 +854,6 @@ function loadGoalsForLine(containerId, ...positions) {
     });
 }
 
-function createGoalCheckbox(goal) {
-    const div = document.createElement("div");
-    div.classList.add("action-item");
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.name = "coach-goals";
-    checkbox.value = goal;
-    checkbox.style.display = 'none';
-    div.appendChild(checkbox);
-
-    const label = document.createElement("label");
-    label.textContent = goal;
-    label.onclick = () => {
-        if (checkbox.checked) {
-            checkbox.checked = false;
-            label.classList.remove("selected");
-        } else {
-            checkbox.checked = true;
-            label.classList.add("selected");
-        }
-    };
-    div.appendChild(label);
-    return div;
-}
-
 function addCoachCustomGoal() {
     const line = document.getElementById("coach-custom-goal-line").value;
     const val = document.getElementById("coach-custom-goal-input").value.trim();
@@ -1254,10 +1251,9 @@ function updateCoachLiveGameTimer() {
 }
 
 function coachMoodTimeStamp() {
-    // שומר בהיסטוריה כל מצב רוח שנבחר עם הדקה
-    if (coachMood.mood || coachMood.message) {
-        coachMood.history.push({mood:coachMood.mood, message:coachMood.message, minute:coachLiveGameMinute});
-    }
+    // נשמור רק אם לא זהה לערך האחרון או אם אין היסטוריה
+    // הוספנו בדיקה לפני להימנע מכפילויות
+    coachMood.history.push({mood:coachMood.mood, message:coachMood.message, minute:coachLiveGameMinute});
 }
 
 function renderCoachMood(sidePanel) {
@@ -1277,13 +1273,12 @@ function renderCoachMood(sidePanel) {
         return;
     }
 
-    // מציג את ההיסטוריה כולה
     coachMood.history.forEach(h=>{
         const entry = document.createElement("div");
         entry.style.borderBottom="1px solid #ccc";
         entry.style.marginBottom="5px";
-        let txt = `דקה ${h.minute}: מצב רוח: ${h.mood||'אין'} `;
-        if(h.message) txt+=`| מסר: ${h.message}`;
+        let txt = `דקה ${h.minute}: מצב רוח: ${h.mood||'אין'}`;
+        if(h.message) txt+=` | מסר: ${h.message}`;
         entry.textContent = txt;
         moodDisplay.appendChild(entry);
     });
@@ -1324,17 +1319,60 @@ function buildCoachLiveInterface() {
     const liveContent = document.getElementById("live-update-content");
     liveContent.innerHTML = "";
 
-    // מציג בראש: שמות הקבוצות, תאריך ושנתון בצבעים נעימים
-    const matchInfo = document.getElementById("match-info");
-    matchInfo.style.fontSize="22px";
-    matchInfo.style.color="#333";
-    matchInfo.innerHTML = `<span style="color:${colorMap[coachTeamAColor]||'black'}">${coachTeamAName}</span> מול <span style="color:${colorMap[coachTeamBColor]||'black'}">${coachTeamBName}</span><br> תאריך: ${coachGameDate} | שנתון: ${document.getElementById("coach-year-group").value}`;
+    // תחילה נוסיף את החוליות והשחקנים בראש
+    const hulyaSection = document.createElement("div");
+    hulyaSection.classList.add("live-section");
+    hulyaSection.style.textAlign="center";
+    const hulyaTitle = document.createElement("h3");
+    hulyaTitle.textContent = "חוליות";
+    hulyaTitle.style.fontSize="24px";
+    hulyaSection.appendChild(hulyaTitle);
 
+    const hulyaNames=["שוער","הגנה","קישור","התקפה"];
+    hulyaNames.forEach(h=>{
+        const btn=document.createElement("button");
+        btn.textContent=h;
+        btn.classList.add("blue-btn");
+        btn.style.margin="10px";
+        btn.style.fontSize="24px";
+        btn.style.padding="15px 30px";
+        btn.onclick=()=>openHulyaActionsPopup(h);
+        hulyaSection.appendChild(btn);
+    });
+
+    liveContent.appendChild(hulyaSection);
+
+    if (personalPlayersGoals.length > 0) {
+        const playersSec = document.createElement("div");
+        playersSec.classList.add("live-section");
+        playersSec.style.textAlign="center";
+        const pTitle=document.createElement("h3");
+        pTitle.textContent="שחקנים (מטרות אישיות)";
+        pTitle.style.fontSize="24px";
+        playersSec.appendChild(pTitle);
+
+        personalPlayersGoals.forEach(p=>{
+            const btn=document.createElement("button");
+            btn.textContent=`${p.playerName} (${p.positions.join(", ")})`;
+            btn.style.backgroundColor="#800080";
+            btn.style.color="white";
+            btn.style.fontSize="24px";
+            btn.style.margin="10px";
+            btn.style.padding="15px 30px";
+            btn.onclick=()=>openPlayerActionsPopup(p);
+            playersSec.appendChild(btn);
+        });
+
+        liveContent.appendChild(playersSec);
+    }
+
+    // כעת נוסיף את ה-sidePanel (מצב רוח, הערות מהירות, לוח טקטי)
     const sidePanel = document.createElement("div");
     sidePanel.style.display = "flex";
     sidePanel.style.flexDirection = "column";
     sidePanel.style.gap = "15px";
     sidePanel.style.marginBottom = "20px";
+    sidePanel.style.marginTop="30px";
 
     // מצב רוח הקבוצה
     const moodSection = document.createElement("div");
@@ -1358,9 +1396,6 @@ function buildCoachLiveInterface() {
         opt.textContent = m;
         moodSelect.appendChild(opt);
     });
-    moodSelect.onchange = () => {
-        coachMood.mood = moodSelect.value;
-    };
     moodSection.appendChild(moodSelect);
 
     const moodInput = document.createElement("textarea");
@@ -1368,9 +1403,6 @@ function buildCoachLiveInterface() {
     moodInput.style.width = "100%";
     moodInput.style.height = "60px";
     moodInput.style.fontSize="20px";
-    moodInput.oninput = () => {
-        coachMood.message = moodInput.value.trim();
-    };
     moodSection.appendChild(moodInput);
 
     const moodSaveBtn = document.createElement("button");
@@ -1378,15 +1410,37 @@ function buildCoachLiveInterface() {
     moodSaveBtn.classList.add("blue-btn");
     moodSaveBtn.style.fontSize="20px";
     moodSaveBtn.onclick = () => {
-        coachMoodTimeStamp();
+        // עדכון מצב רוח בהיסטוריה ללא כפילויות
+        let oldMood = coachMood.mood;
+        let oldMsg = coachMood.message;
+        coachMood.mood = moodSelect.value;
+        coachMood.message = moodInput.value.trim();
+
+        let needSave = true;
+        if(coachMood.history.length>0){
+            let last = coachMood.history[coachMood.history.length-1];
+            if(last.mood===coachMood.mood && last.message===coachMood.message && last.minute===coachLiveGameMinute){
+                needSave=false;
+            }
+        }
+
+        if((coachMood.mood || coachMood.message) && needSave){
+            coachMoodTimeStamp();
+        }
+
+        showTempPopup("מצב רוח נשמר בהיסטוריה!", "neutral", 800);
+        // נקה שדות
+        moodSelect.selectedIndex=0;
+        moodInput.value="";
+        coachMood.mood="";
+        coachMood.message="";
         renderCoachMood(sidePanel);
-        alert("מצב רוח נשמר בהיסטוריה!");
     };
     moodSection.appendChild(moodSaveBtn);
 
     sidePanel.appendChild(moodSection);
 
-    // הערות מהירות (לא פתקים צהובים)
+    // הערות מהירות
     const notesSection = document.createElement("div");
     notesSection.style.border = "1px solid #ddd";
     notesSection.style.borderRadius = "8px";
@@ -1445,58 +1499,8 @@ function buildCoachLiveInterface() {
 
     renderQuickNotes(sidePanel);
     renderCoachMood(sidePanel);
-
-    // כפתורי חוליות ושחקנים בראש הדף
-    const hulyaSection = document.createElement("div");
-    hulyaSection.classList.add("live-section");
-    hulyaSection.style.textAlign="center";
-    const hulyaTitle = document.createElement("h3");
-    hulyaTitle.textContent = "חוליות";
-    hulyaTitle.style.fontSize="24px";
-    hulyaSection.appendChild(hulyaTitle);
-
-    // מטרות קבוצתיות: כפתורים בצבע כחול
-    const hulyaNames=["שוער","הגנה","קישור","התקפה"];
-    hulyaNames.forEach(h=>{
-        const btn=document.createElement("button");
-        btn.textContent=h;
-        btn.classList.add("blue-btn");
-        btn.style.margin="10px";
-        btn.style.fontSize="24px";
-        btn.style.padding="15px 30px";
-        btn.onclick=()=>openHulyaActionsPopup(h);
-        hulyaSection.appendChild(btn);
-    });
-
-    liveContent.appendChild(hulyaSection);
-
-    if (personalPlayersGoals.length > 0) {
-        const playersSec = document.createElement("div");
-        playersSec.classList.add("live-section");
-        playersSec.style.textAlign="center";
-        const pTitle=document.createElement("h3");
-        pTitle.textContent="שחקנים (מטרות אישיות)";
-        pTitle.style.fontSize="24px";
-        playersSec.appendChild(pTitle);
-
-        // מטרות אישיות: כפתורים בצבע סגול
-        personalPlayersGoals.forEach(p=>{
-            const btn=document.createElement("button");
-            btn.textContent=`${p.playerName} (${p.positions.join(", ")})`;
-            btn.style.backgroundColor="#800080";
-            btn.style.color="white";
-            btn.style.fontSize="24px";
-            btn.style.margin="10px";
-            btn.style.padding="15px 30px";
-            btn.onclick=()=>openPlayerActionsPopup(p);
-            playersSec.appendChild(btn);
-        });
-
-        liveContent.appendChild(playersSec);
-    }
 }
 
-// פופאפ פעולות לחוליה
 function openHulyaActionsPopup(hulyaName) {
     const popup = document.createElement("div");
     popup.classList.add("popup","active");
@@ -1547,6 +1551,8 @@ function openHulyaActionsPopup(hulyaName) {
             noteArea.style.flex="2";
             noteArea.style.marginRight="10px";
             noteArea.style.fontSize="18px";
+            noteArea.style.width="200px";
+            noteArea.style.height="50px";
             row.appendChild(noteArea);
 
             const successBtn=document.createElement("button");
@@ -1585,7 +1591,6 @@ function openHulyaActionsPopup(hulyaName) {
     document.body.appendChild(popup);
 }
 
-// פופאפ פעולות לשחקן אישי
 function openPlayerActionsPopup(playerObj) {
     const popup = document.createElement("div");
     popup.classList.add("popup","active");
@@ -1630,6 +1635,8 @@ function openPlayerActionsPopup(playerObj) {
             noteArea.style.flex="2";
             noteArea.style.marginRight="10px";
             noteArea.style.fontSize="18px";
+            noteArea.style.width="200px";
+            noteArea.style.height="50px";
             row.appendChild(noteArea);
 
             const successBtn=document.createElement("button");
@@ -1668,13 +1675,10 @@ function openPlayerActionsPopup(playerObj) {
     document.body.appendChild(popup);
 }
 
-// פונקציה רישום פעולה עם פופאפ 1 שנייה
 function registerGoalAction(result, goalObj, personalPlayer, parentPopup, note="") {
-    // רושם פעולה
     const minute=coachLiveGameMinute;
     actions.push({action:goalObj.goal,result:result,minute:minute,text:note});
 
-    // פופאפ מותאם (ללא "האתר אומר"), רק פעולה+V/X רקע ירוק/אדום 1 שניה
     const tempPopup=document.createElement("div");
     tempPopup.style.position="fixed";
     tempPopup.style.top="50%";
@@ -1697,139 +1701,103 @@ function registerGoalAction(result, goalObj, personalPlayer, parentPopup, note="
 
     setTimeout(()=>{
         document.body.removeChild(tempPopup);
-        // אחרי היעלמות הפופאפ נסגור גם את parentPopup (פופאפ הפעולות)
         if(parentPopup && parentPopup.parentNode===document.body){
             document.body.removeChild(parentPopup);
         }
     },1000);
 }
 
-function openTacticalBoardPopup() {
-    const popup = document.createElement("div");
-    popup.classList.add("popup", "active");
-    popup.style.width = "85%";
-    popup.style.height = "85%";
-
-    const closeBtn = document.createElement("span");
-    closeBtn.classList.add("close-btn");
-    closeBtn.textContent = "X";
-    closeBtn.onclick = () => document.body.removeChild(popup);
-    popup.appendChild(closeBtn);
-
-    const content = document.createElement("div");
-    content.classList.add("popup-content");
-    content.style.position = "relative";
-    content.style.width="100%";
-    content.style.height="100%";
-    content.style.overflow="hidden";
-
-    const title = document.createElement("h3");
-    title.textContent = "לוח טקטי אינטראקטיבי";
-    title.style.textAlign="center";
-    title.style.fontSize="26px";
-    content.appendChild(title);
-
-    const pitch = document.createElement("div");
-    pitch.style.width = "100%";
-    pitch.style.height = "calc(85% - 100px)";
-    pitch.style.background = "url('static/pitch.png') no-repeat center center";
-    pitch.style.backgroundSize = "contain";
-    pitch.style.position = "relative";
-    pitch.style.overflow = "hidden";
-    content.appendChild(pitch);
-
-    const redPositions=[
-        {x:10,y:50},{x:20,y:20},{x:20,y:40},{x:20,y:60},{x:20,y:80},
-        {x:35,y:25},{x:35,y:45},{x:35,y:65},{x:35,y:85},
-        {x:50,y:30},{x:50,y:70}
-    ];
-    const bluePositions=[
-        {x:90,y:50},
-        {x:80,y:20},{x:80,y:40},{x:80,y:60},{x:80,y:80},
-        {x:65,y:25},{x:65,y:45},{x:65,y:65},{x:65,y:85},
-        {x:55,y:30},{x:55,y:70}
-    ];
-
-    function createPlayerDot(color,xPerc,yPerc) {
-        const playerDot=document.createElement("div");
-        playerDot.style.width="20px";
-        playerDot.style.height="20px";
-        playerDot.style.borderRadius="50%";
-        playerDot.style.background=color;
-        playerDot.style.position="absolute";
-        playerDot.style.cursor="grab";
-
-        function setPosition() {
-            const rect=pitch.getBoundingClientRect();
-            playerDot.style.left=(rect.width*(xPerc/100)-10)+"px";
-            playerDot.style.top=(rect.height*(yPerc/100)-10)+"px";
-        }
-        setPosition();
-
-        let dragging=false;
-        let offsetX=0,offsetY=0;
-
-        playerDot.onmousedown=(e)=>{
-            dragging=true;
-            offsetX=e.offsetX;
-            offsetY=e.offsetY;
-            playerDot.style.cursor="grabbing";
-        };
-        playerDot.ontouchstart=(e)=>{
-            dragging=true;
-            offsetX=10; offsetY=10; 
-            playerDot.style.cursor="grabbing";
-        };
-        document.onmouseup=()=>{dragging=false;playerDot.style.cursor="grab";};
-        document.ontouchend=()=>{dragging=false;playerDot.style.cursor="grab";};
-        document.onmousemove=(e)=>{
-            if(dragging){
-                const rect=pitch.getBoundingClientRect();
-                let nx=e.clientX-rect.left-offsetX;
-                let ny=e.clientY-rect.top-offsetY;
-                if(nx<0)nx=0;if(ny<0)ny=0;
-                if(nx>rect.width-20)nx=rect.width-20;
-                if(ny>rect.height-20)ny=rect.height-20;
-                playerDot.style.left=nx+"px";
-                playerDot.style.top=ny+"px";
-            }
-        };
-        document.ontouchmove=(e)=>{
-            if(dragging && e.touches.length>0){
-                const rect=pitch.getBoundingClientRect();
-                let nx=e.touches[0].clientX-rect.left-10;
-                let ny=e.touches[0].clientY-rect.top-10;
-                if(nx<0)nx=0;if(ny<0)ny=0;
-                if(nx>rect.width-20)nx=rect.width-20;
-                if(ny>rect.height-20)ny=rect.height-20;
-                playerDot.style.left=nx+"px";
-                playerDot.style.top=ny+"px";
-            }
-        };
-
-        window.addEventListener('resize',setPosition);
-        pitch.appendChild(playerDot);
-    }
-
-    redPositions.forEach(pos=>{createPlayerDot("red",pos.x,pos.y)});
-    bluePositions.forEach(pos=>{createPlayerDot("blue",pos.x,pos.y)});
-
-    const captureBtn=document.createElement("button");
-    captureBtn.textContent="צלם תכנית";
-    captureBtn.classList.add("blue-btn");
-    captureBtn.style.marginTop="20px";
-    captureBtn.onclick=async()=>{
-        const canvas=await html2canvas(pitch);
-        tacticalPlanCaptured=canvas.toDataURL('image/png');
-        alert("התכנית צולמה בהצלחה!");
-    };
-    content.appendChild(captureBtn);
-
-    popup.appendChild(content);
-    document.body.appendChild(popup);
+function finishAnalystGame() {
+    const generalNote = document.getElementById("analyst-general-note").value.trim();
+    document.getElementById("analyst-marking-container").classList.add("hidden");
+    showFinalSummary(generalNote);
 }
 
-// אנליסט
+function showFinalSummary(generalNote) {
+    const finalContainer = document.getElementById("analyst-final-summary-container");
+    finalContainer.classList.remove("hidden");
+
+    const finalDataDiv = document.getElementById("analyst-final-data");
+    finalDataDiv.innerHTML = "";
+
+    const title = document.createElement("h3");
+    title.textContent = `משחק בין ${analystTeamAName} ל-${analystTeamBName} בתאריך: ${analystGameDate}`;
+    finalDataDiv.appendChild(title);
+
+    const playersTitle = document.createElement("h3");
+    playersTitle.textContent = "נתוני השחקנים:";
+    finalDataDiv.appendChild(playersTitle);
+
+    analystPlayers.forEach((player, index) => {
+        const card = document.createElement("div");
+        card.style.border = "1px solid #ccc";
+        card.style.borderRadius = "5px";
+        card.style.padding = "10px";
+        card.style.marginBottom = "10px";
+
+        let teamNameDisplayed = player.teamSide === 'A' ? analystTeamAName : analystTeamBName;
+        let info = `${player.name || 'שחקן'} ${player.number ? ('#' + player.number) : ''} - ${player.position || 'ללא תפקיד'} [${teamNameDisplayed}]<br>`;
+        const pInfo = document.createElement("p");
+        pInfo.innerHTML = info;
+        pInfo.style.color = colorMap[player.color] || "black";
+        card.appendChild(pInfo);
+
+        const filteredActions = analystGameActions.filter(a => a.playerIndex === index);
+        if (player.finalActions && player.finalActions.length > 0 && filteredActions.length > 0) {
+            const ul = document.createElement("ul");
+            filteredActions.forEach(a => {
+                const li = document.createElement("li");
+                li.textContent = `${a.action}: ${a.result} (דקה ${a.minute})`;
+                ul.appendChild(li);
+            });
+            card.appendChild(ul);
+        } else {
+            const pNo = document.createElement("p");
+            pNo.textContent = "לא נבחרו פעולות או לא בוצעו.";
+            card.appendChild(pNo);
+        }
+
+        if (player.notes && player.notes.length > 0) {
+            const notesTitle = document.createElement("p");
+            notesTitle.style.fontWeight = "bold";
+            notesTitle.textContent = "הערות על השחקן:";
+            card.appendChild(notesTitle);
+
+            player.notes.forEach(n => {
+                if (n.text && n.text.trim()) {
+                    const noteP = document.createElement("p");
+                    noteP.style.fontStyle = "italic";
+                    noteP.textContent = "- " + n.text;
+                    card.appendChild(noteP);
+                }
+            });
+        }
+
+        finalDataDiv.appendChild(card);
+    });
+
+    if (generalNote) {
+        const gNoteP = document.createElement("p");
+        gNoteP.style.fontWeight = "bold";
+        gNoteP.textContent = "הערה כללית: " + generalNote;
+        finalDataDiv.appendChild(gNoteP);
+    }
+}
+
+async function downloadPDFAnalyst() {
+    const elem = document.getElementById("analyst-final-summary-container");
+    const canvas = await html2canvas(elem);
+    const imgData = canvas.toDataURL('image/png');
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'pt', 'a4');
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save("summary.pdf");
+}
+
 function submitAnalystGameInfo() {
     const teamA = document.getElementById("analyst-teamA").value.trim();
     const teamB = document.getElementById("analyst-teamB").value.trim();
@@ -2182,7 +2150,6 @@ function loadAnalystMarking() {
 function markAnalystAction(playerIndex, action, result) {
     analystGameActions.push({ playerIndex, action, result, minute: gameMinute });
 
-    // פופאפ 1 שניה ללא "האתר אומר"
     const tempPopup=document.createElement("div");
     tempPopup.style.position="fixed";
     tempPopup.style.top="50%";
