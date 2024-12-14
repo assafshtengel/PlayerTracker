@@ -1,31 +1,29 @@
 <!DOCTYPE html>
 <html lang="he">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מערכת ניתוח ביצועים</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>מערכת ניתוח ביצועים</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <div class="logo-container">
-            <span class="logo-text">אסף שטנגל - מאמן מנטלי</span>
-        </div>
-    </header>
+  <div id="logo">
+    <span class="logo-text">אסף שטנגל - מאמן מנטלי לשחקנים</span>
+  </div>
 
-    <main>
-        <section class="welcome-section">
-            <h1>ברוך הבא למערכת ניתוח ביצועים</h1>
-            <p>בחר את התפקיד שלך במערכת:</p>
-            <div class="role-buttons">
-                <button onclick="location.href='/'" class="role-button">שחקן</button>
-                <button onclick="location.href='/coach'" class="role-button">מאמן</button>
-            </div>
-        </section>
-    </main>
+  <h1 id="welcome-message">ברוך הבא למערכת הניתוח</h1>
+  <p class="intro-text">המערכת נועדה לעזור לשחקנים, למאמנים ולאנליסטים לנתח את ביצועי המשחק על בסיס נתונים מדויקים ולא על ניחושים.</p>
 
-    <footer>
-        <p>&copy; 2024 אסף שטנגל - כל הזכויות שמורות.</p>
-    </footer>
+  <div class="role-selection-container">
+    <button class="role-btn" data-role="player">שחקן</button>
+    <button class="role-btn" data-role="coach">מאמן</button>
+    <button class="role-btn" data-role="analyst">אנליסט</button>
+  </div>
+
+  <button class="summary-btn" id="training-summary-btn">סיכום אימון</button>
+
+  <!-- כאן נוכל להציג בהמשך דיאלוגים, פופאפים ועוד -->
+  
+  <script src="script.js"></script>
 </body>
 </html>
