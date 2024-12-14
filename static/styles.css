@@ -273,7 +273,25 @@ button:hover {
     border-radius: 5px;
     margin-right: 10px;
 }
+.coach-section {
+    text-align: center;
+    margin: 20px auto;
+    padding: 20px;
+}
 
+#coach-actions-container {
+    background: #e8f4fc;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+#match-settings {
+    background: #fce8f4;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
 textarea {
     width: 100%;
     height: 100px;
