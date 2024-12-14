@@ -3,16 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מערכת מעקב שחקנים</title>
-
+    <title>מערכת ניתוח ביצועים</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-<script src="{{ url_for('static', filename='script.js') }}"></script>
-
 </head>
 <body>
     <header>
-        <h1>אסף שטנגל - מאמן מנטלי לשחקנים</h1>
+        <div class="logo-container">
+            <span class="logo-text">אסף שטנגל - מאמן מנטלי</span>
+        </div>
     </header>
+
+    <main>
+        <section class="welcome-section">
+            <h1>ברוך הבא למערכת ניתוח ביצועים</h1>
+            <p>בחר את התפקיד שלך במערכת:</p>
+            <div class="role-buttons">
+                <button onclick="location.href='/'" class="role-button">שחקן</button>
+                <button onclick="location.href='/coach'" class="role-button">מאמן</button>
+            </div>
+        </section>
+    </main>
     <h1>ברוך הבא למערכת מעקב שחקנים</h1>
 
     <!-- שלב מילוי פרטים -->
