@@ -19,7 +19,6 @@ body {
     text-align:center;
 }
 
-/* עמוד פתיחה */
 #home-page-container {
     display:flex;
     justify-content:center;
@@ -165,6 +164,7 @@ button:disabled {
     gap:10px;
     font-size:18px;
     color:#333;
+    flex-wrap: wrap;
 }
 
 .action-group {
@@ -178,6 +178,7 @@ button:disabled {
     min-height:60px;
     justify-content:space-between;
     text-align:right;
+    background:#fff;
 }
 
 .action-group h2 {
@@ -465,7 +466,6 @@ textarea {
     box-shadow:0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* רספונסיביות */
 @media (max-width:600px) {
     .home-box {
         width:90%;
