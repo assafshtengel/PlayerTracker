@@ -12,11 +12,13 @@ print("Templates:", os.listdir('templates'))
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
-
 @app.route('/')
 def home():
-    logger.debug("Home route was accessed.")
-    return render_template('index.html')
+    return render_template('index.html')  # דף הבית לשחקן
+
+@app.route('/coach')
+def coach():
+    return render_template('coach.html')  # דף המאמן
 
 if __name__ == '__main__':
     app.run(debug=True)
