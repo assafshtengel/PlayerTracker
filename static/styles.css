@@ -2,8 +2,7 @@ body {
     font-family: Arial, sans-serif;
     text-align: center;
     margin: 0;
-    background: #f0f4f8;
-    font-size: 18px;
+    background-color: #f0f4f8;
     direction: rtl;
 }
 
@@ -11,38 +10,39 @@ body {
     display: none !important;
 }
 
-.color-option {
-    width: 30px;
-    height: 30px;
-    display: inline-block;
-    cursor: pointer;
-    border-radius: 50%;
-    margin: 5px;
-}
-
-.color-option.selected {
-    border: 3px solid #333;
-}
-
-.action-toggle {
-    padding: 10px;
-    margin: 5px;
-    border-radius: 5px;
-    background: #f2f2f2;
-    cursor: pointer;
-}
-
-.action-toggle.selected-action {
-    background: #cce5ff;
-    color: #004085;
-    font-weight: bold;
+.game-info-container {
+    background-color: #ffffff;
+    padding: 30px;
+    margin: 20px auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    max-width: 600px;
 }
 
 .blue-btn {
     background-color: #007bff;
-    color: white;
+    color: #fff;
     padding: 10px 20px;
     border-radius: 8px;
-    border: none;
     cursor: pointer;
+    border: none;
+}
+
+.blue-btn:hover {
+    background-color: #0056b3;
+}
+
+.action-toggle {
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.action-toggle.selected-action {
+    background-color: #cce5ff;
+    font-weight: bold;
+    color: #004085;
 }
