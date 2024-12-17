@@ -155,9 +155,7 @@ function createActionSelectable(action,category){
     div.textContent=action;
     div.dataset.selected="false";
     div.dataset.category=category;
-    div.addEventListener("click",()=>{
-        // כאן לא נבטל את כל הסימון מהאחרות כדי לאפשר בחירה מרובה,
-        // אם תרצה בחירה בלעדית, אפשר לעשות לולאה על כולן.
+    div.onclick=()=>{
         if(div.dataset.selected==="false"){
             div.dataset.selected="true";
             div.classList.add("selected-action");
@@ -165,36 +163,18 @@ function createActionSelectable(action,category){
             div.dataset.selected="false";
             div.classList.remove("selected-action");
         }
-    });
+    };
     return div;
 }
 
-// פונקציה מעודכנת להוספת פעולה מותאמת אישית
-function addCustomAction() {
-    const input = document.getElementById("custom-action-input");
-    const val = input.value.trim();
-
-    if (!val) {
-        alert("אנא כתוב שם פעולה");
-        return;
-    }
-
-    // הוספת הפעולה המותאמת למערך
+function addCustomAction(){
+    const input=document.getElementById("custom-action-input");
+    const val=input.value.trim();
+    if(!val){alert("אנא כתוב שם פעולה");return;}
     customActionsArr.push(val);
-
-    // יצירת אלמנט חדש עם המחלקה של פעולה נבחרת
-    const container = document.getElementById("custom-actions");
-    const newAction = createActionSelectable(val, "custom");
-
-    // הוספת המחלקה "selected-action" לפעולה החדשה
-    newAction.classList.add("selected-action");
-    newAction.dataset.selected = "true";
-
-    // הוספת האלמנט לממשק
-    container.appendChild(newAction);
-
-    // ניקוי השדה לאחר הוספה
-    input.value = "";
+    const container=document.getElementById("custom-actions");
+    container.appendChild(createActionSelectable(val,"custom"));
+    input.value="";
 }
 
 function confirmActions(){
@@ -580,7 +560,7 @@ function generateTrainingSummaryPDF(){
     alert("נוצר PDF לסיכום אימון");
 }
 
-// פונקציות מאמן/אנליסט (סקלטון)
+// פונקציות מאמן/אנליסט רק כסקלטון
 function submitCoachGameInfo(){}
 function addCoachGoal(hoolia){}
 function submitCoachSetup(){}
@@ -596,7 +576,7 @@ function setTeamMoodAndOpenMoodInput(m){
     if(m){moodMsg.classList.remove("hidden");}else{moodMsg.classList.add("hidden");}
 }
 
-// בחירת צבעים
+// הוספת הקוד לבחירת צבעים
 document.addEventListener("DOMContentLoaded", () => {
     function handleColorSelection(paletteId, inputId) {
         const palette = document.getElementById(paletteId);
@@ -624,5 +604,3 @@ document.addEventListener("DOMContentLoaded", () => {
     handleColorSelection("teamA-color-palette", "teamA-color");
     handleColorSelection("teamB-color-palette", "teamB-color");
 });
-
-
