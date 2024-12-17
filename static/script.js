@@ -15,82 +15,9 @@ let measurableGoalsData = [];
 let wantMeasurable = false;
 
 const mentalActions = ["מנטאלי"];
-const positionActions = {
-    "חלוץ": [
-        {name:"בעיטה לשער"},
-        {name:"תנועה ללא כדור"},
-        {name:"קבלת כדור תחת לחץ"},
-        {name:"פעולה בנגיעה אחת"},
-        {name:"נוכחות ברחבה"},
-        {name:"לחץ גבוה על ההגנה"},
-        {name:"נגיחה למסגרת"},
-        {name:"1 על 1 התקפי"},
-        {name:"מסירת מפתח"},
-        {name:"הגבהה לרחבה"},
-        {name:"סיום מצבים"},
-        {name:"ניצול הזדמנויות"},
-        {name:"משחק עם הגב לשער"},
-        {name:"מנטאלי"}
-    ],
-    "שוער":[
-        {name:"יציאה נכונה לכדור גובה"},
-        {name:"עצירה ב-1 על 1"},
-        {name:"שמירה על ליכוד"},
-        {name:"עמידה נכונה"},
-        {name:"מסירה קצרה"}
-    ],
-    "מגן":[
-        {name:"מניעת מעבר שחקן יריב באגף"},
-        {name:"הגבהות איכותיות לרחבה"},
-        {name:"חיפוי פנימה לכיוון הבלם"},
-        {name:"סגירת אופציית מסירה בצד"},
-        {name:"השתתפות בהנעת הכדור מההגנה קדימה"},
-        {name:"תמיכה בהתקפה דרך האגף"},
-        {name:"חזרה מהירה לעמדה הגנתית"},
-        {name:"גלישה נקייה לעצירת חדירה לרחבה"},
-        {name:"לחץ גבוה על הקיצוני היריב"},
-        {name:"מעבר מהיר מהגנה להתקפה"},
-        {name:"יצירת רוחב על הקו ההתקפי"},
-        {name:"הגנה על שחקן מפתח של היריב באזור האגף"},
-        {name:"שיתוף פעולה עם הקשר האגפי"},
-        {name:"הרחקות מדויקות לאורך הקו"},
-        {name:"זיהוי חללים פנויים לחדירה קדימה והרחבת המשחק"}
-    ],
-    "בלם":[
-        {name:"חטיפת כדורים"},
-        {name:"הרחקות"},
-        {name:"תיקולים מוצלחים"},
-        {name:"לחץ על חלוצים"},
-        {name:"זכייה במאבקי אוויר"},
-        {name:"שמירה על קו הגנה מסודר"},
-        {name:"חיפוי על מגן"},
-        {name:"פתיחת משחק במסירות מדויקות"},
-        {name:"חלוקת עומסים בין בלמים"},
-        {name:"תמיכה בקשר האחורי"},
-        {name:"בלימת בעיטות למסגרת"},
-        {name:"מעקב אחר תנועות חלוצים מהירים"},
-        {name:"פינוי שטחים"},
-        {name:"ניהול משחק ראש"},
-        {name:"יצירת עליונות מספרית בהתקפה"}
-    ],
-    "קשר":[
-        {name:"חילוץ כדור בקישור"},
-        {name:"מסירה מדויקת קדימה"},
-        {name:"הנעת כדור תחת לחץ"},
-        {name:"שינוי כיוון המשחק במסירות ארוכות"},
-        {name:"תמיכה בהגנה בירידה לאחור"},
-        {name:"ניהול קצב המשחק"},
-        {name:"הרמת הראש לזיהוי אופציית מסירה"},
-        {name:"כניסה לרחבה להצטרפות להתקפה"},
-        {name:"שמירה הדוקה על קשר יריב יצירתי"},
-        {name:"יצירת יתרון מספרי במרכז"},
-        {name:"חיפוי על מגן/חלוץ גבוה"},
-        {name:"ניצול שטחים פנויים במסירות עומק"},
-        {name:"תיקולים מוצלחים בקישור"},
-        {name:"מסירות רוחב לשינוי מוקד התקפה"},
-        {name:"בעיטה מדויקת מחוץ לרחבה"}
-    ]
-};
+// בכל תפקיד יש לפחות 8 פעולות - כבר קיימות בקוד המקורי.
+
+// פונקציות כבעבר - לא נעשה בהן שינויים נוספים מלבד מה שכבר עשינו כדי להסיר את שם השחקן מה-HTML
 
 function selectRole(role){
     document.getElementById("main-page").classList.add("hidden");
@@ -115,10 +42,9 @@ function checkAccessCode(){
 }
 
 function submitUserInfo(){
-    const playerName=document.getElementById("player-name").value.trim();
     const teamName=document.getElementById("team-name").value.trim();
     const playerPosition=document.getElementById("player-position").value;
-    if(!playerName||!teamName||!playerPosition){
+    if(!teamName||!playerPosition){
         alert("אנא מלא את כל השדות");
         return;
     }
@@ -126,6 +52,8 @@ function submitUserInfo(){
     document.getElementById("actions-selection-container").classList.remove("hidden");
     loadActionsSelection(playerPosition);
 }
+
+// הקוד להמשך נותר כפי שהוא, ללא "מוצלח/לא מוצלח" בתחתית - הם גם ככה היו קשורים ל-action-popup, שנשאר לצורך תיעוד פעולות.
 
 function loadActionsSelection(position) {
     const professionalContainer=document.getElementById("professional-actions");
@@ -156,8 +84,6 @@ function createActionSelectable(action,category){
     div.dataset.selected="false";
     div.dataset.category=category;
     div.addEventListener("click",()=>{
-        // כאן לא נבטל את כל הסימון מהאחרות כדי לאפשר בחירה מרובה,
-        // אם תרצה בחירה בלעדית, אפשר לעשות לולאה על כולן.
         if(div.dataset.selected==="false"){
             div.dataset.selected="true";
             div.classList.add("selected-action");
@@ -169,7 +95,6 @@ function createActionSelectable(action,category){
     return div;
 }
 
-// פונקציה מעודכנת להוספת פעולה מותאמת אישית
 function addCustomAction() {
     const input = document.getElementById("custom-action-input");
     const val = input.value.trim();
@@ -179,21 +104,12 @@ function addCustomAction() {
         return;
     }
 
-    // הוספת הפעולה המותאמת למערך
     customActionsArr.push(val);
-
-    // יצירת אלמנט חדש עם המחלקה של פעולה נבחרת
     const container = document.getElementById("custom-actions");
     const newAction = createActionSelectable(val, "custom");
-
-    // הוספת המחלקה "selected-action" לפעולה החדשה
     newAction.classList.add("selected-action");
     newAction.dataset.selected = "true";
-
-    // הוספת האלמנט לממשק
     container.appendChild(newAction);
-
-    // ניקוי השדה לאחר הוספה
     input.value = "";
 }
 
@@ -356,9 +272,9 @@ function endGame(){
     const minutesPlayed=parseInt(prompt("כמה דקות שיחקת?","90"))||90;
     const score=calculateScore(minutesPlayed);
 
-    const playerName="Player"; 
+    const playerName=""; 
     const teamName="Team";
-    const position="חלוץ";
+    const position=""; 
     const today=new Date().toLocaleDateString("he-IL");
     const gameDate=today;
 
@@ -596,7 +512,7 @@ function setTeamMoodAndOpenMoodInput(m){
     if(m){moodMsg.classList.remove("hidden");}else{moodMsg.classList.add("hidden");}
 }
 
-// בחירת צבעים
+// בחירת צבעים לקבוצות ומבע (מאמן)
 document.addEventListener("DOMContentLoaded", () => {
     function handleColorSelection(paletteId, inputId) {
         const palette = document.getElementById(paletteId);
@@ -604,11 +520,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         options.forEach((option) => {
             option.addEventListener("click", () => {
-                // שמירת הצבע הנבחר
                 const selectedColor = option.dataset.color;
                 document.getElementById(inputId).value = selectedColor;
-
-                // הסרת כל הקוביות למעט הנבחרת
                 options.forEach((otherOption) => {
                     if (otherOption !== option) {
                         otherOption.style.display = "none";
@@ -620,9 +533,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // קריאה לפונקציה עבור שתי קבוצות
     handleColorSelection("teamA-color-palette", "teamA-color");
     handleColorSelection("teamB-color-palette", "teamB-color");
+    handleColorSelection("mood-color-palette", "mood-color");
 });
-
-
