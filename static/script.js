@@ -603,4 +603,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // קריאה לפונקציה עבור שתי קבוצות
     handleColorSelection("teamA-color-palette", "teamA-color");
     handleColorSelection("teamB-color-palette", "teamB-color");
+    
+    // הוספת קוד לבחירת פעולה נבחרת יחידה
+    const actions = document.querySelectorAll(".action-toggle");
+    actions.forEach(action => {
+        action.addEventListener("click", () => {
+            // הסרת הסימון מכל הפעולות
+            actions.forEach(a => a.classList.remove("selected-action"));
+            
+            // הוספת הסימון לפעולה הנוכחית
+            action.classList.add("selected-action");
+        });
+    });
 });
