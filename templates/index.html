@@ -15,20 +15,22 @@
 
     <div id="main-page" class="game-info-container">
         <h2>בחר את התפקיד שלך</h2>
-        <div class="input-group">
-            <button onclick="selectRole('player')" class="blue-btn">שחקן</button>
-            <button onclick="selectRole('coach')" class="blue-btn">מאמן</button>
-        </div>
+        <button onclick="selectRole('player')" class="blue-btn">שחקן</button>
+        <button onclick="selectRole('coach')" class="blue-btn">מאמן</button>
     </div>
 
     <div id="actions-selection-container" class="game-info-container hidden">
         <h3>בחר פעולות להתמקד בהן</h3>
         <div id="professional-actions"></div>
         <div id="custom-actions"></div>
-        <div>
-            <input type="text" id="custom-action-input" placeholder="הכנס פעולה מותאמת אישית">
-            <button onclick="addCustomAction()" class="blue-btn">הוסף פעולה</button>
-        </div>
+        <input type="text" id="custom-action-input" placeholder="הכנס פעולה מותאמת אישית">
+        <button onclick="addCustomAction()" class="blue-btn">הוסף פעולה</button>
+    </div>
+
+    <h4>בחר צבע קבוצה:</h4>
+    <div id="color-palette">
+        <div class="color-option" data-color="#FF5733" style="background-color:#FF5733;"></div>
+        <div class="color-option" data-color="#33FFCE" style="background-color:#33FFCE;"></div>
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
