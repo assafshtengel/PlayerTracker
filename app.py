@@ -5,7 +5,6 @@ import sqlite3
 
 app = Flask(__name__)
 
-# יצירת מסד נתונים SQLite
 def init_db():
     conn = sqlite3.connect('games.db')
     c = conn.cursor()
@@ -26,7 +25,6 @@ def init_db():
 
 init_db()
 
-# שמירת הנתונים המתקבלים
 @app.route('/save_data', methods=['POST'])
 def save_data():
     data = request.get_json()
@@ -49,7 +47,6 @@ def save_data():
 
     return jsonify({"status": "success"})
 
-# הצגת דף הבית
 @app.route('/')
 def home():
     return render_template('index.html')
