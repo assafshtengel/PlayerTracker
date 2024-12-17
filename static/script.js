@@ -1,16 +1,29 @@
 let actions = [];
-let selectedActions = [];
 let customActionsArr = [];
 
 function selectRole(role) {
     document.getElementById("main-page").classList.add("hidden");
+    document.getElementById("user-input-container").classList.remove("hidden");
+}
+
+function submitUserInfo() {
+    const playerName = document.getElementById("player-name").value.trim();
+    const teamName = document.getElementById("team-name").value.trim();
+    const position = document.getElementById("player-position").value;
+
+    if (!playerName || !teamName || !position) {
+        alert("אנא מלא את כל השדות");
+        return;
+    }
+
+    document.getElementById("user-input-container").classList.add("hidden");
     document.getElementById("actions-selection-container").classList.remove("hidden");
     loadActionsSelection();
 }
 
 function loadActionsSelection() {
     const container = document.getElementById("professional-actions");
-    ["תיקולים מוצלחים", "לחץ על חלוץ"].forEach(action => {
+    ["תיקולים מוצלחים", "לחץ על חלוץ", "מסירת מפתח"].forEach(action => {
         container.appendChild(createActionSelectable(action));
     });
 }
@@ -26,17 +39,14 @@ function createActionSelectable(action) {
 function addCustomAction() {
     const input = document.getElementById("custom-action-input");
     const val = input.value.trim();
-    if (!val) return alert("אנא כתוב שם פעולה");
 
-    const container = document.getElementById("custom-actions");
+    if (!val) {
+        alert("אנא כתוב שם פעולה");
+        return;
+    }
+
+    const container = document.getElementById("professional-actions");
     const newAction = createActionSelectable(val);
     container.appendChild(newAction);
     input.value = "";
 }
-
-document.querySelectorAll('.color-option').forEach(option => {
-    option.addEventListener('click', () => {
-        document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
-        option.classList.add('selected');
-    });
-});
