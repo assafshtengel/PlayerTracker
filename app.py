@@ -5,6 +5,7 @@ import sqlite3
 
 app = Flask(__name__)
 
+# אתחול מסד הנתונים
 def init_db():
     conn = sqlite3.connect('games.db')
     c = conn.cursor()
