@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>מערכת מעקב שחקנים</title>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
@@ -13,32 +11,16 @@
         <span class="logo-text">אסף שטנגל - מאמן מנטלי לשחקנים</span>
     </div>
 
-    <h1 id="welcome-message" style="margin-bottom:20px;">ברוך הבא למערכת הניתוח</h1>
+    <h1>ברוך הבא למערכת הניתוח</h1>
+    <p>המערכת נועדה לעזור לשחקנים, למאמנים ולאנליסטים לנתח את ביצועי המשחק על בסיס נתונים מדויקים ולא על ניחושים.</p>
 
     <div id="main-page" class="game-info-container">
         <h2>בחר את התפקיד שלך</h2>
-        <p>המערכת נועדה לעזור לשחקנים, למאמנים ולאנליסטים לנתח את ביצועי המשחק על בסיס נתונים מדויקים ולא על ניחושים.</p>
         <div class="input-group" style="max-width:300px;margin:0 auto;">
             <button onclick="selectRole('player')" class="blue-btn">שחקן</button>
             <button onclick="selectRole('coach')" class="blue-btn">מאמן</button>
             <button onclick="selectRole('analyst')" class="blue-btn">אנליסט</button>
         </div>
-        <button class="blue-btn" style="margin-top:30px;" onclick="openTrainingSummaryPage()">סיכום אימון</button>
-    </div>
-
-    <!-- סיכום אימון -->
-    <div id="training-summary-page" class="hidden game-info-container">
-        <h2>סיכום אימון</h2>
-        <p>ענה על 5 השאלות:</p>
-        <div class="input-group">
-            <textarea placeholder="שאלה 1: מה הייתה מטרת האימון?" id="q1"></textarea>
-            <textarea placeholder="שאלה 2: מה עבד היטב?" id="q2"></textarea>
-            <textarea placeholder="שאלה 3: מה פחות עבד?" id="q3"></textarea>
-            <textarea placeholder="שאלה 4: מה נתמקד בו באימון הבא?" id="q4"></textarea>
-            <textarea placeholder="שאלה 5: הערות נוספות?" id="q5"></textarea>
-        </div>
-        <button class="blue-btn" onclick="generateTrainingSummaryPDF()">יצירת PDF</button>
-        <button class="blue-btn" style="margin-top:10px;" onclick="closeTrainingSummaryPage()">חזרה</button>
     </div>
 
     <!-- כניסה לשחקן -->
@@ -51,11 +33,11 @@
         <button onclick="checkAccessCode()" class="blue-btn">אישור</button>
     </div>
 
-    <!-- פרטים לשחקן -->
+    <!-- פרטים לשחקן (הוסרה דרישת השם נכון לעכשיו) -->
     <div id="user-input-container" class="game-info-container hidden">
         <h2>פרטים להתחלת המשחק</h2>
         <div class="input-group">
-            <input type="text" id="player-name" placeholder="הכנס שם שחקן" />
+            <!-- הסרת שדה הכנס שם שחקן -->
             <input type="text" id="team-name" placeholder="הכנס שם הקבוצה היריבה" />
             <select id="player-position">
                 <option value="" disabled selected>בחר תפקיד</option>
@@ -83,7 +65,7 @@
         <button id="confirm-actions-btn" onclick="confirmActions()" style="background:#ff9800;color:white;">אישור</button>
     </div>
 
-    <!-- פופאפ שאלת מטרות מדידות -->
+    <!-- האם תרצה מטרות מדידות? -->
     <div id="are-you-want-measurable-popup" class="popup hidden">
         <div class="popup-content">
             <span class="close-btn" onclick="closeMeasurableConfirmPopup()">&times;</span>
@@ -96,7 +78,7 @@
         </div>
     </div>
 
-    <!-- פופאפ מטרות מדידות -->
+    <!-- מטרות מדידות -->
     <div id="measurable-goals-popup" class="popup hidden">
         <div class="popup-content" style="text-align:center;">
             <span class="close-btn" onclick="closeMeasurableGoalsPopup()">&times;</span>
@@ -138,7 +120,7 @@
         <button id="reopen-summary-btn" class="view-all-btn blue-btn" onclick="reopenSummary()">צפה בסיכום</button>
     </div>
 
-    <!-- פופ אפ סיכום המשחק -->
+    <!-- סיכום המשחק -->
     <div id="game-summary-popup" class="popup hidden">
         <div class="popup-content" id="game-summary-content">
             <span class="close-btn big-close" onclick="closePopup()">&times;</span>
@@ -197,12 +179,35 @@
         <p>הזן את שם הקבוצה א', ב', ותאריך המשחק. בחר צבע לכל קבוצה.</p>
         <div class="input-group">
             <input type="text" id="coach-teamA" placeholder="שם קבוצה א' (מארחת)">
+
             <h4>צבע לקבוצה א':</h4>
-            <div id="coach-teamA-color-palette" class="color-palette-group"></div>
+            <div id="teamA-color-palette" class="color-palette">
+                <div class="color-option" data-color="#FF0000" style="background-color: #FF0000;"></div>
+                <div class="color-option" data-color="#00FF00" style="background-color: #00FF00;"></div>
+                <div class="color-option" data-color="#0000FF" style="background-color: #0000FF;"></div>
+                <div class="color-option" data-color="#FFFF00" style="background-color: #FFFF00;"></div>
+            </div>
+            <input type="hidden" id="teamA-color" />
 
             <input type="text" id="coach-teamB" placeholder="שם קבוצה ב' (אורחת)">
+
             <h4>צבע לקבוצה ב':</h4>
-            <div id="coach-teamB-color-palette" class="color-palette-group"></div>
+            <div id="teamB-color-palette" class="color-palette">
+                <div class="color-option" data-color="#FF5733" style="background-color: #FF5733;"></div>
+                <div class="color-option" data-color="#33FFCE" style="background-color: #33FFCE;"></div>
+                <div class="color-option" data-color="#9B59B6" style="background-color: #9B59B6;"></div>
+                <div class="color-option" data-color="#F39C12" style="background-color: #F39C12;"></div>
+            </div>
+            <input type="hidden" id="teamB-color" />
+
+            <h4>צבע אווירה (מבע)</h4>
+            <div id="mood-color-palette" class="color-palette">
+                <div class="color-option" data-color="#FFD700" style="background-color: #FFD700;"></div>
+                <div class="color-option" data-color="#FF69B4" style="background-color: #FF69B4;"></div>
+                <div class="color-option" data-color="#20B2AA" style="background-color: #20B2AA;"></div>
+                <div class="color-option" data-color="#BC8F8F" style="background-color: #BC8F8F;"></div>
+            </div>
+            <input type="hidden" id="mood-color" />
 
             <input type="date" id="coach-game-date" />
         </div>
@@ -254,7 +259,6 @@
     <div id="coach-marking-container" class="game-info-container hidden">
         <h2>סימון פעולות שבוצעו והוספת הערות (מאמן)</h2>
         <p>...</p>
-        <!-- לא ממומש מלא -->
     </div>
 
     <div id="coach-final-summary-container" class="game-info-container hidden">
